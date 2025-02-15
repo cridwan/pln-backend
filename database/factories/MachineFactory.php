@@ -18,7 +18,7 @@ class MachineFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'unit_id' => rand(1, 20)
+            'unit_uuid' => rand(1, 20)
         ];
     }
 }

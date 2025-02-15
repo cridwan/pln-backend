@@ -18,7 +18,7 @@ class UnitFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'location_id' => rand(1, 100)
+            'location_uuid' => rand(1, 100)
         ];
     }
 }

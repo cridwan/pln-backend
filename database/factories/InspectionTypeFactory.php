@@ -18,7 +18,7 @@ class InspectionTypeFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'machine_id' => rand(1, 20)
+            'machine_uuid' => rand(1, 20)
         ];
     }
 }

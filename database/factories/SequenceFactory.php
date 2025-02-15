@@ -19,7 +19,7 @@ class SequenceFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'link' => $this->faker->url(),
-            'inspection_type_id' => rand(1, 20)
+            'inspection_type_uuid' => rand(1, 20)
         ];
     }
 }
