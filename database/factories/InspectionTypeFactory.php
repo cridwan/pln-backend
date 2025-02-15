@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Machine;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,7 @@ class InspectionTypeFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'machine_uuid' => rand(1, 20)
+            'machine_uuid' => (Machine::inRandomOrder()->first())->uuid
         ];
     }
 }

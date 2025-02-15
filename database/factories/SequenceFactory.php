@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\InspectionType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -19,7 +20,7 @@ class SequenceFactory extends Factory
         return [
             'name' => $this->faker->name(),
             'link' => $this->faker->url(),
-            'inspection_type_uuid' => rand(1, 20)
+            'inspection_type_uuid' => (InspectionType::inRandomOrder()->first())->uuid
         ];
     }
 }

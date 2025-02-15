@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,7 @@ class UnitFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'location_uuid' => rand(1, 100)
+            'location_uuid' => (Location::inRandomOrder()->first())->uuid
         ];
     }
 }

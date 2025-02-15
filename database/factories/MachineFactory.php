@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Unit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,7 @@ class MachineFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
-            'unit_uuid' => rand(1, 20)
+            'unit_uuid' => (Unit::inRandomOrder()->first())->uuid
         ];
     }
 }
