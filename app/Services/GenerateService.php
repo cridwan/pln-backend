@@ -33,7 +33,7 @@ class GenerateService
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('parts');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
 
@@ -41,15 +41,15 @@ class GenerateService
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('sequences');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
 
-            ScopeStandart::select('uuid', 'name', 'link', 'unit_id')->each(function ($row) use ($project) {
+            ScopeStandart::select('uuid', 'name', 'link', 'unit_uuid')->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('scope_standarts');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
 
@@ -57,15 +57,15 @@ class GenerateService
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('manpowers');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
 
-            ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_id')->each(function ($row) use ($project) {
+            ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('const_mats');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
 
@@ -73,22 +73,22 @@ class GenerateService
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('scope_standarts');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
 
-            DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_id')->each(function ($row) use ($project) {
+            DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('detail_scope_standarts');
                 $duplicate->save();
             });
 
-            AdditionalScope::select('uuid', 'name', 'link', 'area_id')->each(function ($row) use ($project) {
+            AdditionalScope::select('uuid', 'name', 'link', 'area_uuid')->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('additional_scopes');
-                $duplicate->project_id = $project->uuid;
+                $duplicate->project_uuid = $project->uuid;
                 $duplicate->save();
             });
         } catch (\Throwable $th) {
