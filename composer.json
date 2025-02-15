@@ -60,7 +60,7 @@
             "php artisan migrate --path=database/migrations/transactions --database=transaction"
         ],
         "migrate:transaction:fresh": [
-            "php artisan migrate:fresh --path=database/migrations/transactions --database=transaction --fresh"
+            "php artisan migrate:fresh --path=database/migrations/transactions --database=transaction"
         ],
         "migrate:master": [
             "php artisan migrate --path=database/migrations --database=masterdata"
