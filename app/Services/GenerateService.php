@@ -12,6 +12,7 @@ use App\Models\Part;
 use App\Models\ScopeStandart;
 use App\Models\Sequence;
 use App\Models\Transaction\Project;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 class GenerateService
@@ -20,6 +21,12 @@ class GenerateService
     {
         DB::beginTransaction();
         try {
+            $exist = Project::where('name', $request->name)->first();
+
+            if ($exist) {
+                throw new Exception("Nama project sudah digunakan");
+            }
+
             $project = Project::create($request->all());
 
             Part::select('name', 'qty')->each(function ($row) use ($project) {
