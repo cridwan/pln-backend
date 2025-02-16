@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\GlobalUnit;
 use App\Models\InspectionType;
-use App\Models\Unit;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->string('name');
             $table->string('link')->nullable();
-            $table->foreignIdFor(Unit::class);
+            $table->foreignIdFor(GlobalUnit::class);
             $table->foreignIdFor(InspectionType::class);
             $table->timestamps();
         });

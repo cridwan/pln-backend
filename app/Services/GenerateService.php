@@ -45,7 +45,7 @@ class GenerateService
                 $duplicate->save();
             });
 
-            ScopeStandart::select('uuid', 'name', 'link', 'unit_uuid')->each(function ($row) use ($project) {
+            ScopeStandart::select('uuid', 'name', 'link', 'global_unit_uuid')->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('scope_standarts');
