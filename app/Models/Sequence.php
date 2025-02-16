@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class Sequence extends Model
 {
     use SettingModel, HasFactory;
+
+    protected $connection = 'masterdata';
 }

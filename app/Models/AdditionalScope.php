@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AdditionalScope extends Model
 {
     use SettingModel;
+
+    protected $connection = 'masterdata';
 }

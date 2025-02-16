@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AdditionalPart extends Model
 {
     use SettingModel;
+
+    protected $connection = 'masterdata';
 }

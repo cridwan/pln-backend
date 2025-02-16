@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class InspectionType extends Model
 {
     use SettingModel, HasFactory;
+
+    protected $connection = 'masterdata';
 }

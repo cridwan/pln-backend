@@ -9,4 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class Area extends Model
 {
     use SettingModel;
+
+    protected $connection = 'masterdata';
 }

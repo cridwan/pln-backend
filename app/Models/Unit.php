@@ -11,6 +11,8 @@ class Unit extends Model
 {
     use SettingModel, HasFactory;
 
+    protected $connection = 'masterdata';
+
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'location_uuid');

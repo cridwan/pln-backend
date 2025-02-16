@@ -10,6 +10,8 @@ class Machine extends Model
 {
     use SettingModel, HasFactory;
 
+    protected $connection = 'masterdata';
+
     public function unit()
     {
         return $this->belongsTo(Unit::class, 'unit_uuid');

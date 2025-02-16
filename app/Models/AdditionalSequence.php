@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AdditionalSequence extends Model
 {
     use SettingModel;
+
+    protected $connection = 'masterdata';
 }
