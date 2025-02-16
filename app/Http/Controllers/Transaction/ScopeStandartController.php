@@ -14,5 +14,5 @@ class ScopeStandartController extends Controller
 
     protected $model = ScopeStandart::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['details'];
 }
