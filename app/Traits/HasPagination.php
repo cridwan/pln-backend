@@ -33,6 +33,14 @@ trait HasPagination
             $subQuery->where($filter[0], $filter[1]);
         });
 
+        $query->when($request->filled('filters'), function ($subQuery) use ($request) {
+            $filters = explode('&', $request->filters);
+            foreach ($filters as $filter) {
+                $filter = explode(',', $filter);
+                $subQuery->where($filter[0], $filter[1]);
+            }
+        });
+
         $query->when($request->filled('order'), function ($subQuery) use ($request) {
             $order = explode(',', $request->order);
             $subQuery->orderBy($order[0], $order[1]);

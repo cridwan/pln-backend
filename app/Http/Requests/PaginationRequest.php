@@ -26,6 +26,7 @@ class PaginationRequest extends FormRequest
             'currentPage' => 'required',
             'search' => 'nullable',
             'filter' => 'nullable',
+            'filters' => 'nullable',
             'order' => 'nullable'
         ];
     }

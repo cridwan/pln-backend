@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->string('name');
             $table->string('link')->nullable();
-            $table->foreignIdFor(GlobalUnit::class);
+            $table->string('category');
             $table->foreignIdFor(Project::class);
             $table->timestamps();
         });
