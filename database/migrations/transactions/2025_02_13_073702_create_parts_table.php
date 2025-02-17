@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->string('name');
             $table->integer('qty');
-            $table->string('no_drawing');
+            $table->string('no_drawing')->nullable();
             $table->text('note')->nullable();
             $table->foreignIdFor(GlobalUnit::class);
             $table->foreignIdFor(Project::class);

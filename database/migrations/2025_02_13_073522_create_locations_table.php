@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->string('name');
             $table->string('slug');
+            $table->text('description')->nullable();
             $table->string('lat');
             $table->string('lon');
             $table->string('color');

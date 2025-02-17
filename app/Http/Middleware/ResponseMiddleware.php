@@ -16,21 +16,27 @@ class ResponseMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $response = $next($request);
+        try {
+            $response = $next($request);
 
-        // Jika response bukan instance JsonResponse, jangan ubah
-        if (!$response instanceof JsonResponse) {
-            return $response;
+            // Jika response bukan instance JsonResponse, jangan ubah
+            if (!$response instanceof JsonResponse) {
+                return $response;
+            }
+
+            // Ambil data asli dari response
+            $originalData = $response->getData(true);
+
+            // Format response
+            $formattedResponse = [
+                'data' => $originalData,
+            ];
+
+            return response()->json($formattedResponse, $response->getStatusCode());
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => $th->getMessage()
+            ], $response->getStatusCode());
         }
-
-        // Ambil data asli dari response
-        $originalData = $response->getData(true);
-
-        // Format response
-        $formattedResponse = [
-            'data' => $originalData,
-        ];
-
-        return response()->json($formattedResponse, $response->getStatusCode());
     }
 }

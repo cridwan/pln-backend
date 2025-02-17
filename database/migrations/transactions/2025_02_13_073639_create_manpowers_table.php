@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('qty');
             $table->string('type');
-            $table->text('note');
+            $table->text('note')->nullable();
             $table->foreignIdFor(Project::class);
             $table->timestamps();
         });
