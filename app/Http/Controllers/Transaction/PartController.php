@@ -14,5 +14,5 @@ class PartController extends Controller
 
     protected $model = Part::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['globalUnit'];
 }
