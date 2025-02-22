@@ -1,13 +1,13 @@
 <?php
 
+use App\Models\AdditionalScope;
 use App\Models\GlobalUnit;
 use App\Models\InspectionType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('link')->nullable();
             $table->string('category');
-            $table->foreignIdFor(InspectionType::class);
+            $table->foreignIdFor(InspectionType::class)->nullable();
+            $table->foreignIdFor(AdditionalScope::class)->nullable();
             $table->timestamps();
         });
     }

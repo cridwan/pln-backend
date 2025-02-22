@@ -3,17 +3,17 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
-use App\Models\Transaction\Part;
+use App\Models\Transaction\ConstMat;
 use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
 
-#[Group(name: 'Transaction')]
-class PartController extends Controller
+#[Group('Transaction')]
+class ConsMatController extends Controller
 {
     use HasPagination, HasApiResource;
 
-    protected $model = Part::class;
+    protected $model = ConstMat::class;
     protected array $search = [];
-    protected array $with = ['globalUnit'];
+    protected array $with = [];
 }

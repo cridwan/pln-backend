@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\ManpowerTypeEnum;
 use App\Enums\ScopeStandartCategoryEnum;
-use App\Models\Area;
+use App\Models\AdditionalScope;
 use App\Models\ConstMat;
 use App\Models\DetailScopeStandart;
 use App\Models\GlobalUnit;
@@ -17,7 +17,6 @@ use App\Models\Part;
 use App\Models\ScopeStandart;
 use App\Models\Sequence;
 use App\Models\Unit;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +48,7 @@ class DummySeeder extends Seeder
                 'unit_uuid' => $unit->uuid
             ]);
 
-            $inspectionType  = InspectionType::create([
+            $inspectionType = InspectionType::create([
                 'name' => 'Turbin Inspection',
                 'machine_uuid' => $machine->uuid
             ]);
@@ -115,6 +114,51 @@ class DummySeeder extends Seeder
             Hse::create([
                 'title' => 'Dokumen Kesepakatan OH',
                 'inspection_type_uuid' => $inspectionType->uuid
+            ]);
+
+            $additionalScope = AdditionalScope::create([
+                'name' => 'Turbine Blade Row 1',
+                'category' => ScopeStandartCategoryEnum::LISTRIK->value,
+                'inspection_type_uuid' => $inspectionType->uuid
+            ]);
+
+            $detailScopeAdditonalStandart = ScopeStandart::create([
+                'name' => 'GT Casing',
+                'category' => ScopeStandartCategoryEnum::MEKANIK->value,
+                'additional_scope_uuid' => $additionalScope->uuid
+            ]);
+
+            DetailScopeStandart::create([
+                'name' => 'Pelepasan Enclosure dan pengecekan secara visual kondisinya, koordinasikan dengan K3 untuk bagian pemadam',
+                'scope_standart_uuid' => $detailScopeAdditonalStandart->uuid
+            ]);
+
+            DetailScopeStandart::create([
+                'name' => 'Blade Ring Row 1',
+                'scope_standart_uuid' => $detailScopeAdditonalStandart->uuid
+            ]);
+
+            ConstMat::create([
+                'name' => 'WD-40',
+                'merk' => 'Toyota',
+                'qty' => 10,
+                'global_unit_uuid' => $globalUnit->uuid,
+                'additional_scope_uuid' => $additionalScope->uuid
+            ]);
+
+            Manpower::create([
+                'name' => 'Site Coordinator',
+                'qty' => 10,
+                'type' => ManpowerTypeEnum::PEOPLE->value,
+                'additional_scope_uuid' => $additionalScope->uuid
+            ]);
+
+            Part::create([
+                'name' => 'Transition Piece',
+                'qty' => 10,
+                'no_drawing' => '2025/01/023',
+                'global_unit_uuid' => $globalUnit->uuid,
+                'additional_scope_uuid' => $additionalScope->uuid
             ]);
 
             DB::commit();

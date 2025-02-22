@@ -5,7 +5,7 @@ namespace App\Models\Transaction;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
 
-class DetailAdditionalScope extends Model
+class Document extends Model
 {
     use SettingModel;
 
