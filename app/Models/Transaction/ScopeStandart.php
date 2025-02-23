@@ -16,4 +16,9 @@ class ScopeStandart extends Model
     {
         return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
     }
+
+    public function assets()
+    {
+        return $this->hasMany(ScopeStandartAsset::class, 'scope_standart_uuid');
+    }
 }

@@ -17,7 +17,7 @@ class ScopeStandartController extends Controller
 
     protected $model = ScopeStandart::class;
     protected array $search = [];
-    protected array $with = ['details'];
+    protected array $with = ['details', 'assets.document'];
 
     #[Route('POST')]
     public function asset(ScopeStandartRequest $request)

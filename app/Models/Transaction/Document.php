@@ -10,4 +10,9 @@ class Document extends Model
     use SettingModel;
 
     protected $connection = 'transaction';
+
+    public function document()
+    {
+        return $this->morphTo();
+    }
 }

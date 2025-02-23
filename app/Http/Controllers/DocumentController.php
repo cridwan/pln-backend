@@ -19,10 +19,10 @@ class DocumentController extends Controller
         $documentFileName = $document->hashName();
         $documentSize = $document->getSize();
         $documentMimeType = $document->getMimeType();
-        $documentLink = $document->storeAs('documents');
+        $documentLink = $document->storeAs('documents', $documentFileName);
 
         return Document::create($request->merge([
-            'document_name' => $documentFileName,
+            'document_name' => "/storage/$documentFileName",
             'document_link' => $documentLink,
             'document_size' => $documentSize,
             'document_mime_type' => $documentMimeType

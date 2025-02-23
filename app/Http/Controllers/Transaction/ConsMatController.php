@@ -15,5 +15,5 @@ class ConsMatController extends Controller
 
     protected $model = ConstMat::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['document'];
 }
