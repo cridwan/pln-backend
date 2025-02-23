@@ -4,10 +4,7 @@ namespace App\Traits;
 
 use App\Exceptions\BadRequestException;
 use App\Exceptions\ValidationErrorException;
-use App\Http\Requests\LocationRequest;
 use App\Http\Requests\PaginationRequest;
-use App\Models\Location;
-use Exception;
 use Illuminate\Support\Facades\Validator;
 use Spatie\RouteDiscovery\Attributes\Route;
 
@@ -56,7 +53,7 @@ trait HasApiResource
         return $query->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
-    #[Route(method: 'get', uri: '/{uuid}')]
+    #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
         $with = isset($this->with) ? $this->with : [];
@@ -71,7 +68,7 @@ trait HasApiResource
         return $findOne;
     }
 
-    #[Route(method: 'post')]
+    // #[Route(method: 'post')]
     public function store()
     {
         $validator = Validator::make(request()->all(), $this->rules);
@@ -83,7 +80,7 @@ trait HasApiResource
         return $this->model::create($validator->validated());
     }
 
-    #[Route(method: 'put', uri: '/{uuid}')]
+    #[Route(method: 'put', uri: '{uuid}')]
     public function update(string $uuid)
     {
         $validator = Validator::make(request()->all(), $this->rules);
@@ -101,7 +98,7 @@ trait HasApiResource
         return $exist->update($validator->validated());
     }
 
-    #[Route(method: 'delete', uri: '/{uuid}')]
+    #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid): bool
     {
         $findOne = $this->model::where('uuid', $uuid)->first();

@@ -62,6 +62,7 @@ return [
     |
     */
     'cdn' => 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+    // 'cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/scalar-api-reference/1.25.101/standalone.min.js',
 
     /*
     |--------------------------------------------------------------------------
@@ -76,12 +77,12 @@ return [
     'configuration' => [
         /** A string to use one of the color presets */
         'theme' =>
-        // 'alternate',
-        // 'bluePlanet',
-        // 'deepSpace',
-        // 'default',
-        // 'kepler',
-        'laravel',
+            // 'alternate',
+            // 'bluePlanet',
+            // 'deepSpace',
+            // 'default',
+            // 'kepler',
+            'laravel',
         // 'mars',
         // 'moon',
         // 'purple',

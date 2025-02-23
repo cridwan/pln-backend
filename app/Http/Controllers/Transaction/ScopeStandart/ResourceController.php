@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Transaction\ScopeStandart;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScopeStandartRequest;
@@ -10,8 +10,8 @@ use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
 use Spatie\RouteDiscovery\Attributes\Route;
 
-#[Group(name: 'Transaction')]
-class ScopeStandartController extends Controller
+#[Group(name: 'Transaction Scope Standart Resource')]
+class ResourceController extends Controller
 {
     use HasPagination;
 

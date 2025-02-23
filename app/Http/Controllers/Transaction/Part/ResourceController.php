@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Transaction\Part;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction\Part;
@@ -8,8 +8,8 @@ use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
 
-#[Group(name: 'Transaction')]
-class PartController extends Controller
+#[Group(name: 'Transaction Part Resource')]
+class ResourceController extends Controller
 {
     use HasPagination, HasApiResource;
 

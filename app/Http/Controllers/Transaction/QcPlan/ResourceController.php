@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Transaction\QcPlan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction\QcPlan;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
 
-#[Group(name: 'Transaction')]
-class QcPlanController extends Controller
+#[Group(name: 'Transaction Qc Plan Resource')]
+class ResourceController extends Controller
 {
     use HasPagination;
 
