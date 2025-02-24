@@ -27,7 +27,7 @@ class ResourceController extends Controller
         $this->rules = [
             'name' => 'required',
             'qty' => 'required',
-            'noDrawing' => 'required',
+            'noDrawing' => 'nullable',
             'note' => 'nullable',
             'global_unit_uuid' => ['required', Rule::exists('masterdata.global_units', 'uuid')],
             'project_uuid' => ['nullable', Rule::exists('transaction.projects', 'uuid')],
