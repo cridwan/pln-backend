@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction\Hse;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Validation\Rule;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
 #[Group(name: 'Transaction Hse Resource')]
 class ResourceController extends Controller
@@ -15,4 +17,15 @@ class ResourceController extends Controller
     protected $model = Hse::class;
     protected array $search = [];
     protected array $with = [];
+
+    protected $rules = [];
+
+    #[DoNotDiscover]
+    public function __construct()
+    {
+        $this->rules = [
+            'title' => 'required',
+            'project_uuid' => ['required', Rule::exists('transaction.projects', 'uuid')],
+        ];
+    }
 }

@@ -17,7 +17,7 @@ class ResourceController extends Controller
 
     protected $model = ConsMat::class;
     protected array $search = [];
-    protected array $with = ['document'];
+    protected array $with = ['document', 'globalUnit'];
     protected $rules = [];
 
     #[DoNotDiscover]
