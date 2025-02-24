@@ -12,7 +12,8 @@ return new class extends Migration {
     {
         Schema::connection('transaction')->create('documents', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->uuidMorphs('document');
+            $table->string('document_uuid');
+            $table->string('document_type');
             $table->string('document_name');
             $table->string('document_link');
             $table->integer('document_size');
