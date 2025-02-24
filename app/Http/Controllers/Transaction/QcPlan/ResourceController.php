@@ -14,5 +14,5 @@ class ResourceController extends Controller
 
     protected $model = QcPlan::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['document'];
 }

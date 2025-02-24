@@ -16,7 +16,7 @@ class ResourceController extends Controller
 
     protected $model = Hse::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['document'];
 
     protected $rules = [];
 
