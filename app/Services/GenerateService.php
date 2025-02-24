@@ -95,27 +95,24 @@ class GenerateService
                 $duplicate->save();
 
                 // TODO part
-                Part::select('name', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
+                Part::select('name', 'qty', 'global_unit_uuid', 'additional_scope_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('parts');
-                    $duplicate->additional_scope_uuid = $row->uuid;
                     $duplicate->save();
                 });
 
-                Sequence::select('uuid', 'name', 'link')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
+                Sequence::select('uuid', 'name', 'link', 'additional_scope_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('sequences');
-                    $duplicate->additional_scope_uuid = $row->uuid;
                     $duplicate->save();
                 });
 
-                ScopeStandart::select('uuid', 'name', 'link', 'category')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
+                ScopeStandart::select('uuid', 'name', 'link', 'category', 'additional_scope_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('scope_standarts');
-                    $duplicate->additional_scope_uuid = $row->uuid;
                     $duplicate->save();
 
                     DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $duplicate->uuid)->each(function ($row) use ($project) {
@@ -126,19 +123,17 @@ class GenerateService
                     });
                 });
 
-                Manpower::select('uuid', 'name', 'qty', 'type')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
+                Manpower::select('uuid', 'name', 'qty', 'type', 'additional_scope_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('manpowers');
-                    $duplicate->additional_scope_uuid = $row->uuid;
                     $duplicate->save();
                 });
 
-                ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
+                ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid', 'additional_scope_uuid')->where('additional_scope_uuid', $row->uuid)->each(function ($row) use ($project) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('const_mats');
-                    $duplicate->additional_scope_uuid = $row->uuid;
                     $duplicate->save();
                 });
 
@@ -146,17 +141,17 @@ class GenerateService
                     [
                         'uuid' => Str::uuid(),
                         'name' => 'Qc Plan Mekanik',
-                        'additional_scope_uuid' => $row->uuid
+                        'additional_scope_uuid' => $duplicate->uuid
                     ],
                     [
                         'uuid' => Str::uuid(),
                         'name' => 'Qc Plan Listrik',
-                        'additional_scope_uuid' => $row->uuid
+                        'additional_scope_uuid' => $duplicate->uuid
                     ],
                     [
                         'uuid' => Str::uuid(),
                         'name' => 'Qc Plan Instrument',
-                        'additional_scope_uuid' => $row->uuid
+                        'additional_scope_uuid' => $duplicate->uuid
                     ]
                 ]);
             });
