@@ -54,7 +54,7 @@ class GenerateService
                 $scopeStandart->project_uuid = $project->uuid;
                 $scopeStandart->save();
 
-                DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
+                DetailScopeStandart::select('uuid', 'name', 'link')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('detail_scope_standarts');
@@ -119,7 +119,7 @@ class GenerateService
                     $scopeStandart->additional_scope_uuid = $duplicateAdditionalScope->uuid;
                     $scopeStandart->save();
 
-                    DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
+                    DetailScopeStandart::select('uuid', 'name', 'link')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
                         $duplicate = $row->replicate();
                         $duplicate->setConnection('transaction');
                         $duplicate->setTable('detail_scope_standarts');

@@ -22,6 +22,13 @@ class ResourceController extends Controller
     #[Route('POST')]
     public function asset(ScopeStandartAdditionalRequest $request)
     {
+        $exist = ScopeStandartAsset::where('scope_standart_uuid', $request->scope_standart_uuid)->where('category', $request->category)->exists();
+
+        if ($exist) {
+            return ScopeStandartAsset::where('scope_standart_uuid', $request->scope_standart_uuid)
+                ->where('category', $request->category)
+                ->update($request->all());
+        }
         return ScopeStandartAsset::create($request->all());
     }
 }
