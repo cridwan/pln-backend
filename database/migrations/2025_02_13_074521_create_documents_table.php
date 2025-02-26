@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::create('documents', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('document_uuid');
+            $table->string('document_original_name');
             $table->string('document_type');
             $table->string('document_name');
             $table->string('document_link');
