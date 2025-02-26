@@ -38,12 +38,13 @@ class ResourceController extends Controller
     {
         $exist = ScopeStandartAsset::where('scope_standart_uuid', $request->scope_standart_uuid)
             ->where('category', $request->category)
-            ->exists();
+            ->first();
 
         if ($exist) {
-            return ScopeStandartAsset::where('scope_standart_uuid', $request->scope_standart_uuid)
+            ScopeStandartAsset::where('scope_standart_uuid', $request->scope_standart_uuid)
                 ->where('category', $request->category)
                 ->update($request->all());
+            return $exist;
         }
         return ScopeStandartAsset::create($request->all());
     }
