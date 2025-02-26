@@ -22,8 +22,8 @@ class DocumentController extends Controller
         $documentLink = $document->storeAs('documents', $documentFileName);
 
         return Document::create($request->merge([
-            'document_name' => "/storage/$documentFileName",
-            'document_link' => $documentLink,
+            'document_name' => $documentFileName,
+            'document_link' => "storage/$documentLink",
             'document_size' => $documentSize,
             'document_mime_type' => $documentMimeType
         ])->all());

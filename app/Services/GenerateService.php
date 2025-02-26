@@ -48,16 +48,17 @@ class GenerateService
             });
 
             ScopeStandart::select('uuid', 'name', 'link', 'category')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
-                $duplicate = $row->replicate();
-                $duplicate->setConnection('transaction');
-                $duplicate->setTable('scope_standarts');
-                $duplicate->project_uuid = $project->uuid;
-                $duplicate->save();
+                $scopeStandart = $row->replicate();
+                $scopeStandart->setConnection('transaction');
+                $scopeStandart->setTable('scope_standarts');
+                $scopeStandart->project_uuid = $project->uuid;
+                $scopeStandart->save();
 
-                DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $duplicate->uuid)->each(function ($row) use ($project) {
+                DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('detail_scope_standarts');
+                    $duplicate->scope_standart_uuid = $scopeStandart->uuid;
                     $duplicate->save();
                 });
             });
@@ -95,50 +96,51 @@ class GenerateService
                 $duplicateAdditionalScope->save();
 
                 // TODO part
-                Part::select('name', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $additionalScope) {
+                Part::select('name', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('parts');
-                    $duplicate->additional_scope_uuid = $additionalScope->uuid;
+                    $duplicate->additional_scope_uuid = $duplicateAdditionalScope->uuid;
                     $duplicate->save();
                 });
 
-                Sequence::select('uuid', 'name', 'link')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $additionalScope) {
+                Sequence::select('uuid', 'name', 'link')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('sequences');
-                    $duplicate->additional_scope_uuid = $additionalScope->uuid;
+                    $duplicate->additional_scope_uuid = $duplicateAdditionalScope->uuid;
                     $duplicate->save();
                 });
 
-                ScopeStandart::select('uuid', 'name', 'link', 'category')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $additionalScope) {
-                    $duplicate = $row->replicate();
-                    $duplicate->setConnection('transaction');
-                    $duplicate->setTable('scope_standarts');
-                    $duplicate->additional_scope_uuid = $additionalScope->uuid;
-                    $duplicate->save();
+                ScopeStandart::select('uuid', 'name', 'link', 'category')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
+                    $scopeStandart = $row->replicate();
+                    $scopeStandart->setConnection('transaction');
+                    $scopeStandart->setTable('scope_standarts');
+                    $scopeStandart->additional_scope_uuid = $duplicateAdditionalScope->uuid;
+                    $scopeStandart->save();
 
-                    DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $duplicate->uuid)->each(function ($row) use ($project) {
+                    DetailScopeStandart::select('uuid', 'name', 'link', 'scope_standart_uuid')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
                         $duplicate = $row->replicate();
                         $duplicate->setConnection('transaction');
                         $duplicate->setTable('detail_scope_standarts');
+                        $duplicate->scope_standart_uuid = $scopeStandart->uuid;
                         $duplicate->save();
                     });
                 });
 
-                Manpower::select('uuid', 'name', 'qty', 'type')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $additionalScope) {
+                Manpower::select('uuid', 'name', 'qty', 'type')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('manpowers');
-                    $duplicate->additional_scope_uuid = $additionalScope->uuid;
+                    $duplicate->additional_scope_uuid = $duplicateAdditionalScope->uuid;
                     $duplicate->save();
                 });
 
-                ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $additionalScope) {
+                ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('const_mats');
-                    $duplicate->additional_scope_uuid = $additionalScope->uuid;
+                    $duplicate->additional_scope_uuid = $duplicateAdditionalScope->uuid;
                     $duplicate->save();
                 });
 

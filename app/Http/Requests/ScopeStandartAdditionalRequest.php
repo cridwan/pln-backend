@@ -24,7 +24,7 @@ class ScopeStandartAdditionalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scope_standart_uuid' => ['required', Rule::exists('additional_scope_standarts', 'uuid')],
+            'scope_standart_uuid' => ['required', Rule::exists('transaction.additional_scopes', 'uuid')],
             'note' => 'required',
             'category' => ['required', Rule::enum(ScopeStandartTypeEnum::class)],
             'color' => 'nullable'
