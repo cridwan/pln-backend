@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\ManpowerTypeEnum;
 use App\Enums\ScopeStandartCategoryEnum;
+use App\Enums\SequenceAnimationSlugEnum;
 use App\Enums\ToolSectionEnum;
 use App\Models\AdditionalScope;
 use App\Models\ConstMat;
@@ -182,7 +183,7 @@ class DummySeeder extends Seeder
 
             SequenceAnimation::create([
                 'name' => 'Turbine Section',
-                'slug' => 'turbine-section',
+                'slug' => SequenceAnimationSlugEnum::TURBIN_SECTION->value,
                 'additional_scope_uuid' => $additionalScope->uuid
             ]);
 
