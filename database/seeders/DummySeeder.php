@@ -181,8 +181,8 @@ class DummySeeder extends Seeder
             ]);
 
             SequenceAnimation::create([
-                'name' => 'Turbin Section',
-                'slug' => 'turbin-section',
+                'name' => 'Turbine Section',
+                'slug' => 'turbine-section',
                 'additional_scope_uuid' => $additionalScope->uuid
             ]);
 
