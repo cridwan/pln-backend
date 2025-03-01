@@ -52,7 +52,7 @@ class DummySeeder extends Seeder
             ]);
 
             $inspectionType = InspectionType::create([
-                'name' => 'Turbin Inspection',
+                'name' => 'Turbine Inspection',
                 'machine_uuid' => $machine->uuid
             ]);
 
