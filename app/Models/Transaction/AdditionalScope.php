@@ -5,6 +5,7 @@ namespace App\Models\Transaction;
 use App\Enums\ScopeStandartTypeEnum;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class AdditionalScope extends Model
@@ -41,5 +42,10 @@ class AdditionalScope extends Model
     public function ncr(): HasOne
     {
         return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::NCR->value)->latest();
+    }
+
+    public function sequenceAnimations(): HasMany
+    {
+        return $this->hasMany(SequenceAnimation::class, 'additional_scope_uuid');
     }
 }
