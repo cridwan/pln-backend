@@ -17,7 +17,7 @@ class ResourceController extends Controller
 
     protected $model = Tools::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['globalUnit'];
     protected $rules = [];
 
     #[DoNotDiscover]
