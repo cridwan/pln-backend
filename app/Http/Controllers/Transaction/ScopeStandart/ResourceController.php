@@ -11,6 +11,7 @@ use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Validation\Rule;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group(name: 'Transaction Scope Standart Resource')]
@@ -23,6 +24,7 @@ class ResourceController extends Controller
     protected array $with = ['details', 'assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document'];
     protected $rules = [];
 
+    #[DoNotDiscover]
     public function __construct()
     {
         $this->rules = [

@@ -7,6 +7,7 @@ use App\Models\Unit;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use Illuminate\Validation\Rule;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
@@ -19,6 +20,7 @@ class UnitController extends Controller
     protected $with = ['location'];
     protected $rules = [];
 
+    #[DoNotDiscover]
     public function __construct()
     {
         $this->rules = [

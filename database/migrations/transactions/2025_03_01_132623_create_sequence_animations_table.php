@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\Machine;
+use App\Models\Transaction\AdditionalScope;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,11 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inspection_types', function (Blueprint $table) {
+        Schema::connection('transaction')->create('sequence_animations', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('name');
-            $table->integer('day')->default(0);
-            $table->foreignIdFor(Machine::class);
+            $table->string('slug');
+            $table->foreignIdFor(AdditionalScope::class);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inspection_types');
+        Schema::connection('transaction')->dropIfExists('sequence_animations');
     }
 };

@@ -11,6 +11,8 @@ use App\Models\Manpower;
 use App\Models\Part;
 use App\Models\ScopeStandart;
 use App\Models\Sequence;
+use App\Models\SequenceAnimation;
+use App\Models\Tools;
 use App\Models\Transaction\Project;
 use App\Models\Transaction\QcPlan;
 use Exception;
@@ -39,6 +41,14 @@ class GenerateService
                 $duplicate->save();
             });
 
+            Tools::select('name', 'qty', 'global_unit_uuid', 'section')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
+                $duplicate = $row->replicate();
+                $duplicate->setConnection('transaction');
+                $duplicate->setTable('tools');
+                $duplicate->project_uuid = $project->uuid;
+                $duplicate->save();
+            });
+
             Sequence::select('uuid', 'name', 'link')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
@@ -54,7 +64,7 @@ class GenerateService
                 $scopeStandart->project_uuid = $project->uuid;
                 $scopeStandart->save();
 
-                DetailScopeStandart::select('uuid', 'name', 'link')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
+                DetailScopeStandart::select('uuid', 'name', 'link')->where('scope_standart_uuid', $row->uuid)->each(function ($row) use ($scopeStandart) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('detail_scope_standarts');
@@ -88,12 +98,21 @@ class GenerateService
             });
 
             // TODO Additional Scope
-            AdditionalScope::select('uuid', 'name', 'category')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($additionalScope) use ($project) {
+            AdditionalScope::select('uuid', 'name', 'category', 'day')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($additionalScope) use ($project) {
                 $duplicateAdditionalScope = $additionalScope->replicate();
                 $duplicateAdditionalScope->setConnection('transaction');
                 $duplicateAdditionalScope->setTable('additional_scopes');
                 $duplicateAdditionalScope->project_uuid = $project->uuid;
                 $duplicateAdditionalScope->save();
+
+                // TODO sequence animation
+                SequenceAnimation::select('name', 'slug')->each(function ($row) use ($duplicateAdditionalScope) {
+                    $duplicate = $row->replicate();
+                    $duplicate->setConnection('transaction');
+                    $duplicate->setTable('sequence_animations');
+                    $duplicate->additional_scope_uuid = $duplicateAdditionalScope->uuid;
+                    $duplicate->save();
+                });
 
                 // TODO part
                 Part::select('name', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
@@ -119,7 +138,7 @@ class GenerateService
                     $scopeStandart->additional_scope_uuid = $duplicateAdditionalScope->uuid;
                     $scopeStandart->save();
 
-                    DetailScopeStandart::select('uuid', 'name', 'link')->where('scope_standart_uuid', $scopeStandart->uuid)->each(function ($row) use ($scopeStandart) {
+                    DetailScopeStandart::select('uuid', 'name', 'link')->where('scope_standart_uuid', $row->uuid)->each(function ($row) use ($scopeStandart) {
                         $duplicate = $row->replicate();
                         $duplicate->setConnection('transaction');
                         $duplicate->setTable('detail_scope_standarts');

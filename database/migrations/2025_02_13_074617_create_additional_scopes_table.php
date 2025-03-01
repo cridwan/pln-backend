@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('name');
             $table->string('link')->nullable();
             $table->string('category');
+            $table->integer('day')->default(0);
             $table->foreignIdFor(InspectionType::class);
             $table->timestamps();
         });

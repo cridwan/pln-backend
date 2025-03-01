@@ -6,11 +6,13 @@ use App\Http\Requests\GenerateRequest;
 use App\Models\Transaction\Project;
 use App\Services\GenerateService;
 use Dedoc\Scramble\Attributes\Group;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group(name: 'Generate', description: 'Generate API Documentation')]
 class GenerateController extends Controller
 {
+    #[DoNotDiscover]
     public function __construct(
         public GenerateService $generateService
     ) {}

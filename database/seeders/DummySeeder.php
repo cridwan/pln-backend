@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\ManpowerTypeEnum;
 use App\Enums\ScopeStandartCategoryEnum;
+use App\Enums\ToolSectionEnum;
 use App\Models\AdditionalScope;
 use App\Models\ConstMat;
 use App\Models\DetailScopeStandart;
@@ -16,6 +17,8 @@ use App\Models\Manpower;
 use App\Models\Part;
 use App\Models\ScopeStandart;
 use App\Models\Sequence;
+use App\Models\SequenceAnimation;
+use App\Models\Tools;
 use App\Models\Unit;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -159,6 +162,52 @@ class DummySeeder extends Seeder
                 'no_drawing' => '2025/01/023',
                 'global_unit_uuid' => $globalUnit->uuid,
                 'additional_scope_uuid' => $additionalScope->uuid
+            ]);
+
+            Tools::create([
+                'name' => 'Palu',
+                'qty' => 1,
+                'global_unit_uuid' => $globalUnit->uuid,
+                'section' => ToolSectionEnum::MECHANICAL->value,
+                'inspection_type_uuid' => $inspectionType->uuid
+            ]);
+
+            Tools::create([
+                'name' => 'Obeng',
+                'qty' => 1,
+                'global_unit_uuid' => $globalUnit->uuid,
+                'section' => ToolSectionEnum::ELECTRICAL->value,
+                'inspection_type_uuid' => $inspectionType->uuid
+            ]);
+
+            SequenceAnimation::create([
+                'name' => 'Exhaust Section',
+                'slug' => 'exhaust-section'
+            ]);
+
+            SequenceAnimation::create([
+                'name' => 'Turbin Section',
+                'slug' => 'turbine-section'
+            ]);
+
+            SequenceAnimation::create([
+                'name' => 'Combustion Section',
+                'slug' => 'combustion-section'
+            ]);
+
+            SequenceAnimation::create([
+                'name' => 'Compressor Section',
+                'slug' => 'compressor-section'
+            ]);
+
+            SequenceAnimation::create([
+                'name' => 'Inlet Section',
+                'slug' => 'inlet-section'
+            ]);
+
+            SequenceAnimation::create([
+                'name' => 'Generator Section',
+                'slug' => 'generator-section'
             ]);
 
             DB::commit();
