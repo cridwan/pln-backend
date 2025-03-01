@@ -181,33 +181,9 @@ class DummySeeder extends Seeder
             ]);
 
             SequenceAnimation::create([
-                'name' => 'Exhaust Section',
-                'slug' => 'exhaust-section'
-            ]);
-
-            SequenceAnimation::create([
                 'name' => 'Turbin Section',
-                'slug' => 'turbine-section'
-            ]);
-
-            SequenceAnimation::create([
-                'name' => 'Combustion Section',
-                'slug' => 'combustion-section'
-            ]);
-
-            SequenceAnimation::create([
-                'name' => 'Compressor Section',
-                'slug' => 'compressor-section'
-            ]);
-
-            SequenceAnimation::create([
-                'name' => 'Inlet Section',
-                'slug' => 'inlet-section'
-            ]);
-
-            SequenceAnimation::create([
-                'name' => 'Generator Section',
-                'slug' => 'generator-section'
+                'slug' => 'turbin-section',
+                'additional_scope_uuid' => $additionalScope->uuid
             ]);
 
             DB::commit();

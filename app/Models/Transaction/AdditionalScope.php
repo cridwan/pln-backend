@@ -44,8 +44,8 @@ class AdditionalScope extends Model
         return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::NCR->value)->latest();
     }
 
-    public function sequenceAnimations(): HasMany
+    public function sequenceAnimation(): HasOne
     {
-        return $this->hasMany(SequenceAnimation::class, 'additional_scope_uuid');
+        return $this->hasOne(SequenceAnimation::class, 'additional_scope_uuid');
     }
 }

@@ -106,7 +106,7 @@ class GenerateService
                 $duplicateAdditionalScope->save();
 
                 // TODO sequence animation
-                SequenceAnimation::select('name', 'slug')->each(function ($row) use ($duplicateAdditionalScope) {
+                SequenceAnimation::select('name', 'slug')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('sequence_animations');

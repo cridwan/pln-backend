@@ -17,7 +17,7 @@ class ResourceController extends Controller
 
     protected $model = AdditionalScope::class;
     protected array $search = [];
-    protected array $with = ['assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document', 'sequenceAnimations'];
+    protected array $with = ['assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document', 'sequenceAnimation'];
 
     #[Route('POST')]
     public function asset(ScopeStandartAdditionalRequest $request)
