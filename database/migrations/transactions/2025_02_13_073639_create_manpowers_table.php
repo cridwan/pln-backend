@@ -14,7 +14,7 @@ return new class extends Migration {
     {
         Schema::connection('transaction')->create('manpowers', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->string('name');
+            $table->text('name');
             $table->integer('qty');
             $table->string('type');
             $table->text('note')->nullable();

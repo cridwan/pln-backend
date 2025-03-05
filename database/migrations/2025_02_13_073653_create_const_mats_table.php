@@ -15,7 +15,7 @@ return new class extends Migration {
     {
         Schema::create('const_mats', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->string('name');
+            $table->text('name');
             $table->string('merk')->nullable();
             $table->integer('qty');
             $table->foreignIdFor(GlobalUnit::class);

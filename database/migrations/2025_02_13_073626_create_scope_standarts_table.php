@@ -15,7 +15,7 @@ return new class extends Migration {
     {
         Schema::create('scope_standarts', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->string('name');
+            $table->text('name');
             $table->string('link')->nullable();
             $table->string('category');
             $table->foreignIdFor(InspectionType::class)->nullable();

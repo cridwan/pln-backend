@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::connection('transaction')->create('detail_scope_standarts', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->string('name');
+            $table->text('name');
             $table->string('link')->nullable();
             $table->foreignIdFor(ScopeStandart::class);
             $table->timestamps();
