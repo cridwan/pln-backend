@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
 
-class ConstMat extends Model
+class ConsMat extends Model
 {
     use SettingModel;
 

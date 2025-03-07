@@ -9,7 +9,7 @@ use Dedoc\Scramble\Attributes\Group;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group('document')]
+#[Group('Document')]
 class DocumentController extends Controller
 {
     #[Route('POST')]

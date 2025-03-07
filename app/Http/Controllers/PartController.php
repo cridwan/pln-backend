@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Part;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use Dedoc\Scramble\Attributes\Group;
 
+#[Group('Master Part')]
 class PartController extends Controller
 {
     use HasList, HasApiResource;

@@ -13,7 +13,7 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group(name: 'location')]
+#[Group(name: 'Master Tools')]
 class ToolsController extends Controller
 {
     use HasList, HasApiResource;

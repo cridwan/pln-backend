@@ -10,7 +10,7 @@ use Dedoc\Scramble\Attributes\Group;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group(name: 'location')]
+#[Group(name: 'Master Location')]
 class LocationController extends Controller
 {
     use HasList, HasApiResource;

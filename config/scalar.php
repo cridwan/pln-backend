@@ -77,12 +77,12 @@ return [
     'configuration' => [
         /** A string to use one of the color presets */
         'theme' =>
-            // 'alternate',
-            // 'bluePlanet',
-            // 'deepSpace',
-            // 'default',
-            // 'kepler',
-            'laravel',
+        // 'alternate',
+        // 'bluePlanet',
+        // 'deepSpace',
+        // 'default',
+        // 'kepler',
+        'laravel',
         // 'mars',
         // 'moon',
         // 'purple',
@@ -158,7 +158,7 @@ return [
         /**
          * List of servers to override the openapi spec servers
          */
-        'servers' => null,
+        'servers' => [],
         // 'servers' => [
         //     [
         //         'url' => 'https://api.scalar.com',
