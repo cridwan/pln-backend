@@ -19,7 +19,7 @@ class ToolsController extends Controller
     use HasList, HasApiResource;
 
     protected $model = Tools::class;
-    protected array $search = [];
+    protected array $search = ['name'];
     protected array $with = [];
     protected $rules = [];
 

@@ -16,7 +16,7 @@ class LocationController extends Controller
     use HasList, HasApiResource;
 
     protected $model = Location::class;
-    protected array $search = [];
+    protected array $search = ['name', 'slug'];
     protected array $with = [];
     protected $rules = [
         'name' => 'required',

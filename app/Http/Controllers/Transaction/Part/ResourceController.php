@@ -16,7 +16,7 @@ class ResourceController extends Controller
     use HasPagination, HasApiResource;
 
     protected $model = Part::class;
-    protected array $search = [];
+    protected array $search = ['name'];
     protected array $with = ['globalUnit'];
 
     protected $rules = [];

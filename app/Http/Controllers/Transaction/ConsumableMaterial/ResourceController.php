@@ -16,7 +16,7 @@ class ResourceController extends Controller
     use HasPagination, HasApiResource;
 
     protected $model = ConsMat::class;
-    protected array $search = [];
+    protected array $search = ['name', 'merk'];
     protected array $with = ['document', 'globalUnit'];
     protected $rules = [];
 
@@ -25,7 +25,7 @@ class ResourceController extends Controller
     {
         $this->rules = [
             'name' => 'required',
-            'merk' => 'required',
+            'merk' => 'nullable',
             'qty' => 'required',
             'global_unit_uuid' => ['required', Rule::exists('masterdata.global_units', 'uuid')],
             'project_uuid' => 'nullable',

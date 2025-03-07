@@ -15,7 +15,7 @@ class ResourceController extends Controller
     use HasPagination;
 
     protected $model = Hse::class;
-    protected array $search = [];
+    protected array $search = ['title'];
     protected array $with = ['document'];
 
     protected $rules = [];

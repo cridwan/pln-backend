@@ -13,12 +13,13 @@ trait HasList
     public function list(ListRequest $request)
     {
         $with = isset($this->with) ? $this->with : [];
+        $searchColumn = isset($this->search) ? $this->search : [];
         $query = $this->model::query();
         $query->with($with);
 
-        $query->when($request->filled('search'), function ($subQuery) use ($request) {
-            $subQuery->where(function ($search) use ($request) {
-                foreach ($this->search as $item) {
+        $query->when($request->filled('search'), function ($subQuery) use ($request, $searchColumn) {
+            $subQuery->where(function ($search) use ($request, $searchColumn) {
+                foreach ($searchColumn as $item) {
                     $explode = explode('.', $item);
                     if (count($explode) > 1) {
                         $search->whereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));

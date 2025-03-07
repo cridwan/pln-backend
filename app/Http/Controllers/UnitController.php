@@ -16,7 +16,7 @@ class UnitController extends Controller
     use HasList, HasApiResource;
 
     protected $model = Unit::class;
-    protected $search = [];
+    protected $search = ['name'];
     protected $with = ['location'];
     protected $rules = [];
 

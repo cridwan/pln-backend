@@ -16,7 +16,7 @@ class InspectionTypeController extends Controller
     use HasList, HasApiResource;
 
     protected $model = InspectionType::class;
-    protected array $search = [];
+    protected array $search = ['name'];
     protected array $with = [];
     protected $rules = [];
 
