@@ -4,12 +4,13 @@ namespace App\Models\Transaction;
 
 use App\Models\GlobalUnit;
 use App\Traits\SettingModel;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class ConsMat extends Model
 {
-    use SettingModel;
+    use SettingModel, HasFactory;
 
     protected $connection = 'transaction';
 
