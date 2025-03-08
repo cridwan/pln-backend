@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transaction\Result;
 
+use App\Enums\AuthPermissionEnum;
 use App\Exports\ConsMatExport;
 use App\Exports\ManpowerExport;
 use App\Exports\PartExport;
@@ -11,13 +12,24 @@ use App\Exports\ToolsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: ResponseMiddleware::class)]
 #[Group('Transaction Result Resource')]
-class ResourceController extends Controller
+class ResourceController extends Controller implements HasMiddleware
 {
+    #[DoNotDiscover]
+    public static function middleware()
+    {
+        return [
+            new Middleware(AuthPermissionEnum::AUTH_API->value),
+        ];
+    }
+
     #[Route(method: 'get', uri: 'export/consmat')]
     public function exportConsMat()
     {
