@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transaction\Hse;
 
 use App\Enums\AuthPermissionEnum;
+use App\Enums\HseTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction\Hse;
 use App\Traits\HasApiResource;
@@ -38,6 +39,7 @@ class ResourceController extends Controller implements HasMiddleware
         $this->rules = [
             'title' => 'required',
             'project_uuid' => ['required', Rule::exists('transaction.projects', 'uuid')],
+            'type' => Rule::enum(HseTypeEnum::class)
         ];
     }
 }
