@@ -10,4 +10,6 @@ class ConsMat extends Model
     use SettingModel;
 
     protected $connection = 'masterdata';
+
+    protected $table = 'const_mats';
 }

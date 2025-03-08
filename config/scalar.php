@@ -61,8 +61,8 @@ return [
     | package. You can change this if you want to use a different CDN.
     |
     */
-    'cdn' => 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-    // 'cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/scalar-api-reference/1.25.101/standalone.min.js',
+    // 'cdn' => 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+    'cdn' => 'https://cdnjs.cloudflare.com/ajax/libs/scalar-api-reference/1.25.101/standalone.min.js',
 
     /*
     |--------------------------------------------------------------------------

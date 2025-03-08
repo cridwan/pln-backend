@@ -2,14 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AuthPermissionEnum;
+use App\Enums\PermissionEnum;
+use App\Http\Middleware\PermissionMiddleware;
 use App\Models\Part;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
 #[Group('Master Part')]
-class PartController extends Controller
+class PartController extends Controller implements HasMiddleware
 {
+    #[DoNotDiscover]
+    public static function middleware()
+    {
+        return [
+            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(
+                PermissionMiddleware::using(
+                    [
+                        PermissionEnum::PART
+                    ]
+                ),
+                except: ['list']
+            )
+        ];
+    }
+
     use HasList, HasApiResource;
 
     protected $model = Part::class;

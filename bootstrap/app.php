@@ -1,10 +1,12 @@
 <?php
 
 use App\Exceptions\BadRequestException;
+use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationErrorException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -23,6 +25,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => $th->getMessage(),
                 ], HttpFoundationResponse::HTTP_BAD_REQUEST);
+            }
+
+            if ($th instanceof UnauthorizedException) {
+                return response()->json([
+                    'message' => $th->getMessage(),
+                ], HttpFoundationResponse::HTTP_FORBIDDEN);
+            }
+
+            if ($th instanceof NotFoundException) {
+                return response()->json([
+                    'message' => $th->getMessage(),
+                ], HttpFoundationResponse::HTTP_NOT_FOUND);
             }
 
             if ($th instanceof ValidationErrorException) {
