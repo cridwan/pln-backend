@@ -72,6 +72,10 @@
         ],
         "migrate:master:fresh": [
             "php artisan migrate:fresh --path=database/migrations --database=masterdata"
+        ],
+        "passport:setup": [
+            "php artisan passport:keys",
+            "php artisan passport:client --personal"
         ]
     },
     "extra": {
