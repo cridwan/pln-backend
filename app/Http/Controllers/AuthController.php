@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\RoleEnum;
+use App\Exceptions\AnauthenticateException;
 use App\Exceptions\BadRequestException;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\LoginRequest;
+use App\Models\Permission;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Support\Facades\Hash;
@@ -27,11 +30,20 @@ class AuthController extends Controller
             throw new BadRequestException("Username atau password tidak ditemukan");
         }
 
-        $token = $user->createToken(config('passport.private_key'))->accessToken;
+        $token = $user->createToken(config('passport.access_token_key'))->accessToken;
+
+        $permissions = $user->hasRole(RoleEnum::SUPERUSER->value) ? Permission::latest()->pluck('name')->toArray() : $user->getPermissionNames();
 
         return [
+            'token' => $token,
             ...$user->toArray(),
-            'token' => $token
+            'permissions' => $permissions
         ];
+    }
+
+    #[Route(method: 'get', name: 'login')]
+    public function anauthenticate()
+    {
+        throw new AnauthenticateException('Anauthenticate');
     }
 }

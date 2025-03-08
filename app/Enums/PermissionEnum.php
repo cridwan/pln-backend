@@ -17,4 +17,5 @@ enum PermissionEnum: string
     case TOOLS = 'tools';
     case ADDITIONAL_SCOPE = 'additional-scope';
     case USER = 'user';
+    case ROLE = 'role';
 }

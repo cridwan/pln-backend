@@ -6,6 +6,7 @@ use App\Enums\AuthPermissionEnum;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\DocumentRequest;
 use App\Models\Transaction\Document;
+use App\Traits\HasList;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -16,6 +17,7 @@ use Spatie\RouteDiscovery\Attributes\Route;
 #[Group('Document')]
 class DocumentController extends Controller implements HasMiddleware
 {
+    use HasList;
     #[DoNotDiscover]
     public static function middleware()
     {

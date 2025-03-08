@@ -30,6 +30,8 @@ return [
 
     'public_key' => env('PASSPORT_PUBLIC_KEY'),
 
+    'access_token_key' => env('ACCESS_TOKEN_KEY', 'PLN INDONESIA POWER'),
+
     /*
     |--------------------------------------------------------------------------
     | Passport Database Connection

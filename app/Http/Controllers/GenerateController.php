@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
+use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\GenerateRequest;
 use App\Models\Transaction\Project;
 use App\Services\GenerateService;
@@ -13,6 +14,7 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group(name: 'Generate', description: 'Generate API Documentation')]
+#[Route(middleware: ResponseMiddleware::class)]
 class GenerateController extends Controller implements HasMiddleware
 {
     #[DoNotDiscover]

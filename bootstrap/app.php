@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\AnauthenticateException;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationErrorException;
@@ -31,6 +32,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json([
                     'message' => $th->getMessage(),
                 ], HttpFoundationResponse::HTTP_FORBIDDEN);
+            }
+
+            if ($th instanceof AnauthenticateException) {
+                return response()->json([
+                    'message' => $th->getMessage(),
+                ], HttpFoundationResponse::HTTP_UNAUTHORIZED);
             }
 
             if ($th instanceof NotFoundException) {
