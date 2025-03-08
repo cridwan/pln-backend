@@ -11,6 +11,7 @@ use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Storage;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
@@ -48,6 +49,11 @@ class DocumentController extends Controller implements HasMiddleware
     #[Route(method: 'DELETE', uri: 'delete/multi')]
     public function destroys(Request $request)
     {
-        return Document::whereIn('uuid', $request->ids)->delete();
+        $documents = Document::whereIn('uuid', $request->ids)->get();
+
+        foreach ($documents as $document) {
+            Storage::delete($document->document_link);
+            Document::where('uuid', $document->uuid)->delete();
+        }
     }
 }

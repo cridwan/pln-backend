@@ -3,6 +3,7 @@
 namespace App\Models\Transaction;
 
 use App\Models\GlobalUnit;
+use App\Models\Storage\Document;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
