@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Transaction\Hse;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction\Hse;
+use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Validation\Rule;
@@ -12,7 +13,7 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 #[Group(name: 'Transaction Hse Resource')]
 class ResourceController extends Controller
 {
-    use HasPagination;
+    use HasPagination, HasApiResource;
 
     protected $model = Hse::class;
     protected array $search = ['title'];
