@@ -8,6 +8,7 @@ use App\Http\Requests\DocumentRequest;
 use App\Models\Transaction\Document;
 use App\Traits\HasList;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
@@ -42,5 +43,11 @@ class DocumentController extends Controller implements HasMiddleware
             'document_size' => $documentSize,
             'document_mime_type' => $documentMimeType
         ])->all());
+    }
+
+    #[Route(method: 'DELETE', uri: '/delete/multi')]
+    public function destroys(Request $request)
+    {
+        return Document::whereIn('uuid', $request->ids)->delete();
     }
 }

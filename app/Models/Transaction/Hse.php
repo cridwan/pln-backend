@@ -4,7 +4,7 @@ namespace App\Models\Transaction;
 
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Hse extends Model
@@ -16,5 +16,10 @@ class Hse extends Model
     public function document(): MorphOne
     {
         return $this->morphOne(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
     }
 }
