@@ -14,6 +14,11 @@ class AdditionalScope extends Model
 
     protected $connection = 'transaction';
 
+    public function details(): HasMany
+    {
+        return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
+    }
+
     public function assetWelnes(): HasOne
     {
         return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::ASSET_WELNESS->value)->latest();
