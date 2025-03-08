@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\AuthPermissionEnum;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\DocumentRequest;
-use App\Models\Transaction\Document;
+use App\Models\Storage\Document;
 use App\Traits\HasList;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;

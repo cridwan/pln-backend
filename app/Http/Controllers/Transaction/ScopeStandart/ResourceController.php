@@ -24,7 +24,7 @@ class ResourceController extends Controller implements HasMiddleware
 
     protected $model = ScopeStandart::class;
     protected array $search = ['name'];
-    protected array $with = ['details', 'assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document'];
+    protected array $with = ['details.document', 'document', 'assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document'];
     protected $rules = [];
 
     #[DoNotDiscover]

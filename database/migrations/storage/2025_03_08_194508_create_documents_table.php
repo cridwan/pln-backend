@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::connection('transaction')->create('documents', function (Blueprint $table) {
+        Schema::connection('document')->create('documents', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('document_uuid');
             $table->string('document_original_name');
@@ -28,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::connection('transaction')->dropIfExists('documents');
+        Schema::connection('document')->dropIfExists('documents');
     }
 };
