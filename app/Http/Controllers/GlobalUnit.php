@@ -15,7 +15,7 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: ResponseMiddleware::class)]
-#[Group(method: 'Master Global Unit')]
+#[Group('Master Global Unit')]
 class GlobalUnit extends Controller implements HasMiddleware
 {
     use HasList, HasApiResource;
