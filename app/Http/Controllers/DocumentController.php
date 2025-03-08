@@ -45,7 +45,7 @@ class DocumentController extends Controller implements HasMiddleware
         ])->all());
     }
 
-    #[Route(method: 'DELETE', uri: '/delete/multi')]
+    #[Route(method: 'DELETE', uri: 'delete/multi')]
     public function destroys(Request $request)
     {
         return Document::whereIn('uuid', $request->ids)->delete();
