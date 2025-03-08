@@ -21,7 +21,7 @@ class ResourceController extends Controller implements HasMiddleware
 
     protected $model = Hse::class;
     protected array $search = ['title'];
-    protected array $with = ['documents'];
+    protected array $with = ['documents', 'document'];
 
     protected $rules = [];
 
