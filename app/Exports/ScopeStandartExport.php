@@ -29,17 +29,17 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         $category = $this->category;
         return ScopeStandart::query()
             ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
-            ->where('category', 'like', "%$category%")
-            ->union(
-                AdditionalScope::query()
-                    ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
-                    ->has('assetWelnes')
-                    ->orHas('ohRecom')
-                    ->orHas('woPriority')
-                    ->orHas('history')
-                    ->orHas('rla')
-                    ->orHas('ncr')
-            );
+            ->where('category', 'like', "%$category%");
+            // ->union(
+            //     AdditionalScope::query()
+            //         ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
+            //         ->has('assetWelnes')
+            //         ->orHas('ohRecom')
+            //         ->orHas('woPriority')
+            //         ->orHas('history')
+            //         ->orHas('rla')
+            //         ->orHas('ncr')
+            // );
     }
 
     public function title(): string
