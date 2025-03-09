@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\GenerateRequest;
 use App\Models\AdditionalScope;
-use App\Models\ConstMat;
+use App\Models\ConsMat;
 use App\Models\DetailScopeStandart;
 use App\Models\Hse;
 use App\Models\Manpower;
@@ -81,7 +81,7 @@ class GenerateService
                 $duplicate->save();
             });
 
-            ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
+            ConsMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('const_mats');
@@ -155,7 +155,7 @@ class GenerateService
                     $duplicate->save();
                 });
 
-                ConstMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
+                ConsMat::select('uuid', 'name', 'merk', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('const_mats');
