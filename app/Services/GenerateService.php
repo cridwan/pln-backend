@@ -41,7 +41,7 @@ class GenerateService
                 $duplicate->save();
             });
 
-            Tools::select('name', 'qty', 'global_unit_uuid', 'section')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
+            Tools::select('name', 'qty', 'global_unit_uuid', 'additional_scope_uuid', 'section')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('tools');
@@ -98,7 +98,7 @@ class GenerateService
             });
 
             // TODO Additional Scope
-            AdditionalScope::select('uuid', 'name', 'category', 'day')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($additionalScope) use ($project) {
+            AdditionalScope::select('uuid', 'name', 'category', 'day', 'animation')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($additionalScope) use ($project) {
                 $duplicateAdditionalScope = $additionalScope->replicate();
                 $duplicateAdditionalScope->setConnection('transaction');
                 $duplicateAdditionalScope->setTable('additional_scopes');
@@ -166,17 +166,17 @@ class GenerateService
                 QcPlan::insert([
                     [
                         'uuid' => Str::uuid(),
-                        'name' => 'Qc Plan Mekanik',
+                        'name' => 'QC Plan Mekanik',
                         'additional_scope_uuid' => $duplicateAdditionalScope->uuid
                     ],
                     [
                         'uuid' => Str::uuid(),
-                        'name' => 'Qc Plan Listrik',
+                        'name' => 'QC Plan Listrik',
                         'additional_scope_uuid' => $duplicateAdditionalScope->uuid
                     ],
                     [
                         'uuid' => Str::uuid(),
-                        'name' => 'Qc Plan Instrument',
+                        'name' => 'QC Plan Instrument',
                         'additional_scope_uuid' => $duplicateAdditionalScope->uuid
                     ]
                 ]);
@@ -185,17 +185,17 @@ class GenerateService
             QcPlan::insert([
                 [
                     'uuid' => Str::uuid(),
-                    'name' => 'Qc Plan Mekanik',
+                    'name' => 'QC Plan Mekanik',
                     'project_uuid' => $project->uuid
                 ],
                 [
                     'uuid' => Str::uuid(),
-                    'name' => 'Qc Plan Listrik',
+                    'name' => 'QC Plan Listrik',
                     'project_uuid' => $project->uuid
                 ],
                 [
                     'uuid' => Str::uuid(),
-                    'name' => 'Qc Plan Instrument',
+                    'name' => 'QC Plan Instrument',
                     'project_uuid' => $project->uuid
                 ]
             ]);

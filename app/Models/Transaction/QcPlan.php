@@ -17,4 +17,9 @@ class QcPlan extends Model
     {
         return $this->morphOne(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
     }
+
+    public function additionalScope()
+    {
+        return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
 }

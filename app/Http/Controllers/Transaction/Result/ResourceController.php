@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Transaction\Result;
 use App\Enums\AuthPermissionEnum;
 use App\Exceptions\BadRequestException;
 use App\Exports\ConsMatExport;
+use App\Exports\HseExport;
 use App\Exports\ManpowerExport;
 use App\Exports\PartExport;
+use App\Exports\QcPlanExport;
 use App\Exports\ScopeStandartSheetExport;
 use App\Exports\ToolsExport;
 use App\Http\Controllers\Controller;
@@ -30,6 +32,42 @@ class ResourceController extends Controller implements HasMiddleware
         return [
             // new Middleware(AuthPermissionEnum::AUTH_API->value),
         ];
+    }
+
+    #[Route(method: 'get', uri: 'export/qc-plan')]
+    public function exportQcPlan(Request $request)
+    {
+        if ($request->isNotFilled('project_uuid')) {
+            throw new BadRequestException('Project tidak terpilih');
+        }
+
+        $project = Project::find($request->project_uuid);
+
+        if (!$project) {
+            throw new BadRequestException('Project tidak ditemukan');
+        }
+
+        $project->loadMissing(['inspectionType.machine']);
+        $filename = date('YmdHis') . '-qc-plan.xlsx';
+        return Excel::download(new QcPlanExport('QC PLAN', $project), $filename);
+    }
+
+    #[Route(method: 'get', uri: 'export/hse')]
+    public function exportHse(Request $request)
+    {
+        if ($request->isNotFilled('project_uuid')) {
+            throw new BadRequestException('Project tidak terpilih');
+        }
+
+        $project = Project::find($request->project_uuid);
+
+        if (!$project) {
+            throw new BadRequestException('Project tidak ditemukan');
+        }
+
+        $project->loadMissing(['inspectionType.machine']);
+        $filename = date('YmdHis') . '-hse.xlsx';
+        return Excel::download(new HseExport('HSE', $project), $filename);
     }
 
     #[Route(method: 'get', uri: 'export/consmat')]
