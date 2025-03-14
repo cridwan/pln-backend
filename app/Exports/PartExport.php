@@ -3,6 +3,8 @@
 namespace App\Exports;
 
 use App\Models\Transaction\Part;
+use DB;
+use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -20,12 +22,37 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
 {
     protected int $index = 0;
     public function __construct(
-        protected string $title
-    ) {}
+        protected string $title,
+        protected $project
+    ) {
+    }
 
     public function query()
     {
-        return Part::query()->with('globalUnit');
+        return Part::query()
+            ->addSelect([
+                'parts.*',
+                DB::raw("('SCOPE STANDART') AS type")
+            ])
+            ->with('globalUnit')
+            ->where('project_uuid', $this->project?->uuid)
+            ->union(
+                Part::query()
+                    ->addSelect([
+                        'parts.*',
+                        DB::raw("('ADDITIONAL SCOPE') AS type")
+                    ])
+                    ->with('globalUnit')
+                    ->whereHas('additionalScope', function ($query) {
+                        $query->has('assetWelnes')
+                            ->orHas('ohRecom')
+                            ->orHas('woPriority')
+                            ->orHas('history')
+                            ->orHas('rla')
+                            ->orHas('ncr')
+                            ->where('project_uuid', $this->project?->uuid);
+                    })
+            )->orderBy('type', 'DESC');
     }
 
     public function title(): string
@@ -51,11 +78,12 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
     public function columnWidths(): array
     {
         return [
-            'A' => 20,
-            'B' => 70,
-            'C' => 15,
+            'A' => 10,
+            'B' => 20,
+            'C' => 70,
             'D' => 15,
-            'E' => 20
+            'E' => 20,
+            'F' => 20,
         ];
     }
 
@@ -68,6 +96,7 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
     {
         return [
             ++$this->index,
+            $row->type,
             $row->name ?? '-',
             $row->qty ?? '-',
             $row->no_drawing ?? '-',
@@ -83,14 +112,15 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
         // Menulis header langsung ke dalam Excel
         $sheet->setCellValue('B1', 'PT. PLN INDONESIA POWER');
         $sheet->setCellValue('B2', 'SUMMARY SCOPE STANDARD PEMELIHARAAN PERIODIK');
-        $sheet->setCellValue('B3', 'MAJOR INSPECTION');
-        $sheet->setCellValue('B4', 'GAS TURBINE (M70 F)');
+        $sheet->setCellValue('B3', $this->project?->inspectionType?->name ?? '-');
+        $sheet->setCellValue('B4', $this->project?->inspectionType?->machine?->name ?? '-');
         // detail
         $sheet->setCellValue('A5', 'NO');
-        $sheet->setCellValue('B5', 'URAIAN');
-        $sheet->setCellValue('C5', 'VOLUME');
-        $sheet->setCellValue('D5', 'NO DRAWING');
-        $sheet->setCellValue('E5', 'SATUAN');
+        $sheet->setCellValue('B5', 'CATEGORY');
+        $sheet->setCellValue('C5', 'URAIAN');
+        $sheet->setCellValue('D5', 'VOLUME');
+        $sheet->setCellValue('E5', 'NO DRAWING');
+        $sheet->setCellValue('F5', 'SATUAN');
 
 
         $sheet->mergeCells('A1:A4');
@@ -103,9 +133,10 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
         $sheet->mergeCells('C5:C6');
         $sheet->mergeCells('D5:D6');
         $sheet->mergeCells('E5:E6');
+        $sheet->mergeCells('F5:F6');
 
         // bold title
-        $sheet->getStyle('A1:E6')->applyFromArray([
+        $sheet->getStyle('A1:F6')->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
@@ -116,7 +147,7 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
         ]);
 
         // background
-        $sheet->getStyle('B1:E1')->applyFromArray([
+        $sheet->getStyle('B1:F1')->applyFromArray([
             'fill' => array(
                 'fillType' => Fill::FILL_SOLID, // Gunakan FILL_SOLID agar warna tampil dengan jelas
                 'startColor' => [
@@ -125,7 +156,7 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
             )
         ]);
 
-        $sheet->getStyle('A5:E6')->applyFromArray([
+        $sheet->getStyle('A5:F6')->applyFromArray([
             'font' => [
                 'bold' => true,
             ],
@@ -138,7 +169,7 @@ class PartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles
         ]);
 
         // BORDER
-        $sheet->getStyle("A1:E$lastRow")->applyFromArray([
+        $sheet->getStyle("A1:F$lastRow")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,

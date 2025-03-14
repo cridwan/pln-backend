@@ -11,4 +11,9 @@ class InspectionType extends Model
     use SettingModel, HasFactory;
 
     protected $connection = 'masterdata';
+
+    public function machine()
+    {
+        return $this->belongsTo(Machine::class, 'machine_uuid');
+    }
 }

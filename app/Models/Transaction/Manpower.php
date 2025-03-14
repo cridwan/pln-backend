@@ -11,4 +11,9 @@ class Manpower extends Model
     use SettingModel, HasFactory;
 
     protected $connection = 'transaction';
+
+    public function additionalScope()
+    {
+        return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
 }

@@ -4,6 +4,8 @@ namespace App\Exports;
 
 use App\Models\Transaction\AdditionalScope;
 use App\Models\Transaction\ScopeStandart;
+use DB;
+use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -19,27 +21,40 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles, WithDrawings, WithCustomStartCell, WithTitle
 {
+    protected $type = [];
     public function __construct(
         protected string $category,
-        protected string $title
-    ) {}
+        protected string $title,
+        protected $project
+    ) {
+    }
 
     public function query()
     {
         $category = $this->category;
         return ScopeStandart::query()
+            ->addSelect([
+                "scope_standarts.*",
+                DB::raw("('SCOPE STANDART') as type")
+            ])
             ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
-            ->where('category', 'like', "%$category%");
-            // ->union(
-            //     AdditionalScope::query()
-            //         ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
-            //         ->has('assetWelnes')
-            //         ->orHas('ohRecom')
-            //         ->orHas('woPriority')
-            //         ->orHas('history')
-            //         ->orHas('rla')
-            //         ->orHas('ncr')
-            // );
+            ->where('category', 'like', "%$category%")
+            ->where('project_uuid', $this->project?->uuid)
+            ->union(
+                AdditionalScope::query()
+                    ->addSelect([
+                        "additional_scopes.*",
+                        DB::raw("('ADDITIONAL SCOPE') as type")
+                    ])
+                    ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
+                    ->has('assetWelnes')
+                    ->orHas('ohRecom')
+                    ->orHas('woPriority')
+                    ->orHas('history')
+                    ->orHas('rla')
+                    ->orHas('ncr')
+                    ->where('project_uuid', $this->project?->uuid)
+            )->orderBy("type", "DESC");
     }
 
     public function title(): string
@@ -73,6 +88,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
             'F' => 35,
             'G' => 35,
             'H' => 35,
+            'I' => 35,
         ];
     }
 
@@ -83,12 +99,13 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
 
     public function map($row): array
     {
-        $data =  [];
+        $data = [];
 
         if (count($row->details) > 0) {
             foreach ($row->details as $index => $item) {
                 if ($index == 0) {
                     $data[] = [
+                        $row->type,
                         $row->name,
                         $item->name,
                         $row->assetWelnes->note ?? '-',
@@ -100,6 +117,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
                     ];
                 } else {
                     $data[] = [
+                        '',
                         '',
                         $item->name,
                         '',
@@ -113,6 +131,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
             }
         } else {
             $data[] = [
+                $row->type,
                 $row->name,
                 '-',
                 $row->assetWelnes->note ?? '-',
@@ -132,36 +151,39 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         // Ambil baris terakhir (biar tahu seberapa panjang data)
         $lastRow = $sheet->getHighestRow();
         $this->autoMerged($sheet, $lastRow, 'A', 'A');
-        $this->autoMerged($sheet, $lastRow, 'C', 'H');
+        $this->autoMerged($sheet, $lastRow, 'B', 'B');
+        $this->autoMerged($sheet, $lastRow, 'D', 'I');
 
         // Menulis header langsung ke dalam Excel
         $sheet->setCellValue('B1', 'PT. PLN INDONESIA POWER');
         $sheet->setCellValue('B2', 'SUMMARY SCOPE STANDARD PEMELIHARAAN PERIODIK');
-        $sheet->setCellValue('B3', 'MAJOR INSPECTION');
-        $sheet->setCellValue('B4', 'GAS TURBINE (M70 F)');
+        $sheet->setCellValue('B3', $this->project?->inspectionType?->name ?? '-');
+        $sheet->setCellValue('B4', $this->project?->inspectionType?->machine?->name ?? '-');
         // detail
-        $sheet->setCellValue('A5', 'SCOPE');
-        $sheet->setCellValue('B5', 'DETAIL');
-        $sheet->setCellValue('C5', 'CONDITION');
-        $sheet->setCellValue('C6', 'ASSET WELNESS');
-        $sheet->setCellValue('D6', 'OH RECOMENDATION');
-        $sheet->setCellValue('E6', 'WO PRIORITY');
-        $sheet->setCellValue('F6', 'HISTORY');
-        $sheet->setCellValue('G6', 'RLA');
-        $sheet->setCellValue('H6', 'NCR');
+        $sheet->setCellValue('A5', 'CATEGORY');
+        $sheet->setCellValue('B5', 'SCOPE');
+        $sheet->setCellValue('C5', 'DETAIL');
+        $sheet->setCellValue('D5', 'CONDITION');
+        $sheet->setCellValue('D6', 'ASSET WELNESS');
+        $sheet->setCellValue('E6', 'OH RECOMENDATION');
+        $sheet->setCellValue('F6', 'WO PRIORITY');
+        $sheet->setCellValue('G6', 'HISTORY');
+        $sheet->setCellValue('H6', 'RLA');
+        $sheet->setCellValue('I6', 'NCR');
 
 
         $sheet->mergeCells('A1:A4');
-        $sheet->mergeCells('B1:H1');
-        $sheet->mergeCells('B2:H2');
-        $sheet->mergeCells('B3:H3');
-        $sheet->mergeCells('B4:H4');
-        $sheet->mergeCells('C5:H5');
+        $sheet->mergeCells('B1:I1');
+        $sheet->mergeCells('B2:I2');
+        $sheet->mergeCells('B3:I3');
+        $sheet->mergeCells('B4:I4');
+        $sheet->mergeCells('D5:I5');
         $sheet->mergeCells('A5:A6');
         $sheet->mergeCells('B5:B6');
+        $sheet->mergeCells('C5:C6');
 
         // bold title
-        $sheet->getStyle('A1:H4')->applyFromArray([
+        $sheet->getStyle('A1:I4')->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
@@ -181,7 +203,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
             ],
         ]);
 
-        $sheet->getStyle('C5:H5')->applyFromArray([
+        $sheet->getStyle('C5:I5')->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
@@ -192,7 +214,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         ]);
 
         // background
-        $sheet->getStyle('B1:H1')->applyFromArray([
+        $sheet->getStyle('B1:I1')->applyFromArray([
             'fill' => array(
                 'fillType' => Fill::FILL_SOLID, // Gunakan FILL_SOLID agar warna tampil dengan jelas
                 'startColor' => [
@@ -201,7 +223,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
             )
         ]);
 
-        $sheet->getStyle('A5:H6')->applyFromArray([
+        $sheet->getStyle('A5:I6')->applyFromArray([
             'font' => [
                 'bold' => true,
             ],
@@ -214,7 +236,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         ]);
 
         // BORDER
-        $sheet->getStyle("A1:H$lastRow")->applyFromArray([
+        $sheet->getStyle("A1:I$lastRow")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,

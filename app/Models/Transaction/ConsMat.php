@@ -26,4 +26,9 @@ class ConsMat extends Model
     {
         return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');
     }
+
+    public function additionalScope()
+    {
+        return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
 }
