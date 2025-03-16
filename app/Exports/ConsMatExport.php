@@ -3,9 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Transaction\ConsMat;
-use App\Models\Transaction\ScopeStandart;
-use DB;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -25,8 +23,7 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
     public function __construct(
         protected string $title,
         protected $project
-    ) {
-    }
+    ) {}
 
     public function query()
     {
@@ -84,6 +81,7 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
             'C' => 70,
             'D' => 15,
             'E' => 15,
+            'F' => 15,
         ];
     }
 
@@ -98,6 +96,7 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
             ++$this->index,
             $row->type,
             $row->name,
+            $row->merk,
             $row->qty,
             $row->globalUnit->name ?? '-'
         ];
@@ -117,8 +116,9 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
         $sheet->setCellValue('A5', 'NO');
         $sheet->setCellValue('B5', 'CATEGORY');
         $sheet->setCellValue('C5', 'URAIAN');
-        $sheet->setCellValue('D5', 'VOLUME');
-        $sheet->setCellValue('E5', 'SATUAN');
+        $sheet->setCellValue('D5', 'MERK');
+        $sheet->setCellValue('E5', 'VOLUME');
+        $sheet->setCellValue('F5', 'SATUAN');
 
 
         $sheet->mergeCells('A1:A4');
@@ -131,9 +131,10 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
         $sheet->mergeCells('C5:C6');
         $sheet->mergeCells('D5:D6');
         $sheet->mergeCells('E5:E6');
+        $sheet->mergeCells('F5:F6');
 
         // bold title
-        $sheet->getStyle('A1:E6')->applyFromArray([
+        $sheet->getStyle('A1:F6')->applyFromArray([
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
@@ -144,7 +145,7 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
         ]);
 
         // background
-        $sheet->getStyle('B1:E1')->applyFromArray([
+        $sheet->getStyle('B1:F1')->applyFromArray([
             'fill' => array(
                 'fillType' => Fill::FILL_SOLID, // Gunakan FILL_SOLID agar warna tampil dengan jelas
                 'startColor' => [
@@ -153,7 +154,7 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
             )
         ]);
 
-        $sheet->getStyle('A5:E6')->applyFromArray([
+        $sheet->getStyle('A5:F6')->applyFromArray([
             'font' => [
                 'bold' => true,
             ],
@@ -166,7 +167,7 @@ class ConsMatExport implements FromQuery, WithMapping, WithColumnWidths, WithSty
         ]);
 
         // BORDER
-        $sheet->getStyle("A1:E$lastRow")->applyFromArray([
+        $sheet->getStyle("A1:F$lastRow")->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,

@@ -4,8 +4,7 @@ namespace App\Exports;
 
 use App\Models\Transaction\AdditionalScope;
 use App\Models\Transaction\ScopeStandart;
-use DB;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -26,8 +25,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         protected string $category,
         protected string $title,
         protected $project
-    ) {
-    }
+    ) {}
 
     public function query()
     {
@@ -35,6 +33,7 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         return ScopeStandart::query()
             ->addSelect([
                 "scope_standarts.*",
+                DB::raw("(0) as day"),
                 DB::raw("('SCOPE STANDART') as type")
             ])
             ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])

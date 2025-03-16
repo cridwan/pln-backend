@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use App\Enums\ScopeStandartCategoryEnum;
-use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
@@ -13,8 +12,7 @@ class ScopeStandartSheetExport implements WithMultipleSheets
 
     public function __construct(
         public $project,
-    ) {
-    }
+    ) {}
 
     public function sheets(): array
     {

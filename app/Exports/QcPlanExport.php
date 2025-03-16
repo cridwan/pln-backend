@@ -2,9 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\Transaction\Part;
 use App\Models\Transaction\QcPlan;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -24,8 +23,7 @@ class QcPlanExport implements FromQuery, WithMapping, WithColumnWidths, WithStyl
     public function __construct(
         protected string $title,
         protected $project
-    ) {
-    }
+    ) {}
 
     public function query()
     {

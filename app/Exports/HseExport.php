@@ -3,9 +3,6 @@
 namespace App\Exports;
 
 use App\Models\Transaction\Hse;
-use App\Models\Transaction\Part;
-use DB;
-use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -25,8 +22,7 @@ class HseExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles,
     public function __construct(
         protected string $title,
         protected $project
-    ) {
-    }
+    ) {}
 
     public function query()
     {

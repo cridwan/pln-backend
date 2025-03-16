@@ -3,8 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Transaction\Manpower;
-use DB;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -24,8 +23,7 @@ class ManpowerExport implements FromQuery, WithMapping, WithColumnWidths, WithSt
     public function __construct(
         protected string $title,
         protected $project
-    ) {
-    }
+    ) {}
 
     public function query()
     {
