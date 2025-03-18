@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\Transaction\AdditionalScope;
 use App\Models\Transaction\ScopeStandart;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -33,26 +32,28 @@ class ScopeStandartExport implements FromQuery, WithMapping, WithColumnWidths, W
         return ScopeStandart::query()
             ->addSelect([
                 "scope_standarts.*",
-                DB::raw("(0) as day"),
                 DB::raw("('SCOPE STANDART') as type")
             ])
             ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
             ->where('category', 'like', "%$category%")
             ->where('project_uuid', $this->project?->uuid)
             ->union(
-                AdditionalScope::query()
+                query: ScopeStandart::query()
                     ->addSelect([
-                        "additional_scopes.*",
-                        DB::raw("('ADDITIONAL SCOPE') as type")
+                        'scope_standarts.*',
+                        DB::raw("('ADDITIONAL SCOPE') AS type")
                     ])
                     ->with(['details', 'assetWelnes', 'ohRecom', 'woPriority', 'history', 'rla', 'ncr'])
-                    ->has('assetWelnes')
-                    ->orHas('ohRecom')
-                    ->orHas('woPriority')
-                    ->orHas('history')
-                    ->orHas('rla')
-                    ->orHas('ncr')
-                    ->where('project_uuid', $this->project?->uuid)
+                    ->where('category', 'like', "%$category%")
+                    ->whereHas('additionalScope', function ($query) {
+                        $query->has('assetWelnes')
+                            ->orHas('ohRecom')
+                            ->orHas('woPriority')
+                            ->orHas('history')
+                            ->orHas('rla')
+                            ->orHas('ncr')
+                            ->where('project_uuid', $this->project?->uuid);
+                    })
             )->orderBy("type", "DESC");
     }
 

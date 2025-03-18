@@ -19,7 +19,7 @@ class ResourceController extends Controller implements HasMiddleware
     use HasPagination, HasApiResource;
 
     protected $model = Part::class;
-    protected array $search = ['name'];
+    protected array $search = ['no_drawing', 'name'];
     protected array $with = ['globalUnit'];
 
     protected $rules = [];

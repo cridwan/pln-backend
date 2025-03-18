@@ -19,7 +19,7 @@ class ResourceController extends Controller implements HasMiddleware
     use HasList, HasApiResource;
 
     protected $model = Tools::class;
-    protected array $search = ['name'];
+    protected array $search = ['name', 'section'];
     protected array $with = ['globalUnit'];
     protected $rules = [];
 

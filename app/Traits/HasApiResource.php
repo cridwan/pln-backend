@@ -21,12 +21,21 @@ trait HasApiResource
 
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
-                foreach ($this->search as $item) {
-                    $explode = explode('.', $item);
-                    if (count($explode) > 1) {
-                        $search->whereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                foreach ($this->search as $index => $item) {
+                    if ($index == 0) {
+                        $explode = explode('.', $item);
+                        if (count($explode) > 1) {
+                            $search->whereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                        } else {
+                            $search->where($item, 'like', "%$request->search%");
+                        }
                     } else {
-                        $search->where($item, 'like', "%$request->search%");
+                        $explode = explode('.', $item);
+                        if (count($explode) > 1) {
+                            $search->orWhereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                        } else {
+                            $search->orWhere($item, 'like', "%$request->search%");
+                        }
                     }
                 }
             });

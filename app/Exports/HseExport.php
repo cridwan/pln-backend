@@ -27,6 +27,7 @@ class HseExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles,
     public function query()
     {
         return Hse::query()
+            ->with('document')
             ->where('project_uuid', $this->project?->uuid);
     }
 
@@ -70,6 +71,7 @@ class HseExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles,
             ++$this->index,
             $row->type == 'standart' ? 'SCOPE STANDART' : 'ADDITIONAL SCOPE',
             $row->title,
+            $row->document ? 'YA' : 'TIDAK',
         ];
     }
 
@@ -87,6 +89,7 @@ class HseExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles,
         $sheet->setCellValue('A5', 'NO');
         $sheet->setCellValue('B5', 'CATEGORY');
         $sheet->setCellValue('C5', 'DOCUMENT');
+        $sheet->setCellValue('D5', 'STATUS');
 
 
         $sheet->mergeCells('A1:A4');
@@ -96,7 +99,8 @@ class HseExport implements FromQuery, WithMapping, WithColumnWidths, WithStyles,
         $sheet->mergeCells('B4:E4');
         $sheet->mergeCells('A5:A6');
         $sheet->mergeCells('B5:B6');
-        $sheet->mergeCells('C5:E6');
+        $sheet->mergeCells('C5:C6');
+        $sheet->mergeCells('D5:E6');
 
         // bold title
         $sheet->getStyle('A1:E6')->applyFromArray([

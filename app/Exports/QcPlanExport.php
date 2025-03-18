@@ -28,6 +28,7 @@ class QcPlanExport implements FromQuery, WithMapping, WithColumnWidths, WithStyl
     public function query()
     {
         return QcPlan::query()
+            ->with("document")
             ->addSelect([
                 'qc_plans.*',
                 DB::raw("('SCOPE STANDART') AS type")
@@ -35,6 +36,7 @@ class QcPlanExport implements FromQuery, WithMapping, WithColumnWidths, WithStyl
             ->where('project_uuid', $this->project?->uuid)
             ->union(
                 QcPlan::query()
+                    ->with("document")
                     ->addSelect([
                         'qc_plans.*',
                         DB::raw("('ADDITIONAL SCOPE') AS type")
@@ -92,6 +94,7 @@ class QcPlanExport implements FromQuery, WithMapping, WithColumnWidths, WithStyl
             ++$this->index,
             $row->type,
             $row->name,
+            $row->document ? "YA" : "TIDAK"
         ];
     }
 
@@ -109,6 +112,7 @@ class QcPlanExport implements FromQuery, WithMapping, WithColumnWidths, WithStyl
         $sheet->setCellValue('A5', 'NO');
         $sheet->setCellValue('B5', 'CATEGORY');
         $sheet->setCellValue('C5', 'DOCUMENT');
+        $sheet->setCellValue('D5', 'STATUS');
 
 
         $sheet->mergeCells('A1:A4');
@@ -118,7 +122,8 @@ class QcPlanExport implements FromQuery, WithMapping, WithColumnWidths, WithStyl
         $sheet->mergeCells('B4:E4');
         $sheet->mergeCells('A5:A6');
         $sheet->mergeCells('B5:B6');
-        $sheet->mergeCells('C5:E6');
+        $sheet->mergeCells('C5:C6');
+        $sheet->mergeCells('D5:E6');
 
         // bold title
         $sheet->getStyle('A1:E6')->applyFromArray([

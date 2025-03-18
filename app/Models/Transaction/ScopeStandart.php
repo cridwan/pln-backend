@@ -61,4 +61,9 @@ class ScopeStandart extends Model
     {
         return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::NCR->value)->latest();
     }
+
+    public function additionalScope()
+    {
+        return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
 }

@@ -19,12 +19,21 @@ trait HasList
 
         $query->when($request->filled('search'), function ($subQuery) use ($request, $searchColumn) {
             $subQuery->where(function ($search) use ($request, $searchColumn) {
-                foreach ($searchColumn as $item) {
-                    $explode = explode('.', $item);
-                    if (count($explode) > 1) {
-                        $search->whereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                foreach ($searchColumn as $index => $item) {
+                    if ($index == 0) {
+                        $explode = explode('.', $item);
+                        if (count($explode) > 1) {
+                            $search->whereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                        } else {
+                            $search->where($item, 'like', "%$request->search%");
+                        }
                     } else {
-                        $search->where($item, 'like', "%$request->search%");
+                        $explode = explode('.', $item);
+                        if (count($explode) > 1) {
+                            $search->orWhereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                        } else {
+                            $search->orWhere($item, 'like', "%$request->search%");
+                        }
                     }
                 }
             });
