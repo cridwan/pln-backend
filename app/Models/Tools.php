@@ -17,4 +17,9 @@ class Tools extends Model
     {
         return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');
     }
+
+    public function inspectionType()
+    {
+        return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
+    }
 }

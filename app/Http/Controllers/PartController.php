@@ -39,6 +39,6 @@ class PartController extends Controller implements HasMiddleware
 
     protected $model = Part::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['globalUnit', 'inspectionType.machine'];
     protected $rules = [];
 }

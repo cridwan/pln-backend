@@ -6,6 +6,7 @@ use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Models\GlobalUnit;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use Dedoc\Scramble\Attributes\Group;
@@ -16,7 +17,7 @@ use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: ResponseMiddleware::class)]
 #[Group('Master Global Unit')]
-class GlobalUnit extends Controller implements HasMiddleware
+class GlobalUnitController extends Controller implements HasMiddleware
 {
     use HasList, HasApiResource;
 

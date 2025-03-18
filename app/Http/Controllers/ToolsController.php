@@ -41,7 +41,7 @@ class ToolsController extends Controller implements HasMiddleware
 
     protected $model = Tools::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['globalUnit', 'inspectionType.machine'];
     protected $rules = [];
 
     #[DoNotDiscover]

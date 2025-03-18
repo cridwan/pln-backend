@@ -12,4 +12,14 @@ class ConsMat extends Model
     protected $connection = 'masterdata';
 
     protected $table = 'const_mats';
+
+    public function globalUnit()
+    {
+        return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');
+    }
+
+    public function inspectionType()
+    {
+        return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
+    }
 }
