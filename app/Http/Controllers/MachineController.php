@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionMiddleware;
+use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Machine;
 use App\Traits\HasApiResource;
@@ -26,9 +28,10 @@ class MachineController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value),
             new Middleware(
-                PermissionMiddleware::using(
+                PermissionRoleMiddleware::using(
                     [
-                        PermissionEnum::MACHINE
+                        PermissionEnum::MACHINE,
+                        RoleEnum::PLANNER
                     ]
                 ),
                 except: ['list']

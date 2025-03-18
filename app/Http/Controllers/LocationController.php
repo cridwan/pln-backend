@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionMiddleware;
+use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Location;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -25,9 +28,10 @@ class LocationController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value),
             new Middleware(
-                PermissionMiddleware::using(
+                PermissionRoleMiddleware::using(
                     [
-                        PermissionEnum::LOCATION
+                        PermissionEnum::LOCATION,
+                        RoleEnum::PLANNER
                     ]
                 ),
                 except: ['list']

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionMiddleware;
+use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Unit;
 use App\Traits\HasApiResource;
@@ -28,9 +30,10 @@ class UnitController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value),
             new Middleware(
-                PermissionMiddleware::using(
+                PermissionRoleMiddleware::using(
                     [
-                        PermissionEnum::UNIT
+                        PermissionEnum::UNIT,
+                        RoleEnum::PLANNER
                     ]
                 ),
                 except: ['list']
