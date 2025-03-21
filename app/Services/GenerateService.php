@@ -33,7 +33,7 @@ class GenerateService
 
             $project = Project::create($request->all());
 
-            Part::select('name', 'qty', 'global_unit_uuid')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
+            Part::select('name', 'qty', 'global_unit_uuid', 'size', 'no_drawing', 'location')->where('inspection_type_uuid', $request->inspection_type_uuid)->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection('transaction');
                 $duplicate->setTable('parts');
@@ -115,7 +115,7 @@ class GenerateService
                 });
 
                 // TODO part
-                Part::select('name', 'qty', 'global_unit_uuid')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
+                Part::select('name', 'qty', 'global_unit_uuid', 'size', 'no_drawing', 'location')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
                     $duplicate->setConnection('transaction');
                     $duplicate->setTable('parts');
