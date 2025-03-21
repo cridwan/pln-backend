@@ -39,5 +39,13 @@ class ConsumbleMaterialController extends Controller implements HasMiddleware
     protected $model = ConsMat::class;
     protected array $search = ['name'];
     protected array $with = ['globalUnit', 'inspectionType.machine.unit.location'];
-    protected $rules = [];
+
+    protected $rules = [
+        'name' => 'required',
+        "qty" => 'required',
+        "merk" => "required",
+        "global_unit_uuid" => "required",
+        "additional_scope_uuid" => 'nullable',
+        "inspection_type_uuid" => "required"
+    ];
 }
