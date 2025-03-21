@@ -75,10 +75,14 @@ class UserController extends Controller implements HasMiddleware
     #[Route(method: 'post', uri: '/')]
     public function store(UserRequest $request)
     {
-        return User::create([
+        $user = User::create([
             $request->except('password'),
             'password' => Hash::make($request->password)
         ]);
+
+        $user->syncRoles($request->roles);
+
+        return $user;
     }
 
     #[Route(method: 'get', uri: '{uuid}')]
@@ -109,6 +113,8 @@ class UserController extends Controller implements HasMiddleware
                 'password' => Hash::make($request->password)
             ]);
         }
+
+        $user->syncRoles($request->roles);
 
         $user->update($request->all());
     }
