@@ -47,6 +47,8 @@ class PartController extends Controller implements HasMiddleware
         "no_drawing" => "required",
         "global_unit_uuid" => "required",
         "additional_scope_uuid" => "nullable",
-        "inspection_type_uuid" => "required"
+        "inspection_type_uuid" => "required",
+        "size" => "nullable",
+        "location" => "nullable",
     ];
 }

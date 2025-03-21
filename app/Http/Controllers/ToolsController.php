@@ -52,7 +52,8 @@ class ToolsController extends Controller implements HasMiddleware
             'qty' => 'required',
             'global_unit_uuid' => ['required', Rule::exists('masterdata.global_units', 'uuid')],
             'inspection_type_uuid' => ['required', Rule::exists('masterdata.inspection_types', 'uuid')],
-            'section' => 'required'
+            'section' => 'required',
+            'additional_scope_uuid' => 'nullable'
         ];
     }
 }
