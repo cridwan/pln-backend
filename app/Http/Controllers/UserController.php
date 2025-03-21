@@ -44,6 +44,7 @@ class UserController extends Controller implements HasMiddleware
 
 
         $query = User::query();
+        $query->with('roles');
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
@@ -68,7 +69,7 @@ class UserController extends Controller implements HasMiddleware
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        return $query->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     #[Route(method: 'post', uri: '/')]
@@ -88,6 +89,8 @@ class UserController extends Controller implements HasMiddleware
         if (!$user) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
+
+        $user->loadMissing('roles');
 
         return $user;
     }

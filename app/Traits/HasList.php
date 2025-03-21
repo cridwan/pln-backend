@@ -57,6 +57,6 @@ trait HasList
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        return $query->get();
+        return $query->orderBy('created_at', 'DESC')->get();
     }
 }

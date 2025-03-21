@@ -56,6 +56,6 @@ trait HasPagination
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        return $query->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 }
