@@ -101,7 +101,17 @@ class ScopeStandartController extends Controller
 
         $scopeStandart->update($request->except('details'));
 
-        $scopeStandart->details()->createMany($request->details);
+        foreach ($request->details as $detail) {
+            $scopeStandart->details()->updateOrCreate([
+                'name' => $detail['name'],
+                'scope_standart_uuid' => $detail['scope_standart_uuid']
+            ], [
+                'name' => $detail['name'],
+                'scope_standart_uuid' => $detail['scope_standart_uuid']
+            ]);
+        }
+
+
 
         return $scopeStandart;
     }

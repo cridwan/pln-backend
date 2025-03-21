@@ -103,7 +103,15 @@ class AdditionalScopeController extends Controller
 
         $additionalScope->update($request->except('details'));
 
-        $additionalScope->details()->createMany($request->details);
+        foreach ($request->details as $detail) {
+            $additionalScope->details()->updateOrCreate([
+                'name' => $detail['name'],
+                'additional_scope_uuid' => $detail['additional_scope_uuid']
+            ], [
+                'name' => $detail['name'],
+                'additional_scope_uuid' => $detail['additional_scope_uuid']
+            ]);
+        }
 
         return $additionalScope;
     }
