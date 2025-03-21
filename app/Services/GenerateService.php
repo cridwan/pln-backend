@@ -114,6 +114,15 @@ class GenerateService
                     $duplicate->save();
                 });
 
+                // tools
+                Tools::select('name', 'qty', 'global_unit_uuid', 'additional_scope_uuid', 'section')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
+                    $duplicate = $row->replicate();
+                    $duplicate->setConnection('transaction');
+                    $duplicate->setTable('tools');
+                    $duplicate->additional_scope_uuid = $duplicateAdditionalScope->uuid;
+                    $duplicate->save();
+                });
+
                 // TODO part
                 Part::select('name', 'qty', 'global_unit_uuid', 'size', 'no_drawing', 'location')->where('additional_scope_uuid', $additionalScope->uuid)->each(function ($row) use ($project, $duplicateAdditionalScope) {
                     $duplicate = $row->replicate();
