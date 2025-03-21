@@ -42,7 +42,7 @@ class AdditionalScopeController extends Controller
 
 
         $query = AdditionalScope::query();
-        $query->with('details');
+        $query->with(['details', 'inspectionType.machine.unit.location']);
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
@@ -67,7 +67,7 @@ class AdditionalScopeController extends Controller
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->has('inspectionType')->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     #[Route(method: 'post', uri: '/')]

@@ -15,4 +15,9 @@ class ScopeStandart extends Model
     {
         return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
     }
+
+    public function inspectionType()
+    {
+        return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
+    }
 }

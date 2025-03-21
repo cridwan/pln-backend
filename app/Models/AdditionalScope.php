@@ -15,4 +15,9 @@ class AdditionalScope extends Model
     {
         return $this->hasMany(DetailScopeStandart::class, 'additional_scope_uuid');
     }
+
+    public function inspectionType()
+    {
+        return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
+    }
 }
