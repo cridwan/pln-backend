@@ -36,6 +36,7 @@ class UserController extends Controller implements HasMiddleware
         ];
     }
 
+    #[Route(method: 'get', uri: '/')]
     public function index(Request $request)
     {
         $perPage = $request->filled('perPage') ? $request->perPage : 10;
@@ -70,6 +71,7 @@ class UserController extends Controller implements HasMiddleware
         return $query->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
+    #[Route(method: 'post', uri: '/')]
     public function store(UserRequest $request)
     {
         return User::create([
@@ -78,6 +80,7 @@ class UserController extends Controller implements HasMiddleware
         ]);
     }
 
+    #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
         $user = User::find($uuid);
@@ -89,6 +92,7 @@ class UserController extends Controller implements HasMiddleware
         return $user;
     }
 
+    #[Route(method: 'put', uri: '{uuid}')]
     public function update(UserRequest $request, string $uuid)
     {
         $user = User::find($uuid);
@@ -106,6 +110,7 @@ class UserController extends Controller implements HasMiddleware
         $user->update($request->all());
     }
 
+    #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {
         $user = User::find($uuid);

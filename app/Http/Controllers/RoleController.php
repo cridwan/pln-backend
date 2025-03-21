@@ -36,11 +36,13 @@ class RoleController extends Controller implements HasMiddleware
         ];
     }
 
+    #[Route(method: 'get', uri: 'list/permissions')]
     public function permissions()
     {
         return Permission::latest()->get();
     }
 
+    #[Route(method: 'get', uri: '/')]
     public function index(Request $request)
     {
         $perPage = $request->filled('perPage') ? $request->perPage : 10;
@@ -75,6 +77,7 @@ class RoleController extends Controller implements HasMiddleware
         return $query->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
+    #[Route(method: 'post', uri: '/')]
     public function store(RoleRequest $request)
     {
         $role =  Role::create($request->except('permissions'));
@@ -82,6 +85,7 @@ class RoleController extends Controller implements HasMiddleware
         $role->syncPermissions($request->permissions);
     }
 
+    #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
         $role = Role::find($uuid);
@@ -93,6 +97,7 @@ class RoleController extends Controller implements HasMiddleware
         return $role;
     }
 
+    #[Route(method: 'put', uri: '{uuid}')]
     public function update(RoleRequest $request, string $uuid)
     {
         $role = Role::find($uuid);
@@ -108,6 +113,7 @@ class RoleController extends Controller implements HasMiddleware
         return $role;
     }
 
+    #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {
         $role = Role::find($uuid);
