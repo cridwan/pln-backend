@@ -25,7 +25,8 @@ class UserRequest extends FormRequest
         $rules =  [
             'name' => 'required',
             'email' => ['required', 'email', Rule::exists('master.users', 'email')],
-            'password' => 'required'
+            'password' => 'required',
+            'roles' => 'required|array'
         ];
 
         if ($this->method() == 'PUT') {
