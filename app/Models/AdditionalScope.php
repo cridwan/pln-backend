@@ -10,4 +10,9 @@ class AdditionalScope extends Model
     use SettingModel;
 
     protected $connection = 'masterdata';
+
+    public function details()
+    {
+        return $this->hasMany(DetailScopeStandart::class, 'additional_scope_uuid');
+    }
 }

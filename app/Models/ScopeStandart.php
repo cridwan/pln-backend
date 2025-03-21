@@ -10,4 +10,9 @@ class ScopeStandart extends Model
     use SettingModel;
 
     protected $connection = 'masterdata';
+
+    public function details()
+    {
+        return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
+    }
 }

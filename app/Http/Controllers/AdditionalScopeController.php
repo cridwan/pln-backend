@@ -6,20 +6,16 @@ use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Middleware\PermissionMiddleware;
-use App\Http\Middleware\ResponseMiddleware;
-use App\Http\Requests\RoleRequest;
-use App\Models\Permission;
-use App\Models\Role;
-use Dedoc\Scramble\Attributes\Group;
+use App\Http\Requests\AdditionalScopeRequest;
+use App\Http\Requests\ScopeStandartMasterRequest;
+use App\Models\AdditionalScope;
+use App\Models\ScopeStandart;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
-#[Group('Master Role')]
-#[Route(middleware: ResponseMiddleware::class)]
-class RoleController extends Controller implements HasMiddleware
+class AdditionalScopeController extends Controller
 {
     #[DoNotDiscover]
     public static function middleware()
@@ -29,17 +25,11 @@ class RoleController extends Controller implements HasMiddleware
             new Middleware(
                 PermissionMiddleware::using(
                     [
-                        PermissionEnum::ROLE
+                        PermissionEnum::ADDITIONAL_SCOPE
                     ]
                 ),
             )
         ];
-    }
-
-    #[Route(method: 'get', uri: 'list/permissions')]
-    public function permissions()
-    {
-        return Permission::latest()->get();
     }
 
     #[Route(method: 'get', uri: '/')]
@@ -49,7 +39,8 @@ class RoleController extends Controller implements HasMiddleware
         $currentPage = $request->filled('currentPage') ? $request->currentPage : 1;
 
 
-        $query = Role::query();
+        $query = AdditionalScope::query();
+        $query->with('details');
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
@@ -78,55 +69,52 @@ class RoleController extends Controller implements HasMiddleware
     }
 
     #[Route(method: 'post', uri: '/')]
-    public function store(RoleRequest $request)
+    public function store(AdditionalScopeRequest $request)
     {
-        $role =  Role::create([
-            ...$request->except('permissions'),
-            'guard_name' => 'api'
-        ]);
+        $additionalScope =  AdditionalScope::create($request->except('details'));
 
-        $role->syncPermissions($request->permissions);
+        $additionalScope->details()->createMany($request->details);
 
-        return $role;
+        return $additionalScope;
     }
 
     #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
-        $role = Role::find($uuid);
+        $additionalScope = AdditionalScope::find($uuid);
 
-        if (!$role) {
+        if (!$additionalScope) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        return $role;
+        return $additionalScope;
     }
 
     #[Route(method: 'put', uri: '{uuid}')]
-    public function update(RoleRequest $request, string $uuid)
+    public function update(AdditionalScopeRequest $request, string $uuid)
     {
-        $role = Role::find($uuid);
+        $additionalScope = AdditionalScope::find($uuid);
 
-        if (!$role) {
+        if (!$additionalScope) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        $role->update($request->except('permissions'));
+        $additionalScope->update($request->except('details'));
 
-        $role->syncPermissions($request->permissions);
+        $additionalScope->details()->createMany($request->details);
 
-        return $role;
+        return $additionalScope;
     }
 
     #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {
-        $role = Role::find($uuid);
+        $additionalScope = AdditionalScope::find($uuid);
 
-        if (!$role) {
+        if (!$additionalScope) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        return $role->delete();
+        return $additionalScope->delete();
     }
 }
