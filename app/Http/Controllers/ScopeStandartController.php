@@ -8,11 +8,13 @@ use App\Exceptions\BadRequestException;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Requests\ScopeStandartMasterRequest;
 use App\Models\ScopeStandart;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
+#[Group("Master Scope Standart")]
 class ScopeStandartController extends Controller
 {
     #[DoNotDiscover]

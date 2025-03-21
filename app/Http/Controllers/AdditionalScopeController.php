@@ -10,11 +10,13 @@ use App\Http\Requests\AdditionalScopeRequest;
 use App\Http\Requests\ScopeStandartMasterRequest;
 use App\Models\AdditionalScope;
 use App\Models\ScopeStandart;
+use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
+#[Group("Master Additional Scope")]
 class AdditionalScopeController extends Controller
 {
     #[DoNotDiscover]
