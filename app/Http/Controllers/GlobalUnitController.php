@@ -40,5 +40,7 @@ class GlobalUnitController extends Controller implements HasMiddleware
     protected $model =  GlobalUnit::class;
     protected array $search = ['name'];
     protected array $with = [];
-    protected $rules = [];
+    protected $rules = [
+        "name" => "required"
+    ];
 }
