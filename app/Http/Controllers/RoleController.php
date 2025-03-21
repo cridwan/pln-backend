@@ -83,6 +83,8 @@ class RoleController extends Controller implements HasMiddleware
         $role =  Role::create($request->except('permissions'));
 
         $role->syncPermissions($request->permissions);
+
+        return $role;
     }
 
     #[Route(method: 'get', uri: '{uuid}')]
