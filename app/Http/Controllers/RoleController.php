@@ -16,6 +16,7 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
+use Str;
 
 #[Group('Master Role')]
 #[Route(middleware: ResponseMiddleware::class)]
@@ -25,14 +26,14 @@ class RoleController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
-            new Middleware(
-                PermissionMiddleware::using(
-                    [
-                        PermissionEnum::ROLE
-                    ]
-                ),
-            )
+            // new Middleware(AuthPermissionEnum::AUTH_API->value),
+            // new Middleware(
+            //     PermissionMiddleware::using(
+            //         [
+            //             PermissionEnum::ROLE
+            //         ]
+            //     ),
+            // )
         ];
     }
 
@@ -82,6 +83,7 @@ class RoleController extends Controller implements HasMiddleware
     {
         $role =  Role::create([
             ...$request->except('permissions'),
+            'name' => \Illuminate\Support\Str::slug($request->display_name),
             'guard_name' => 'api'
         ]);
 
@@ -127,6 +129,10 @@ class RoleController extends Controller implements HasMiddleware
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        return $role->delete();
+        $role->delete();
+
+        return [
+            "message" => true
+        ];
     }
 }
