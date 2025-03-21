@@ -47,6 +47,5 @@ class ManpowerController extends Controller implements HasMiddleware
         "note" => "required",
         "additional_scope_uuid" => "nullable",
         "inspection_type_uuid" => "required",
-        "global_unit_uuid" => "required",
     ];
 }
