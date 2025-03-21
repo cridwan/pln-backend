@@ -76,7 +76,7 @@ class UserController extends Controller implements HasMiddleware
     public function store(UserRequest $request)
     {
         $user = User::create([
-            $request->except('password'),
+            ...$request->except('password'),
             'password' => Hash::make($request->password)
         ]);
 

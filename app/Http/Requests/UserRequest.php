@@ -24,14 +24,14 @@ class UserRequest extends FormRequest
     {
         $rules =  [
             'name' => 'required',
-            'email' => ['required', 'email', Rule::exists('master.users', 'email')],
+            'email' => ['required',  Rule::unique('masterdata.users', 'email')],
             'password' => 'required',
             'roles' => 'required|array'
         ];
 
         if ($this->method() == 'PUT') {
             $rules = [
-                'email' => ['required', 'email', Rule::exists('master.users', 'email')->whereNot('id', $this->route('uuid'))],
+                'email' => ['required', Rule::unique('masterdata.users', 'email')->whereNot('id', $this->route('uuid'))],
                 'password' => 'nullable'
             ];
         }
