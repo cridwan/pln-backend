@@ -40,5 +40,13 @@ class PartController extends Controller implements HasMiddleware
     protected $model = Part::class;
     protected array $search = ['name'];
     protected array $with = ['globalUnit', 'inspectionType.machine.unit.location'];
-    protected $rules = [];
+    protected $rules = [
+        "name" => "required",
+        "qty" => "required",
+        "note" => "required",
+        "no_drawing" => "required",
+        "global_unit_uuid" => "required",
+        "additional_scope_uuid" => "nullable",
+        "inspection_type_uuid" => "required"
+    ];
 }
