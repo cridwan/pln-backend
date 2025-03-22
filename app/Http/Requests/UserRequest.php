@@ -26,7 +26,7 @@ class UserRequest extends FormRequest
             'name' => 'required',
             'email' => ['required',  Rule::unique('masterdata.users', 'email')],
             'password' => 'required',
-            'roles' => 'required|array'
+            'roles' => 'array'
         ];
 
         if ($this->method() == 'PUT') {
