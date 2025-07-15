@@ -1,0 +1,13 @@
+FROM --platform=linux/amd64 dunglas/frankenphp:static-builder as builder
+WORKDIR /go/src/app/dist/app
+COPY . .
+RUN composer install --ignore-platform-reqs --no-dev -a
+WORKDIR /go/src/app
+RUN EMBED=dist/app/ \
+    PHP_EXTENSIONS=ctype,curl,tokenizer,session,fileinfo,dom,mbstring,posix,pcntl,intl,iconv,readline,pdo_sqlite,gd,zip,curl,redis,bcmath,gettext,xml,openssl,pdo_pgsql,pgsql,xsl,xmlwriter \
+    ./build-static.sh
+FROM alpine:3.19.0
+WORKDIR /app
+COPY --from=builder /go/src/app/dist/frankenphp-linux-x86_64 project
+EXPOSE 80/tcp
+CMD ["./project", "php-server"]

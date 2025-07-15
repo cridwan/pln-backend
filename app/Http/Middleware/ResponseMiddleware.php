@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Response\SuccessResponse;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,25 +19,24 @@ class ResponseMiddleware
     {
         try {
             $response = $next($request);
-
             // Jika response bukan instance JsonResponse, jangan ubah
             if (!$response instanceof JsonResponse) {
                 return $response;
             }
 
-            // Ambil data asli dari response
-            $originalData = $response->getData(true);
+            if (
+                $response instanceof JsonResponse &&
+                $response->isSuccessful()
+            ) {
+                // Ambil data asli dari response
+                $originalData = $response->getData(true);
 
-            // Format response
-            $formattedResponse = [
-                'data' => $originalData,
-            ];
+                return (new SuccessResponse($response->getStatusCode(), 'Success', $originalData))->toJson();
+            }
 
-            return response()->json($formattedResponse, $response->getStatusCode());
+            return $response;
         } catch (\Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage()
-            ], $response->getStatusCode());
+            throw $th;
         }
     }
 }

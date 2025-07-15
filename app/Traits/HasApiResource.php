@@ -83,7 +83,7 @@ trait HasApiResource
         $validator = Validator::make(request()->all(), $this->rules);
 
         if ($validator->fails()) {
-            throw new ValidationErrorException(json_encode($validator->getMessageBag()));
+            throw new ValidationErrorException(json_encode($validator->errors()));
         }
 
         return $this->model::create($validator->validated());
@@ -95,7 +95,7 @@ trait HasApiResource
         $validator = Validator::make(request()->all(), $this->rules);
 
         if ($validator->fails()) {
-            throw new ValidationErrorException(json_encode($validator->getMessageBag()));
+            throw new ValidationErrorException(json_encode($validator->errors()));
         }
 
         $exist = $this->model::where('uuid', $uuid)->first();

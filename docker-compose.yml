@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pln_backend
+    ports:
+      - "3201:8000"
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: local
+      APP_DEBUG: false
+      LOG_CHANNEL: stack
+
+      # MAIN DB
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: tensor_global
+      DB_USERNAME: root
+      DB_PASSWORD: password
+
+      # TRANSACTION DB
+      SECOND_DB_CONNECTION: transaction
+      SECOND_DB_HOST: mysql
+      SECOND_DB_PORT: 3306
+      SECOND_DB_DATABASE: tensor_transaction
+      SECOND_DB_USERNAME: root
+      SECOND_DB_PASSWORD: password
+
+      # DOCUMENT DB
+      DOCUMENT_DB_CONNECTION: document
+      DOCUMENT_DB_HOST: mysql
+      DOCUMENT_DB_PORT: 3306
+      DOCUMENT_DB_DATABASE: tensor_document
+      DOCUMENT_DB_USERNAME: root
+      DOCUMENT_DB_PASSWORD: password
+
+      # min io
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: minio123
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_BUCKET: plnip
+      AWS_ENDPOINT: http://192.168.0.101:9000
+      AWS_USE_PATH_STYLE_ENDPOINT: true
+
+    depends_on:
+      - mysql
+      - minio
+    networks:
+      - laravel_net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mysql:
+    image: mysql:8
+    container_name: mysql_container
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - laravel_net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    depends_on:
+        - mysql
+    environment:
+        PMA_HOST: mysql
+        PMA_PORT: 3306
+        MYSQL_ROOT_PASSWORD: password
+    ports:
+        - "8080:80"
+    networks:
+        - laravel_net
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports:
+        - "9000:9000"   # API
+        - "9001:9001"   # Web UI
+    environment:
+        MINIO_ROOT_USER: minio
+        MINIO_ROOT_PASSWORD: minio123
+    command: server /data --console-address ":9001"
+    volumes:
+        - ./minio-data:/data
+    networks:
+        - laravel_net
+        - bridge_public
+
+volumes:
+  mysql_data:
+
+networks:
+  laravel_net:
+  bridge_public:
+    driver: bridge

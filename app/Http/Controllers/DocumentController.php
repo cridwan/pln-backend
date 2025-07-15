@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
+use App\Helpers\MinioHelper;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\DocumentRequest;
 use App\Models\Storage\Document;
@@ -12,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
@@ -32,18 +32,14 @@ class DocumentController extends Controller implements HasMiddleware
     #[Route('POST')]
     public function store(DocumentRequest $request)
     {
-        $document = $request->file('document');
-        $documentFileName = $document->hashName();
-        $documentSize = $document->getSize();
-        $documentMimeType = $document->getMimeType();
-        $documentLink = $document->storeAs('documents', $documentFileName);
+        $uploaded = MinioHelper::upload($request->file('document'));
 
         return Document::create($request->merge([
-            'document_original_name' => $document->getClientOriginalName(),
-            'document_name' => $documentFileName,
-            'document_link' => "storage/$documentLink",
-            'document_size' => $documentSize,
-            'document_mime_type' => $documentMimeType
+            'document_original_name' => $uploaded['filename'],
+            'document_name' => $uploaded['hash_name'],
+            'document_link' => $uploaded['path'],
+            'document_size' => $uploaded['size'],
+            'document_mime_type' => $uploaded['mime_type'],
         ])->all());
     }
 

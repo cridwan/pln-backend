@@ -4,9 +4,12 @@ use App\Exceptions\AnauthenticateException;
 use App\Exceptions\BadRequestException;
 use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationErrorException;
+use App\Response\ErrorResponse;
+use App\Response\ValidationErrorResponse;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
@@ -22,38 +25,41 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $th) {
+            $statusCode = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $message = $th->getMessage();
+            $errors = null;
+            $validationError = false;
+
             if ($th instanceof BadRequestException) {
-                return response()->json([
-                    'message' => $th->getMessage(),
-                ], HttpFoundationResponse::HTTP_BAD_REQUEST);
+                $statusCode = HttpFoundationResponse::HTTP_BAD_REQUEST;
             }
 
             if ($th instanceof UnauthorizedException) {
-                return response()->json([
-                    'message' => $th->getMessage(),
-                ], HttpFoundationResponse::HTTP_FORBIDDEN);
+                $statusCode = HttpFoundationResponse::HTTP_FORBIDDEN;
             }
 
             if ($th instanceof AnauthenticateException) {
-                return response()->json([
-                    'message' => $th->getMessage(),
-                ], HttpFoundationResponse::HTTP_UNAUTHORIZED);
+                $statusCode = HttpFoundationResponse::HTTP_UNAUTHORIZED;
             }
 
             if ($th instanceof NotFoundException) {
-                return response()->json([
-                    'message' => $th->getMessage(),
-                ], HttpFoundationResponse::HTTP_NOT_FOUND);
+                $statusCode = HttpFoundationResponse::HTTP_NOT_FOUND;
             }
 
             if ($th instanceof ValidationErrorException) {
-                return response()->json([
-                    'message' => json_decode($th->getMessage()),
-                ], HttpFoundationResponse::HTTP_BAD_REQUEST);
+                $statusCode = HttpFoundationResponse::HTTP_UNPROCESSABLE_ENTITY;
+                $message = 'Validation errors';
+                $errors = json_decode($th->getMessage());
+                $validationError = true;
             }
 
-            return response()->json([
-                'message' => $th->getMessage(),
-            ], HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR);
+            if ($th instanceof ValidationException) {
+                $statusCode = HttpFoundationResponse::HTTP_UNPROCESSABLE_ENTITY;
+                $message = 'Validation errors';
+                $errors = $th->errors();
+                $validationError = true;
+            }
+
+            return $validationError ? (new ValidationErrorResponse($statusCode, $message, $errors))->toJson() : (new ErrorResponse($statusCode, $message, $th->getTrace()))->toJson();
         });
     })->create();
