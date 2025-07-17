@@ -1,0 +1,4 @@
+.env.example
+.env.docker.example
+vendor
+minio-data

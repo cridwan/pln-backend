@@ -11,6 +11,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Models\InspectionType;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -38,7 +39,7 @@ class InspectionTypeController extends Controller implements HasMiddleware
             )
         ];
     }
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = InspectionType::class;
     protected array $search = ['name'];

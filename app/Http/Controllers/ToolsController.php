@@ -9,6 +9,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Tools;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -21,7 +22,7 @@ use Spatie\RouteDiscovery\Attributes\Route;
 #[Group(name: 'Master Tools')]
 class ToolsController extends Controller implements HasMiddleware
 {
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     #[DoNotDiscover]
     public static function middleware()

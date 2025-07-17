@@ -9,6 +9,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Models\GlobalUnit;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -19,7 +20,7 @@ use Spatie\RouteDiscovery\Attributes\Route;
 #[Group('Master Global Unit')]
 class GlobalUnitController extends Controller implements HasMiddleware
 {
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     #[DoNotDiscover]
     public static function middleware()

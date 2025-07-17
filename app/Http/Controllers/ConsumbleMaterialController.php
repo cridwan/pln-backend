@@ -9,6 +9,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Models\ConsMat;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -34,7 +35,7 @@ class ConsumbleMaterialController extends Controller implements HasMiddleware
             )
         ];
     }
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = ConsMat::class;
     protected array $search = ['name'];

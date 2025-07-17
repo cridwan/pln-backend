@@ -85,7 +85,13 @@
             "php artisan passport:client --personal"
         ],
         "build:app": [
-            "docker-compose down && docker-compose up -d --build"
+            "docker-compose --env-file .env.docker build"
+        ],
+        "down:app":[
+            "docker-compose --env-file .env.docker down"
+        ],
+        "up:app":[
+            "docker-compose --env-file .env.docker up -d"
         ]
     },
     "extra": {

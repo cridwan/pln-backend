@@ -12,6 +12,7 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Models\Location;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -39,7 +40,7 @@ class LocationController extends Controller implements HasMiddleware
         ];
     }
 
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = Location::class;
     protected array $search = ['name', 'slug'];

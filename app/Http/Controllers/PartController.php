@@ -9,6 +9,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Part;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -35,7 +36,7 @@ class PartController extends Controller implements HasMiddleware
         ];
     }
 
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = Part::class;
     protected array $search = ['name'];

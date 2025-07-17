@@ -26,14 +26,14 @@ class RoleController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            // new Middleware(AuthPermissionEnum::AUTH_API->value),
-            // new Middleware(
-            //     PermissionMiddleware::using(
-            //         [
-            //             PermissionEnum::ROLE
-            //         ]
-            //     ),
-            // )
+            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(
+                PermissionMiddleware::using(
+                    [
+                        PermissionEnum::ROLE
+                    ]
+                ),
+            )
         ];
     }
 

@@ -27,10 +27,10 @@ class AdditionalScopeController extends Controller
             new Middleware(
                 PermissionMiddleware::using(
                     [
-                        PermissionEnum::ADDITIONAL_SCOPE
-                    ]
+                        PermissionEnum::ADDITIONAL_SCOPE,
+                    ],
                 ),
-            )
+            ),
         ];
     }
 

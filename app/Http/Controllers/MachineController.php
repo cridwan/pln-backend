@@ -11,6 +11,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Machine;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
+use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -39,7 +40,7 @@ class MachineController extends Controller implements HasMiddleware
         ];
     }
 
-    use HasList, HasApiResource;
+    use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = Machine::class;
     protected $search = ['name', 'unit.name'];

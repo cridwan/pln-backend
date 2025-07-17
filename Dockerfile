@@ -17,6 +17,9 @@ COPY . .
 # Install Laravel dependencies
 RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
+# Generate APP_KEY
+RUN php artisan key:generate
+
 # Set permission
 RUN chmod -R 775 storage bootstrap/cache
 
@@ -56,4 +59,6 @@ COPY Caddyfile /etc/frankenphp/Caddyfile
 
 EXPOSE 8000
 
-ENV FRANKENPHP_CONFIG="worker ./public/index.php"
+ENV APP_ENV=production \
+    APP_DEBUG=false \
+    FRANKENPHP_CONFIG="worker /app/public/index.php"
