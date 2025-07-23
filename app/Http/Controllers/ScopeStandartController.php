@@ -36,6 +36,9 @@ class ScopeStandartController extends Controller
         ];
     }
 
+    /**
+     * list data
+     */
     #[Route(method: 'get', uri: '/')]
     public function index(Request $request)
     {
@@ -72,6 +75,9 @@ class ScopeStandartController extends Controller
         return $query->has('inspectionType')->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
+    /**
+     * store data
+     */
     #[Route(method: 'post', uri: '/')]
     public function store(ScopeStandartMasterRequest $request)
     {
@@ -82,6 +88,9 @@ class ScopeStandartController extends Controller
         return $scopeStandart;
     }
 
+    /**
+     * show data
+     */
     #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
@@ -94,6 +103,9 @@ class ScopeStandartController extends Controller
         return $scopeStandart;
     }
 
+    /**
+     * update data
+     */
     #[Route(method: 'put', uri: '{uuid}')]
     public function update(ScopeStandartMasterRequest $request, string $uuid)
     {
@@ -120,6 +132,9 @@ class ScopeStandartController extends Controller
         return $scopeStandart;
     }
 
+    /**
+     * delete data
+     */
     #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {

@@ -34,6 +34,9 @@ class AdditionalScopeController extends Controller
         ];
     }
 
+    /**
+     * list data
+     */
     #[Route(method: 'get', uri: '/')]
     public function index(Request $request)
     {
@@ -70,6 +73,9 @@ class AdditionalScopeController extends Controller
         return $query->has('inspectionType')->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
+    /**
+     * store data
+     */
     #[Route(method: 'post', uri: '/')]
     public function store(AdditionalScopeRequest $request)
     {
@@ -80,6 +86,9 @@ class AdditionalScopeController extends Controller
         return $additionalScope;
     }
 
+    /**
+     * show data
+     */
     #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
@@ -92,6 +101,9 @@ class AdditionalScopeController extends Controller
         return $additionalScope;
     }
 
+    /**
+     * update data
+     */
     #[Route(method: 'put', uri: '{uuid}')]
     public function update(AdditionalScopeRequest $request, string $uuid)
     {
@@ -116,6 +128,9 @@ class AdditionalScopeController extends Controller
         return $additionalScope;
     }
 
+    /**
+     * delete data
+     */
     #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {

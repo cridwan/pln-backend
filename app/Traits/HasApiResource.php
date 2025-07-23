@@ -10,6 +10,9 @@ use Spatie\RouteDiscovery\Attributes\Route;
 
 trait HasApiResource
 {
+    /**
+     * get list data pagination
+     */
     #[Route(method: 'get', uri: '/')]
     public function index(PaginationRequest $request)
     {
@@ -62,6 +65,9 @@ trait HasApiResource
         return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
+    /**
+     * get one data
+     */
     #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
@@ -77,7 +83,10 @@ trait HasApiResource
         return $findOne;
     }
 
-    // #[Route(method: 'post')]
+    /**
+     * store data
+     */
+    #[Route(method: 'post', uri: '/')]
     public function store()
     {
         $validator = Validator::make(request()->all(), $this->rules);
@@ -89,6 +98,9 @@ trait HasApiResource
         return $this->model::create($validator->validated());
     }
 
+    /**
+     * update data
+     */
     #[Route(method: 'put', uri: '{uuid}')]
     public function update(string $uuid)
     {
@@ -107,6 +119,9 @@ trait HasApiResource
         return $exist->update($validator->validated());
     }
 
+    /**
+     * delete data
+     */
     #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid): bool
     {

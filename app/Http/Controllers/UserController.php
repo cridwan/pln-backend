@@ -36,6 +36,9 @@ class UserController extends Controller implements HasMiddleware
         ];
     }
 
+    /**
+     * list data
+     */
     #[Route(method: 'get', uri: '/')]
     public function index(Request $request)
     {
@@ -72,6 +75,9 @@ class UserController extends Controller implements HasMiddleware
         return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
+    /**
+     * store data
+     */
     #[Route(method: 'post', uri: '/')]
     public function store(UserRequest $request)
     {
@@ -85,6 +91,9 @@ class UserController extends Controller implements HasMiddleware
         return $user;
     }
 
+    /**
+     * show data
+     */
     #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
@@ -99,6 +108,9 @@ class UserController extends Controller implements HasMiddleware
         return $user;
     }
 
+    /**
+     * update data
+     */
     #[Route(method: 'put', uri: '{uuid}')]
     public function update(UserRequest $request, string $uuid)
     {
@@ -119,6 +131,9 @@ class UserController extends Controller implements HasMiddleware
         $user->update($request->all());
     }
 
+    /**
+     * delete data
+     */
     #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {

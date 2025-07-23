@@ -12,6 +12,9 @@ use Spatie\RouteDiscovery\Attributes\Route;
 
 trait ImportExportExcel
 {
+    /**
+     * get template import data
+     */
     #[Route(method: 'post', name: "export/excel")]
     public function export()
     {
@@ -26,6 +29,9 @@ trait ImportExportExcel
         return (new TemplateExport($filteredAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
 
+    /**
+     * import data
+     */
     #[Route(method: 'post', name: "import/excel")]
     public function import(ImportRequest $request)
     {

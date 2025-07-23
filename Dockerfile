@@ -1,45 +1,33 @@
-# Stage 1: Builder untuk Laravel
+# ----------------------------------------
+# 👷 STAGE 1: Builder (Install Composer deps & build Laravel)
+# ----------------------------------------
 FROM php:8.2-fpm-alpine AS builder
 
-# Install dependencies di Alpine
 RUN apk add --no-cache \
     bash git unzip libzip-dev libpng-dev oniguruma-dev libxml2-dev curl \
     && docker-php-ext-install pdo pdo_mysql zip mbstring xml
 
-# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Copy Laravel project
+COPY composer.json composer.lock ./
 COPY . .
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
-# Install Laravel dependencies
-RUN composer install --ignore-platform-reqs --no-dev --optimize-autoloader
 
-# Generate APP_KEY
-RUN php artisan key:generate
-
-# Set permission
 RUN chmod -R 775 storage bootstrap/cache
 
-# Stage 2: Runtime dengan FrankenPHP
+# ----------------------------------------
+# 🚀 STAGE 2: Runtime (FrankenPHP with MySQL driver)
+# ----------------------------------------
 FROM dunglas/frankenphp
 
-# Install ekstensi MySQL & dependensinya
+# ✅ Install dependencies + MySQL PDO extension
 RUN apt-get update && apt-get install -y \
-    libzip-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libicu-dev \
-    libonig-dev \
-    libxml2-dev \
-    zlib1g-dev \
-    curl \
-    git \
-    unzip \
     default-mysql-client \
+    libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
+    libicu-dev libonig-dev libxml2-dev zlib1g-dev \
     && docker-php-ext-install \
     pdo \
     pdo_mysql \
@@ -51,14 +39,11 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Copy Laravel hasil build dari stage sebelumnya
 COPY --from=builder /app /app
-
-# Copy FrankenPHP config
 COPY Caddyfile /etc/frankenphp/Caddyfile
 
-EXPOSE 8000
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV FRANKENPHP_CONFIG="worker /app/public/index.php"
 
-ENV APP_ENV=production \
-    APP_DEBUG=false \
-    FRANKENPHP_CONFIG="worker /app/public/index.php"
+EXPOSE 8000

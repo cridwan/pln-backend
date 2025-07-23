@@ -7,6 +7,10 @@ use App\Http\Requests\PaginationRequest;
 
 trait HasPagination
 {
+    /**
+     * get pagination data
+     * @param \App\Http\Requests\PaginationRequest $request
+     */
     public function pagination(PaginationRequest $request)
     {
         $perPage = $request->filled('perPage') ? (int) $request->perPage : 10;

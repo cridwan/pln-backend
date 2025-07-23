@@ -84,14 +84,17 @@
             "php artisan passport:keys",
             "php artisan passport:client --personal"
         ],
-        "build:app": [
-            "docker-compose --env-file .env.docker build"
+        "production:build":[
+            "docker compose --env-file .env.docker -f docker-compose.yml build"
         ],
-        "down:app":[
-            "docker-compose --env-file .env.docker down"
+        "production:start":[
+            "docker compose --env-file .env.docker -f docker-compose.yml up -d"
         ],
-        "up:app":[
-            "docker-compose --env-file .env.docker up -d"
+        "development:build":[
+            "docker compose --env-file .env.docker build"
+        ],
+        "development:start":[
+            "docker compose --env-file .env.docker up"
         ]
     },
     "extra": {

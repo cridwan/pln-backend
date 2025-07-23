@@ -31,7 +31,7 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['pagination']),
         ];
     }
 
@@ -46,6 +46,9 @@ class ResourceController extends Controller implements HasMiddleware
         ];
     }
 
+    /**
+     * store asset
+     */
     #[Route('POST')]
     public function asset(ScopeStandartRequest $request)
     {

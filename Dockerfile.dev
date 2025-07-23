@@ -1,13 +1,11 @@
-FROM --platform=linux/amd64 dunglas/frankenphp:static-builder as builder
-WORKDIR /go/src/app/dist/app
-COPY . .
-RUN composer install --ignore-platform-reqs --no-dev -a
-WORKDIR /go/src/app
-RUN EMBED=dist/app/ \
-    PHP_EXTENSIONS=ctype,curl,tokenizer,session,fileinfo,dom,mbstring,posix,pcntl,intl,iconv,readline,pdo_sqlite,gd,zip,curl,redis,bcmath,gettext,xml,openssl,pdo_pgsql,pgsql,xsl,xmlwriter \
-    ./build-static.sh
-FROM alpine:3.19.0
+FROM php:8.2-cli-alpine
+
+RUN apk add --no-cache \
+    bash git unzip libzip-dev libpng-dev oniguruma-dev libxml2-dev curl \
+    && docker-php-ext-install pdo pdo_mysql zip mbstring xml
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 WORKDIR /app
-COPY --from=builder /go/src/app/dist/frankenphp-linux-x86_64 project
-EXPOSE 80/tcp
-CMD ["./project", "php-server"]
+
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

@@ -31,6 +31,9 @@ class GenerateController extends Controller implements HasMiddleware
     ) {}
 
 
+    /**
+     * generate transaction
+     */
     #[Route(method: 'post', name: 'generate.index')]
     public function index(GenerateRequest $request): Project
     {

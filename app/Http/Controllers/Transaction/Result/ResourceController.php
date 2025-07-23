@@ -34,6 +34,9 @@ class ResourceController extends Controller implements HasMiddleware
         ];
     }
 
+    /**
+     * download recap qc plan
+     */
     #[Route(method: 'get', uri: 'export/qc-plan')]
     public function exportQcPlan(Request $request)
     {
@@ -52,6 +55,9 @@ class ResourceController extends Controller implements HasMiddleware
         return Excel::download(new QcPlanExport('QC PLAN', $project), $filename);
     }
 
+    /**
+     * download recap hse
+     */
     #[Route(method: 'get', uri: 'export/hse')]
     public function exportHse(Request $request)
     {
@@ -70,6 +76,9 @@ class ResourceController extends Controller implements HasMiddleware
         return Excel::download(new HseExport('HSE', $project), $filename);
     }
 
+    /**
+     * download recap consmat
+     */
     #[Route(method: 'get', uri: 'export/consmat')]
     public function exportConsMat(Request $request)
     {
@@ -88,6 +97,9 @@ class ResourceController extends Controller implements HasMiddleware
         return Excel::download(new ConsMatExport('CONSUMABLE MATERIAL', $project), $filename);
     }
 
+    /**
+     * download recap part
+     */
     #[Route(method: 'get', uri: 'export/part')]
     public function exportPart(Request $request)
     {
@@ -106,6 +118,9 @@ class ResourceController extends Controller implements HasMiddleware
         return Excel::download(new PartExport('PART', $project), $filename);
     }
 
+    /**
+     * download recap manpower
+     */
     #[Route(method: 'get', uri: 'export/manpower')]
     public function exportManpower(Request $request)
     {
@@ -124,6 +139,9 @@ class ResourceController extends Controller implements HasMiddleware
         return Excel::download(new ManpowerExport('MANPOWER', $project), $filename);
     }
 
+    /**
+     * download recap tools
+     */
     #[Route(method: 'get', uri: 'export/tools')]
     public function exportTools(Request $request)
     {
@@ -142,6 +160,9 @@ class ResourceController extends Controller implements HasMiddleware
         return Excel::download(new ToolsExport('TOOLS', $project), $filename);
     }
 
+    /**
+     * download recap scope standart
+     */
     #[Route(method: 'get', uri: 'export/scope-standart')]
     public function exportScopeStandart(Request $request)
     {

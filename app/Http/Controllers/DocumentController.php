@@ -29,6 +29,9 @@ class DocumentController extends Controller implements HasMiddleware
         ];
     }
 
+    /**
+     * store document
+     */
     #[Route('POST')]
     public function store(DocumentRequest $request)
     {
@@ -43,6 +46,9 @@ class DocumentController extends Controller implements HasMiddleware
         ])->all());
     }
 
+    /**
+     * delete document
+     */
     #[Route(method: 'DELETE', uri: 'delete/multi')]
     public function destroys(Request $request)
     {

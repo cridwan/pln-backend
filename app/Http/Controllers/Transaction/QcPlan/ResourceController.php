@@ -24,7 +24,7 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['pagination']),
         ];
     }
 }

@@ -9,6 +9,10 @@ use Spatie\RouteDiscovery\Attributes\Route;
 
 trait HasList
 {
+
+    /**
+     * get list data
+     */
     #[Route(method: 'get', name: "list")]
     public function list(ListRequest $request)
     {

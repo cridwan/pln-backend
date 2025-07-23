@@ -1,0 +1,10 @@
+services:
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true

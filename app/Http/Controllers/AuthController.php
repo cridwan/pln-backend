@@ -11,12 +11,16 @@ use App\Models\Permission;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Support\Facades\Hash;
+use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: ResponseMiddleware::class)]
 #[Group('Auth')]
 class AuthController extends Controller
 {
+    /**
+     * login
+     */
     #[Route(method: 'post')]
     public function login(LoginRequest $request)
     {
@@ -41,7 +45,7 @@ class AuthController extends Controller
         ];
     }
 
-    #[Route(method: 'get', name: 'login')]
+    #[DoNotDiscover]
     public function anauthenticate()
     {
         throw new AnauthenticateException('Anauthenticate');

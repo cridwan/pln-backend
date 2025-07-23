@@ -4,48 +4,14 @@ services:
     laravel:
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile # Production Dockerfile
         container_name: pln_backend
         ports:
             - "3201:8000"
-        volumes:
-            - .:/app
         environment:
             APP_ENV: ${APP_ENV}
             APP_DEBUG: ${APP_DEBUG}
             LOG_CHANNEL: ${LOG_CHANNEL}
-
-            # MAIN DB
-            DB_CONNECTION: ${DB_CONNECTION}
-            DB_HOST: ${DB_HOST}
-            DB_PORT: ${DB_PORT}
-            DB_DATABASE: ${DB_DATABASE}
-            DB_USERNAME: ${DB_USERNAME}
-            DB_PASSWORD: ${DB_PASSWORD}
-
-            # TRANSACTION DB
-            SECOND_DB_CONNECTION: ${SECOND_DB_CONNECTION}
-            SECOND_DB_HOST: ${SECOND_DB_HOST}
-            SECOND_DB_PORT: ${SECOND_DB_PORT}
-            SECOND_DB_DATABASE: ${SECOND_DB_DATABASE}
-            SECOND_DB_USERNAME: ${SECOND_DB_USERNAME}
-            SECOND_DB_PASSWORD: ${SECOND_DB_PASSWORD}
-
-            # DOCUMENT DB
-            DOCUMENT_DB_CONNECTION: ${DOCUMENT_DB_CONNECTION}
-            DOCUMENT_DB_HOST: ${DOCUMENT_DB_HOST}
-            DOCUMENT_DB_PORT: ${DOCUMENT_DB_PORT}
-            DOCUMENT_DB_DATABASE: ${DOCUMENT_DB_DATABASE}
-            DOCUMENT_DB_USERNAME: ${DOCUMENT_DB_USERNAME}
-            DOCUMENT_DB_PASSWORD: ${DOCUMENT_DB_PASSWORD}
-
-            # min io
-            AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-            AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-            AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION}
-            AWS_BUCKET: ${AWS_BUCKET}
-            AWS_ENDPOINT: ${AWS_ENDPOINT}
-            AWS_USE_PATH_STYLE_ENDPOINT: ${AWS_USE_PATH_STYLE_ENDPOINT}
 
         depends_on:
             - mysql
@@ -87,8 +53,8 @@ services:
         image: minio/minio
         container_name: minio
         ports:
-            - "9000:9000" # API
-            - "9001:9001" # Web UI
+            - "9000:9000"
+            - "9001:9001"
         environment:
             MINIO_ROOT_USER: ${MINIO_ROOT_USER}
             MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
