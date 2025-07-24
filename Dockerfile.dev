@@ -1,11 +1,41 @@
+# Gunakan image dasar PHP 8.2 berbasis Alpine (ringan)
 FROM php:8.2-cli-alpine
 
+# Install dependensi sistem dan ekstensi PHP yang dibutuhkan Laravel
 RUN apk add --no-cache \
-    bash git unzip libzip-dev libpng-dev oniguruma-dev libxml2-dev curl \
-    && docker-php-ext-install pdo pdo_mysql zip mbstring xml
+    bash \
+    git \
+    unzip \
+    curl \
+    libzip-dev \
+    libpng-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    icu-dev \
+    autoconf \
+    g++ \
+    make \
+    && docker-php-ext-install \
+    pdo \
+    pdo_mysql \
+    zip \
+    mbstring \
+    xml \
+    intl \
+    bcmath
 
+# Salin Composer dari official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Atur working directory di dalam container
 WORKDIR /app
 
+# Salin file Laravel ke dalam container (opsional di docker-compose)
+# COPY . .
+
+# Pastikan permission storage dan cache Laravel tidak bermasalah
+RUN mkdir -p /app/storage /app/bootstrap/cache \
+    && chmod -R 777 /app/storage /app/bootstrap/cache
+
+# Default command untuk dev
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
