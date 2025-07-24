@@ -33,6 +33,9 @@ WORKDIR /app
 # Salin file Laravel ke dalam container (opsional di docker-compose)
 COPY . .
 
+# running composer install
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --ignore-platform-reqs
+
 # Pastikan permission storage dan cache Laravel tidak bermasalah
 RUN mkdir -p /app/storage /app/bootstrap/cache \
     && chmod -R 777 /app/storage /app/bootstrap/cache
