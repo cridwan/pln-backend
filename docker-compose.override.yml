@@ -2,10 +2,21 @@ services:
   laravel:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/app
+      dockerfile: Dockerfile.dev # Development Dockerfile
+    container_name: pln_backend
+    ports:
+      - "3201:8000"
     environment:
-      APP_ENV: local
+      APP_ENV: ${APP_ENV}
       APP_DEBUG: true
-    restart: "no"
+      LOG_CHANNEL: ${LOG_CHANNEL}
+
+    depends_on:
+      - mysql
+      - minio
+    networks:
+      - laravel_net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    mem_limit: 512m
+    restart: unless-stopped
