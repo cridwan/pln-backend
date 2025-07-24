@@ -19,4 +19,4 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     mem_limit: 512m
-    restart: unless-stopped
+    restart: "no"
