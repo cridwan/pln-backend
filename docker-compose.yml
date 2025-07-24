@@ -34,7 +34,6 @@ services:
             - mysql_data:/var/lib/mysql
         networks:
             - laravel_net
-        command: --default-authentication-plugin=mysql_native_password
         mem_limit: 1500m
         restart: unless-stopped
 
