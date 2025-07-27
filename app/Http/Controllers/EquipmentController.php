@@ -45,7 +45,7 @@ class EquipmentController extends Controller implements HasMiddleware
 
     protected $model = Equipment::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['scopeStandart'];
     protected $rules = [
         'name' => 'required',
         'scope_standart_uuid' => 'required|exists:scope_standarts,uuid',

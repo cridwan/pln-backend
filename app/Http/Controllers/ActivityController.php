@@ -45,7 +45,7 @@ class ActivityController extends Controller implements HasMiddleware
 
     protected $model = Activity::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['equipment'];
     protected $rules = [
         'name' => 'required',
         'duration' => 'required',

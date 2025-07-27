@@ -10,4 +10,9 @@ class Activity extends Model
     use SettingModel;
 
     protected $connection = 'masterdata';
+
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class, 'equipment_uuid');
+    }
 }
