@@ -29,15 +29,6 @@ class HseController extends Controller implements HasMiddleware
     {
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show']),
-            new Middleware(
-                PermissionRoleMiddleware::using(
-                    [
-                        PermissionEnum::LOCATION,
-                        RoleEnum::PLANNER
-                    ]
-                ),
-                except: ['list', 'show']
-            )
         ];
     }
 
@@ -45,7 +36,7 @@ class HseController extends Controller implements HasMiddleware
 
     protected $model = Hse::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['hseDoc', 'inspectionType.machine.unit.location'];
     protected $rules = [
         'title' => 'required',
         'inspection_type_uuid' => 'required|exists:inspection_types,uuid',

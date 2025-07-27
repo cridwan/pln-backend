@@ -28,15 +28,6 @@ class SubBidangController extends Controller implements HasMiddleware
     {
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show']),
-            new Middleware(
-                PermissionRoleMiddleware::using(
-                    [
-                        PermissionEnum::LOCATION,
-                        RoleEnum::PLANNER
-                    ]
-                ),
-                except: ['list', 'show']
-            )
         ];
     }
 
@@ -44,7 +35,7 @@ class SubBidangController extends Controller implements HasMiddleware
 
     protected $model = SubBidang::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['bidang'];
     protected $rules = [
         'name' => 'required',
         'bidang_uuid' => 'required|exists:bidangs,uuid'

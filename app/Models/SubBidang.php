@@ -10,4 +10,9 @@ class SubBidang extends Model
     use SettingModel;
 
     protected $connection = 'masterdata';
+
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class);
+    }
 }

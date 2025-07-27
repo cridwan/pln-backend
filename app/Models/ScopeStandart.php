@@ -20,4 +20,9 @@ class ScopeStandart extends Model
     {
         return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
     }
+
+    public function subBidang()
+    {
+        return $this->belongsTo(SubBidang::class, 'sub_bidang_uuid');
+    }
 }

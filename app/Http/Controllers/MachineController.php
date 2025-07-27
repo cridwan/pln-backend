@@ -44,7 +44,7 @@ class MachineController extends Controller implements HasMiddleware
 
     protected $model = Machine::class;
     protected $search = ['name', 'unit.name'];
-    protected $with = ['unit'];
+    protected $with = ['unit.location'];
     protected $rules = [];
 
     #[DoNotDiscover]

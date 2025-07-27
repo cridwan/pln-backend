@@ -11,4 +11,9 @@ class Sequence extends Model
     use SettingModel, HasFactory;
 
     protected $connection = 'masterdata';
+
+    public function inspectionType()
+    {
+        return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
+    }
 }

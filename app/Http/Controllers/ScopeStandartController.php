@@ -47,8 +47,8 @@ class ScopeStandartController extends Controller
 
 
         $query = ScopeStandart::query();
-        $query->with(['details', 'inspectionType.machine.unit.location']);
-        $query->when($request->filled('search'), function ($subQuery) use ($request) {
+        $query->with(['details', 'inspectionType.machine.unit.location', 'subBidang']);
+        $query->when($request->filled('search'), callback: function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
             });
@@ -119,11 +119,10 @@ class ScopeStandartController extends Controller
 
         foreach ($request->details as $detail) {
             $scopeStandart->details()->updateOrCreate([
-                'name' => $detail['name'],
-                'scope_standart_uuid' => $detail['scope_standart_uuid']
+                'uuid' => $detail['uuid']
             ], [
                 'name' => $detail['name'],
-                'scope_standart_uuid' => $detail['scope_standart_uuid']
+                'uuid' => $detail['uuid']
             ]);
         }
 

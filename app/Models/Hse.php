@@ -10,4 +10,14 @@ class Hse extends Model
     use SettingModel;
 
     protected $connection = 'masterdata';
+
+    public function hseDoc()
+    {
+        return $this->belongsTo(HseDoc::class);
+    }
+
+    public function inspectionType()
+    {
+        return $this->belongsTo(InspectionType::class);
+    }
 }
