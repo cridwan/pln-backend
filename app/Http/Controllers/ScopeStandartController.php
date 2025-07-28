@@ -54,11 +54,6 @@ class ScopeStandartController extends Controller
             });
         });
 
-        $query->when($request->filled('filter'), function ($subQuery) use ($request) {
-            $filter = explode(',', $request->filter);
-            $subQuery->where($filter[0], $filter[1]);
-        });
-
         $query->when($request->filled('filters'), function ($subQuery) use ($request) {
             $filters = explode('&', $request->filters);
             foreach ($filters as $filter) {
