@@ -45,7 +45,6 @@ class AuthController extends Controller
         ];
     }
 
-    #[DoNotDiscover]
     public function anauthenticate()
     {
         throw new AnauthenticateException('Anauthenticate');

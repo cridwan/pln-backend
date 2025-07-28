@@ -11,7 +11,6 @@ use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Validation\Rule;
@@ -42,7 +41,7 @@ class ToolsController extends Controller implements HasMiddleware
 
     protected $model = Tools::class;
     protected array $search = ['name'];
-    protected array $with = ['globalUnit', 'inspectionType.machine.unit.location'];
+    protected array $with = ['globalUnit', 'activity'];
     protected $rules = [];
 
     #[DoNotDiscover]
@@ -52,9 +51,8 @@ class ToolsController extends Controller implements HasMiddleware
             'name' => 'required',
             'qty' => 'required',
             'global_unit_uuid' => ['required', Rule::exists('masterdata.global_units', 'uuid')],
-            'inspection_type_uuid' => ['required', Rule::exists('masterdata.inspection_types', 'uuid')],
             'section' => 'required',
-            'additional_scope_uuid' => 'nullable'
+            'activity_uuid' => ['required', Rule::exists('masterdata.activities', 'uuid')]
         ];
     }
 }

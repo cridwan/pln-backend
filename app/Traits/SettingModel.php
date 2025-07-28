@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 trait SettingModel
 {
-    use HasUuids;
+    use HasUuids, HasAutoFilter;
 
     public function getKeyName(): string
     {
