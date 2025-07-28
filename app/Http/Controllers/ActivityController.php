@@ -49,7 +49,7 @@ class ActivityController extends Controller implements HasMiddleware
     protected $rules = [
         'name' => 'required',
         'duration' => 'required',
-        'equipment_uuid' => 'required|exists:equipments,uuid',
+        'equipment_uuid' => 'required|exists:equipment,uuid',
         'link_ik1' => 'nullable',
         'link_ik2' => 'nullable',
     ];

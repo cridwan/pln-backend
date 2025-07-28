@@ -13,7 +13,7 @@ class FilteredScope implements Scope
      */
     public function apply(Builder $query, Model $model): Builder
     {
-        $filters = request()->get("filter");
+        $filters = request()->get("filters");
         if (!$filters || !is_array($filters)) {
             return $query;
         }
