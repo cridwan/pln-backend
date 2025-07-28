@@ -21,7 +21,7 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group(name: 'Master Equipment')]
+#[Group(name: 'Master Activity')]
 class ActivityController extends Controller implements HasMiddleware
 {
     #[DoNotDiscover]
