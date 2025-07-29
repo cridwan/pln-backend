@@ -18,7 +18,8 @@
 </head>
 
 <body>
-    <h1>PLN IP API DOCUMENTATION</h1>
+    <h1>PLN IP</h1>
+    <h3>API DOCUMENTATION</h3>
 </body>
 
 </html>
