@@ -79,6 +79,12 @@ class FilteredScope implements Scope
             case 'LIKE':
                 $query->$callback($column, 'LIKE', "%$value%");
                 break;
+            case 'IS_NULL':
+                $query->$callback($column, '=', null);
+                break;
+            case 'NOT_NULL':
+                $query->$callback($column, '!=', null);
+                break;
             case 'IN':
                 $query->$callback(function ($q) use ($column, $value) {
                     $q->whereIn($column, is_array($value) ? $value : explode(',', $value));

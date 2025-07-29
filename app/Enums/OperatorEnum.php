@@ -12,4 +12,6 @@ enum OperatorEnum: string
     case LT = 'LT';
     case LTE = 'LTE';
     case IN = 'IN';
+    case IS_NULL = 'IS_NULL';
+    case NOT_NULL = 'NOT_NULL';
 }
