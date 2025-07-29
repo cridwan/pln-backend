@@ -7,7 +7,7 @@ use App\Enums\ScopeStandartCategoryEnum;
 use App\Enums\SequenceAnimationSlugEnum;
 use App\Enums\ToolSectionEnum;
 use App\Models\AdditionalScope;
-use App\Models\ConstMat;
+use App\Models\ConsMat;
 use App\Models\DetailScopeStandart;
 use App\Models\GlobalUnit;
 use App\Models\Hse;
@@ -92,7 +92,7 @@ class DummySeeder extends Seeder
                 'scope_standart_uuid' => $scopeStandart->uuid
             ]);
 
-            ConstMat::create([
+            ConsMat::create([
                 'name' => 'WD-40',
                 'merk' => 'Toyota',
                 'qty' => 10,
@@ -142,7 +142,7 @@ class DummySeeder extends Seeder
                 'scope_standart_uuid' => $detailScopeAdditonalStandart->uuid
             ]);
 
-            ConstMat::create([
+            ConsMat::create([
                 'name' => 'WD-40',
                 'merk' => 'Toyota',
                 'qty' => 10,
