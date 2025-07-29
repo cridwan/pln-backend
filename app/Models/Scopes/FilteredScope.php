@@ -5,6 +5,7 @@ namespace App\Models\Scopes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
+use Illuminate\Support\Facades\Schema;
 
 class FilteredScope implements Scope
 {
@@ -24,8 +25,7 @@ class FilteredScope implements Scope
             $value = $filter['value'] ?? null;
             $group = strtoupper($filter['group'] ?? 'AND');
 
-            if (!$column || $value === null) continue;
-
+            if (!$column) continue;
             $callback = $group === 'OR' ? 'orWhere' : 'where';
 
             $segments = explode('.', $column);
@@ -48,7 +48,10 @@ class FilteredScope implements Scope
                     });
                 }
             } else {
-                self::applyOperator($query, $column, $operator, $value, $callback);
+                $validColumns = Schema::getColumnListing($model->getTable());
+                if (in_array($column, $validColumns)) {
+                    self::applyOperator($query, $column, $operator, $value, $callback);
+                }
             }
         }
 
@@ -80,10 +83,10 @@ class FilteredScope implements Scope
                 $query->$callback($column, 'LIKE', "%$value%");
                 break;
             case 'IS_NULL':
-                $query->$callback($column, '=', null);
+                $query->whereNull($column);
                 break;
             case 'NOT_NULL':
-                $query->$callback($column, '!=', null);
+                $query->whereNotNull($column);
                 break;
             case 'IN':
                 $query->$callback(function ($q) use ($column, $value) {

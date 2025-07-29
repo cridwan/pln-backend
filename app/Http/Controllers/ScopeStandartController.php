@@ -64,7 +64,7 @@ class ScopeStandartController extends Controller
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        return $query->has('inspectionType')->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**
