@@ -6,6 +6,9 @@ services:
     container_name: pln_backend
     ports:
       - "3201:8000"
+    volumes:
+      - ./:/var/www/html # Mount source code ke dalam container
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini # Optional: custom php.ini
     environment:
       APP_ENV: ${APP_ENV}
       APP_DEBUG: true
