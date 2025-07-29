@@ -38,7 +38,8 @@ class SequenceController extends Controller implements HasMiddleware
     protected array $with = ['inspectionType.machine.unit.location'];
     protected $rules = [
         'name' => 'required',
-        'inspection_type_uuid' => 'required|exists:inspection_types,uuid',
+        'inspection_type_uuid' => 'nullable|exists:inspection_types,uuid',
+        'additional_scope_uuid' => 'nullable|exists:additional_scopes,uuid',
         'link' => 'nullable',
     ];
 }
