@@ -43,12 +43,9 @@ class PartController extends Controller implements HasMiddleware
     protected array $with = ['globalUnit', 'activity'];
     protected $rules = [
         "name" => "required",
-        "qty" => "required",
-        "note" => "required",
         "no_drawing" => "required",
         "global_unit_uuid" => "required",
-        "activity_uuid" => "required|exists:activities,uuid",
-        "size" => "nullable",
-        "location" => "nullable",
+        "price" => "required",
+        "merk" => "required"
     ];
 }

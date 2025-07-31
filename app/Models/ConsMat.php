@@ -17,9 +17,4 @@ class ConsMat extends Model
     {
         return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');
     }
-
-    public function activity()
-    {
-        return $this->belongsTo(Activity::class, 'activity_uuid');
-    }
 }

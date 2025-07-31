@@ -40,12 +40,9 @@ class ManpowerController extends Controller implements HasMiddleware
 
     protected $model = Manpower::class;
     protected array $search = ['name'];
-    protected array $with = ['globalUnit', 'activity'];
+    protected array $with = ['globalUnit'];
     protected $rules = [
         "name" => "required",
-        "qty" => "required",
-        "type" => "required",
-        "note" => "required",
-        "activity_uuid" => "required|exists:activities,uuid",
+        "price" => "required",
     ];
 }
