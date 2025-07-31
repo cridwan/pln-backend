@@ -26,7 +26,8 @@ class AdditionalScopeRequest extends FormRequest
             'link' => 'nullable',
             'category' => 'required',
             'day' => 'required',
-            'animation' => 'nullable'
+            'animation' => 'nullable',
+            "sequence" => "required|exists:sequences,uuid"
         ];
     }
 }

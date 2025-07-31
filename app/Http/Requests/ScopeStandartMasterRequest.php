@@ -28,7 +28,7 @@ class ScopeStandartMasterRequest extends FormRequest
             "additional_scope_uuid" => "nullable|exists:additional_scopes,uuid",
             "inspection_type_uuid" => "nullable|exists:inspection_types,uuid",
             "sub_bidang_uuid" => "required|exists:sub_bidangs,uuid",
-            "details" => "array"
+            "sequence" => "required|exists:sequences,uuid"
         ];
     }
 }
