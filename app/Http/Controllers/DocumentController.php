@@ -79,5 +79,7 @@ class DocumentController extends Controller implements HasMiddleware
             }
             Document::where('uuid', $document->uuid)->delete();
         }
+
+        return ["message" => "Document deleted successfully"];
     }
 }
