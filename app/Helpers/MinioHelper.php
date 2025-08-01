@@ -33,11 +33,9 @@ class MinioHelper
     public static function stream(Request $request, string $path = 'vidoes')
     {
         $fileName = urldecode($request->header('X-Filename') ?? 'uploaded.bin');
-        $fileName = \Illuminate\Support\Str::uuid() . '-' . $fileName;
-        $mimeType = $request->header('Content-Type') ?? 'application/octet-stream';
 
         $stream = fopen('php://input', 'rb');
-        $storagePath = "preview/{$path}/{$fileName}";
+        $storagePath = "preview/{$path}/" . \Illuminate\Support\Str::uuid() . "/{$fileName}";
 
         Storage::disk('s3')->writeStream($storagePath, $stream);
 
