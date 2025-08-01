@@ -37,7 +37,7 @@ class MinioHelper
         $mimeType = $request->header('Content-Type') ?? 'application/octet-stream';
 
         $stream = fopen('php://input', 'rb');
-        $storagePath = "{$path}/{$fileName}";
+        $storagePath = "preview/{$path}/{$fileName}";
 
         Storage::disk('s3')->writeStream($storagePath, $stream);
 
