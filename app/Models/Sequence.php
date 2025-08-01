@@ -15,11 +15,11 @@ class Sequence extends Model
 
     public function document()
     {
-        return $this->morphOne(Document::class, 'model', 'model_type', 'model_uuid', 'uuid')->latest();
+        return $this->morphOne(Document::class, 'document', 'document_type', 'document_uuid', 'uuid')->latest();
     }
 
     public function documents()
     {
-        return $this->morphMany(Document::class, 'model', 'model_type', 'model_uuid', 'uuid');
+        return $this->morphMany(Document::class, 'document', 'document_type', 'document_uuid', 'uuid');
     }
 }
