@@ -35,7 +35,7 @@ class MinioHelper
         $fileName = urldecode($request->header('X-Filename') ?? 'uploaded.bin');
 
         $stream = fopen('php://input', 'rb');
-        $storagePath = "preview/{$path}/" . \Illuminate\Support\Str::uuid() . "-{$fileName}";
+        $storagePath = "preview/{$path}/{$fileName}";
 
         Storage::disk('s3')->writeStream($storagePath, $stream);
 
