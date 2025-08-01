@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +25,28 @@ class MinioHelper
             'path' => 'preview/' . $path,
             'mime_type' => $mimeType,
             'size' => $size,
+            'url' => $url,
+        ];
+    }
+
+    public static function stream(Request $request, string $path = 'vidoes')
+    {
+        $fileName = urldecode($request->header('X-Filename') ?? 'uploaded.bin');
+        $mimeType = $request->header('Content-Type') ?? 'application/octet-stream';
+
+        $stream = fopen('php://input', 'rb');
+        $storagePath = "{$path}/{$fileName}";
+
+        Storage::disk('s3')->writeStream($storagePath, $stream);
+
+        fclose($stream);
+
+        // Ambil size dari Storage
+        $url = Storage::disk('s3')->url($storagePath);
+
+        return [
+            'filename' => $fileName,
+            'path' => $storagePath,
             'url' => $url,
         ];
     }

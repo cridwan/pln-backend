@@ -47,6 +47,25 @@ class DocumentController extends Controller implements HasMiddleware
     }
 
     /**
+     * store stream document
+     */
+    #[Route('POST', uri: 'stream')]
+    public function stream(Request $request)
+    {
+        $uploaded = MinioHelper::stream($request);
+
+        return Document::create([
+            'document_original_name' => $uploaded['filename'],
+            'document_name' => $uploaded['filename'],
+            'document_link' => $uploaded['path'],
+            'document_size' => $request->header('X-filesize'),
+            'document_mime_type' => $request->header('X-filemimetype'),
+            'document_type' => $request->header('X-modeltype'),
+            'document_uuid' => $request->header('X-modeluuid'),
+        ]);
+    }
+
+    /**
      * delete document
      */
     #[Route(method: 'DELETE', uri: 'delete/multi')]
