@@ -35,7 +35,7 @@ class SequenceController extends Controller implements HasMiddleware
 
     protected $model = Sequence::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['document'];
     protected $rules = [
         'name' => 'required',
         'link' => 'nullable',
