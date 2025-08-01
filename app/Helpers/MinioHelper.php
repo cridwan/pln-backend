@@ -45,8 +45,8 @@ class MinioHelper
         $url = Storage::disk('s3')->url($storagePath);
 
         return [
-            'filename' => "preview/" . $fileName,
-            'path' => $storagePath,
+            'filename' =>  $fileName,
+            'path' => "preview/" . $storagePath,
             'url' => $url,
         ];
     }
