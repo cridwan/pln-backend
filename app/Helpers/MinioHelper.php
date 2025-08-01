@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Str;
 
 class MinioHelper
 {
@@ -32,6 +33,7 @@ class MinioHelper
     public static function stream(Request $request, string $path = 'vidoes')
     {
         $fileName = urldecode($request->header('X-Filename') ?? 'uploaded.bin');
+        $fileName = \Illuminate\Support\Str::uuid() . '-' . $fileName;
         $mimeType = $request->header('Content-Type') ?? 'application/octet-stream';
 
         $stream = fopen('php://input', 'rb');
