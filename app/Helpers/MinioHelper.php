@@ -63,7 +63,7 @@ class MinioHelper
         $bucket = env('AWS_BUCKET');
         $filename = urldecode($request->header('X-Filename') ?? 'uploaded.bin');
         $contentType = $request->header('Content-Type', 'application/octet-stream');
-        $key = 'uploads/' . Str::uuid() . "-{$filename}";
+        $key = 'streams/' . Str::uuid() . "-{$filename}";
 
         $stream = fopen('php://input', 'rb');
         Log::info('upload ke minio stream');
@@ -95,6 +95,7 @@ class MinioHelper
                 'key' => $key,
                 'filename' => $filename,
                 'hash_name' => $filename,
+                'path' => 'preview/' . $key,
                 'size' => $request->header('X-Filesize', 'video/mp4'),
                 'mime_type' => $request->header('X-Filemimetype', 0),
             ];
