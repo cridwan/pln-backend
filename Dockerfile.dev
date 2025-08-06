@@ -26,7 +26,8 @@ RUN apk add --no-cache \
 
 # Salin Composer dari official image
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
+# copy config php
+COPY php.ini /usr/local/etc/php/php.ini
 # Atur working directory di dalam container
 WORKDIR /var/www/html
 

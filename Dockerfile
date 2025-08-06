@@ -8,6 +8,8 @@ RUN apk add --no-cache \
     && docker-php-ext-install pdo pdo_mysql zip mbstring xml
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# copy config php
+COPY php.ini /usr/local/etc/php/php.ini
 
 WORKDIR /app
 

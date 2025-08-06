@@ -52,7 +52,7 @@ class DocumentController extends Controller implements HasMiddleware
     #[Route('POST', uri: 'stream')]
     public function stream(Request $request)
     {
-        $uploaded = MinioHelper::stream($request);
+        $uploaded = MinioHelper::uploadStream($request);
 
         return Document::create([
             'document_original_name' => $uploaded['filename'],
