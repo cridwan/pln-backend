@@ -25,4 +25,9 @@ class ScopeStandart extends Model
     {
         return $this->belongsTo(SubBidang::class, 'sub_bidang_uuid');
     }
+
+    public function sequence()
+    {
+        return $this->belongsTo(Sequence::class, 'sequence_uuid');
+    }
 }

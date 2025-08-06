@@ -47,7 +47,7 @@ class ScopeStandartController extends Controller
 
 
         $query = ScopeStandart::query();
-        $query->with(['details', 'inspectionType.machine.unit.location', 'subBidang']);
+        $query->with(['inspectionType.machine.unit.location', 'subBidang.bidang', 'sequence']);
         $query->when($request->filled('search'), callback: function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
