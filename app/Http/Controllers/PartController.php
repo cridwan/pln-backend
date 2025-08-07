@@ -40,7 +40,7 @@ class PartController extends Controller implements HasMiddleware
 
     protected $model = Part::class;
     protected array $search = ['name'];
-    protected array $with = ['globalUnit', 'activity'];
+    protected array $with = ['globalUnit'];
     protected $rules = [
         "name" => "required",
         "no_drawing" => "required",
