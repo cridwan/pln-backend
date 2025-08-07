@@ -16,4 +16,9 @@ class InspectionType extends Model
     {
         return $this->belongsTo(Machine::class, 'machine_uuid');
     }
+
+    public function sequence()
+    {
+        return $this->belongsTo(Sequence::class, 'sequence_uuid');
+    }
 }

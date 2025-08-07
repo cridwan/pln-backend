@@ -43,7 +43,7 @@ class InspectionTypeController extends Controller implements HasMiddleware
 
     protected $model = InspectionType::class;
     protected array $search = ['name'];
-    protected array $with = ['machine.unit.location'];
+    protected array $with = ['machine.unit.location', 'sequence.document'];
     protected $rules = [];
 
     #[DoNotDiscover]
@@ -51,7 +51,8 @@ class InspectionTypeController extends Controller implements HasMiddleware
     {
         $this->rules = [
             'name' => ['required'],
-            'machine_uuid' => ['required', Rule::exists('masterdata.machines', 'uuid')]
+            'machine_uuid' => ['required', Rule::exists('masterdata.machines', 'uuid')],
+            'sequence_uuid' => ['nullable', Rule::exists('sequences', 'uuid')]
         ];
     }
 }
