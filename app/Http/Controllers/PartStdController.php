@@ -49,5 +49,6 @@ class PartStdController extends Controller implements HasMiddleware
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'part_uuid' => 'required|exists:parts,uuid',
+        'qty' => 'required',
     ];
 }

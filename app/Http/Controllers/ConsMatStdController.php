@@ -47,5 +47,6 @@ class ConsMatStdController extends Controller implements HasMiddleware
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'cons_mat_uuid' => 'required|exists:const_mats,uuid',
+        'qty' => 'required',
     ];
 }

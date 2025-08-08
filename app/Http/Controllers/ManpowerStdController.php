@@ -48,5 +48,6 @@ class ManpowerStdController extends Controller implements HasMiddleware
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'manpower_uuid' => 'required|exists:manpowers,uuid',
+        'qty' => 'required',
     ];
 }
