@@ -43,7 +43,7 @@ class ConsMatStdController extends Controller implements HasMiddleware
 
     protected $model = ConsMatStd::class;
     protected array $search = [];
-    protected array $with = [];
+    protected array $with = ['activity.equipment.scopeStandart.inspectionType.machine.location', 'consmat'];
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'cons_mat_uuid' => 'required|exists:const_mats,uuid',
