@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Storage\Document;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
 
@@ -26,8 +27,13 @@ class ScopeStandart extends Model
         return $this->belongsTo(SubBidang::class, 'sub_bidang_uuid');
     }
 
-    public function sequence()
+    public function document()
     {
-        return $this->belongsTo(Sequence::class, 'sequence_uuid');
+        return $this->morphOne(Document::class, 'document', 'document_type', 'document_uuid', 'uuid')->latest();
+    }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'document', 'document_type', 'document_uuid', 'uuid');
     }
 }
