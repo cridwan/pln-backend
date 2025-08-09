@@ -44,7 +44,7 @@ class ManpowerStdController extends Controller implements HasMiddleware
 
     protected $model = ManpowerStd::class;
     protected array $search = [];
-    protected array $with = ['activity.equipment.scopeStandart.inspectionType.machine.location', 'manpower'];
+    protected array $with = ['activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'manpower'];
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'manpower_uuid' => 'required|exists:manpowers,uuid',

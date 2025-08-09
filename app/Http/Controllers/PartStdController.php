@@ -45,7 +45,7 @@ class PartStdController extends Controller implements HasMiddleware
 
     protected $model = PartStd::class;
     protected array $search = [];
-    protected array $with = ['part', 'activity.equipment.scopeStandart.inspectionType.machine.location'];
+    protected array $with = ['part', 'activity.equipment.scopeStandart.inspectionType.machine.unit.location'];
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'part_uuid' => 'required|exists:parts,uuid',
