@@ -23,11 +23,8 @@ class AdditionalScopeRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'link' => 'nullable',
-            'category' => 'required',
-            'day' => 'required',
-            'animation' => 'nullable',
-            "sequence" => "required|exists:sequences,uuid"
+            'inspection_type_uuid' => 'required|exists:inspection_types,uuid',
+            'sequence_uuid' => 'nullable|exists:sequences,uuid',
         ];
     }
 }

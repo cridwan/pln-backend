@@ -46,7 +46,7 @@ class AdditionalScopeController extends Controller
 
 
         $query = AdditionalScope::query();
-        $query->with(['details', 'inspectionType.machine.unit.location']);
+        $query->with(['inspectionType.machine.unit.location', 'sequence']);
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");

@@ -20,4 +20,9 @@ class AdditionalScope extends Model
     {
         return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
     }
+
+    public function sequence()
+    {
+        return $this->belongsTo(Sequence::class, 'sequence_uuid');
+    }
 }
