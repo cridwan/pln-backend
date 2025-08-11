@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Exceptions\BadRequestException;
+use App\Exports\DownloadExport;
 use App\Exports\TemplateExport;
 use App\Http\Requests\ImportRequest;
 use App\Imports\BulkDataImport;
@@ -15,6 +16,23 @@ trait ImportExportExcel
     /**
      * get template import data
      */
+    #[Route(method: 'post', name: "export/template")]
+    public function template()
+    {
+        if (!$this->model) {
+            throw new BadRequestException('Model not defined');
+        }
+
+        $filteredAttributes = $this->filteredAttributes();
+
+        $tableName = $this->getTableName();
+
+        return (new TemplateExport($filteredAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
+    }
+
+    /**
+     * download data excel
+     */
     #[Route(method: 'post', name: "export/excel")]
     public function export()
     {
@@ -26,7 +44,7 @@ trait ImportExportExcel
 
         $tableName = $this->getTableName();
 
-        return (new TemplateExport($filteredAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
+        return (new DownloadExport($this->model))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
 
     /**

@@ -29,7 +29,7 @@ class UnitController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
                 PermissionRoleMiddleware::using(
                     [
@@ -37,7 +37,7 @@ class UnitController extends Controller implements HasMiddleware
                         RoleEnum::PLANNER
                     ]
                 ),
-                except: ['list']
+                except: ['list', 'show', 'index']
             )
         ];
     }

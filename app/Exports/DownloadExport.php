@@ -2,30 +2,36 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class TemplateExport implements WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithStyles
 {
     use Exportable;
-
-    public function __construct(
-        public array $headers
-    ) {}
+    private $instanceModel;
+    public function __construct(private readonly string $model)
+    {
+        $this->instanceModel = new $model;
+    }
+    public function query()
+    {
+        return $this->model::query();
+    }
 
     public function headings(): array
     {
-        return $this->headers;
+        return $this->getAttributes();
     }
 
-    public function map($row): array
+    public function chunkSize(): int
     {
-        return [];
+        return 500;
     }
 
     private function numberToAlphabet($num)
@@ -39,10 +45,16 @@ class TemplateExport implements WithHeadings, WithMapping, WithStyles, ShouldAut
         return strtolower($alphabet); // pakai strtolower kalau mau a-z kecil
     }
 
+    private function getAttributes()
+    {
+        return Schema::getColumnListing($this->instanceModel->getTable());
+    }
+
     public function styles(Worksheet $sheet)
     {
-        $convertColumn = $this->numberToAlphabet(count($this->headers));
-        $range = "A1:{$convertColumn}5";
+        $convertColumn = $this->numberToAlphabet(count($this->getAttributes()));
+        $count = $this->query()->count() + 1;
+        $range = "A1:{$convertColumn}{$count}";
 
         $sheet->getStyle($range)->applyFromArray([
             'borders' => [
