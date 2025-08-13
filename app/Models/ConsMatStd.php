@@ -20,6 +20,6 @@ class ConsMatStd extends Model
 
     public function consmat()
     {
-        return $this->belongsTo(ConsMat::class, 'consmat_uuid');
+        return $this->belongsTo(ConsMat::class, 'cons_mat_uuid');
     }
 }
