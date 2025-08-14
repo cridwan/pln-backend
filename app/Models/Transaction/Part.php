@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaction;
 
+use App\Enums\ConnectionEnum;
 use App\Models\GlobalUnit;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ class Part extends Model
 {
     use SettingModel, HasFactory;
 
-    protected $connection = 'transaction';
+    protected $connection = ConnectionEnum::TRANSACTION->value;
 
     public function globalUnit(): BelongsTo
     {

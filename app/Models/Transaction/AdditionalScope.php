@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaction;
 
+use App\Enums\ConnectionEnum;
 use App\Enums\ScopeStandartTypeEnum;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ class AdditionalScope extends Model
 {
     use SettingModel;
 
-    protected $connection = 'transaction';
+    protected $connection = ConnectionEnum::TRANSACTION->value;
 
     public function details(): HasMany
     {

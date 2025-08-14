@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaction;
 
+use App\Enums\ConnectionEnum;
 use App\Enums\ScopeStandartTypeEnum;
 use App\Models\Storage\Document;
 use App\Traits\SettingModel;
@@ -15,7 +16,7 @@ class ScopeStandart extends Model
 {
     use SettingModel;
 
-    protected $connection = 'transaction';
+    protected $connection = ConnectionEnum::TRANSACTION->value;
 
     public function document(): MorphOne
     {

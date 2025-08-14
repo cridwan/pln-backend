@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaction;
 
+use App\Enums\ConnectionEnum;
 use App\Models\GlobalUnit;
 use App\Models\Storage\Document;
 use App\Traits\SettingModel;
@@ -13,9 +14,9 @@ class ConsMat extends Model
 {
     use SettingModel, HasFactory;
 
-    protected $connection = 'transaction';
+    protected $connection = ConnectionEnum::TRANSACTION->value;
 
-    protected $table = 'const_mats';
+    protected $table = 'cons_mats';
 
     public function document(): MorphOne
     {

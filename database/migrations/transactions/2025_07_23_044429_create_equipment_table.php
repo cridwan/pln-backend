@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ConnectionEnum;
 use App\Models\Transaction\ScopeStandart;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -12,11 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('transaction')->create('detail_scope_standarts', function (Blueprint $table) {
+        Schema::connection(ConnectionEnum::TRANSACTION->value)->create('equipment', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->text('name');
-            $table->string('link')->nullable();
-            $table->foreignIdFor(ScopeStandart::class);
+            $table->foreignIdFor(ScopeStandart::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->string('link_ik1')->nullable();
+            $table->string('link_ik2')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('transaction')->dropIfExists('detail_scope_standarts');
+        Schema::connection(ConnectionEnum::TRANSACTION->value)->dropIfExists('equipment');
     }
 };

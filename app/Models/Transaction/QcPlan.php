@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaction;
 
+use App\Enums\ConnectionEnum;
 use App\Models\Storage\Document;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
@@ -11,7 +12,7 @@ class QcPlan extends Model
 {
     use SettingModel;
 
-    protected $connection = 'transaction';
+    protected $connection = ConnectionEnum::TRANSACTION->value;
 
     public function document(): MorphOne
     {
