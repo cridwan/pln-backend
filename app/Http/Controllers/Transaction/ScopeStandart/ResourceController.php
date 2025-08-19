@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Transaction\ScopeStandart;
 use App\Enums\AuthPermissionEnum;
 use App\Enums\ScopeStandartTypeEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\ScopeStandartRequest;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\ScopeStandart;
@@ -19,6 +20,7 @@ use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
+#[Route(middleware: [ResponseMiddleware::class])]
 #[Group(name: 'Transaction Scope Standart Resource')]
 class ResourceController extends Controller implements HasMiddleware
 {
