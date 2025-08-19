@@ -36,6 +36,7 @@ class GenerateService
                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                 $duplicate->setTable('hse_docs');
                 $duplicate->project_uuid = $project->uuid;
+                $duplicate->hse_doc_uuid = $row->uuid;
                 $duplicate->save();
             });
 
