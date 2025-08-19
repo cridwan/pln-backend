@@ -14,6 +14,8 @@ class ScopeStandartAsset extends Model
 
     protected $connection = ConnectionEnum::TRANSACTION->value;
 
+    protected $table = 'scope_assets';
+
     public function document(): MorphOne
     {
         return $this->morphOne(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
