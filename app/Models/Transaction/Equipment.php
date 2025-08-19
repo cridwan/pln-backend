@@ -24,4 +24,9 @@ class Equipment extends Model
     {
         return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
     }
+
+    public function scopeStandart()
+    {
+        return $this->belongsTo(ScopeStandart::class, 'scope_standart_uuid');
+    }
 }

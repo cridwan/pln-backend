@@ -6,11 +6,13 @@ use App\Enums\AuthPermissionEnum;
 use App\Enums\ScopeStandartTypeEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScopeStandartRequest;
+use App\Models\Transaction\Activity;
 use App\Models\Transaction\ScopeStandart;
 use App\Models\Transaction\ScopeStandartAsset;
 use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Validation\Rule;
@@ -63,5 +65,23 @@ class ResourceController extends Controller implements HasMiddleware
             return $exist;
         }
         return ScopeStandartAsset::create($request->all());
+    }
+
+    /**
+     * Summary of total days
+     * @return number
+     */
+    #[Route(method: 'GET')]
+    public function total(Request $request)
+    {
+        return Activity::when(
+            $request->filled('project_uuid'),
+            function ($subQuery) use ($request) {
+                $subQuery->whereHas(
+                    'equipment.scopeStandart',
+                    fn($query) => $query->where('project_uuid', $request->project_uuid)
+                );
+            }
+        )->sum('duration');
     }
 }

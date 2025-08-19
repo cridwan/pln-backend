@@ -24,4 +24,9 @@ class Activity extends Model
     {
         return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
     }
+
+    public function equipment()
+    {
+        return $this->belongsTo(Equipment::class, 'equipment_uuid');
+    }
 }
