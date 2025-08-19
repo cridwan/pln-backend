@@ -16,7 +16,7 @@ return new class extends Migration {
     {
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('scope_standarts', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->string('name');
+            $table->text('name');
             $table->string('link')->nullable();
             $table->string('category');
             $table->foreignIdFor(SubBidang::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.sub_bidangs')->cascadeOnDelete();

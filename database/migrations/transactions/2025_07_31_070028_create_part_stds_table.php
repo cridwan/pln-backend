@@ -1,8 +1,9 @@
 <?php
 
 use App\Enums\ConnectionEnum;
+use App\Enums\DatabaseConnectionEnum;
+use App\Models\Part;
 use App\Models\Transaction\Activity;
-use App\Models\Transaction\Part;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,8 @@ return new class extends Migration
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('part_stds', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->foreignIdFor(Activity::class)->constrained()->onDelete('CASCADE');
-            $table->foreignIdFor(Part::class)->constrained()->onDelete('CASCADE');
+            $table->foreignIdFor(Part::class)->constrained(DatabaseConnectionEnum::GLOBAL->value . '.parts')->onDelete('CASCADE');
+            $table->integer('qty')->default(0);
             $table->timestamps();
         });
     }

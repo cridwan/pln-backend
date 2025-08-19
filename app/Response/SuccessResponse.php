@@ -14,6 +14,7 @@ class SuccessResponse extends BaseResponse
         return response()->json([
             'statusCode' => $this->getStatusCode(),
             'message' => mb_convert_encoding($this->getMessage(), 'UTF-8', 'UTF-8'),
+            'timestamp' => now(),
             'data' => $this->data,
         ], $this->statusCode);
     }

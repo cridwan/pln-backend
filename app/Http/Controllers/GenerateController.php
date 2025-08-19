@@ -35,7 +35,7 @@ class GenerateController extends Controller implements HasMiddleware
      * generate transaction
      */
     #[Route(method: 'post', name: 'generate.index')]
-    public function index(GenerateRequest $request): Project
+    public function index(GenerateRequest $request): array
     {
         return $this->generateService->generate($request);
     }

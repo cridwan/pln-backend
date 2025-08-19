@@ -2,6 +2,7 @@
 
 use App\Enums\ConnectionEnum;
 use App\Enums\DatabaseConnectionEnum;
+use App\Enums\ProjectStatusEnum;
 use App\Models\InspectionType;
 use App\Models\Sequence;
 use Illuminate\Database\Migrations\Migration;
@@ -19,7 +20,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->string('name');
             $table->foreignIdFor(InspectionType::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.inspection_types')->cascadeOnDelete();
-            $table->foreignIdFor(Sequence::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.sequences')->cascadeOnDelete();
+            $table->string('status')->default(ProjectStatusEnum::PENDING);
             $table->timestamps();
         });
     }

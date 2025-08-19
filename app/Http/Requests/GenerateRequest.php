@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Container\Attributes\CurrentUser;
+use App\Enums\ConnectionEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -26,7 +26,7 @@ class GenerateRequest extends FormRequest
         return [
             'name' => 'required',
             'link' => 'nullable',
-            'inspection_type_uuid' => ['string', Rule::exists('masterdata.inspection_types', 'uuid')]
+            'inspection_type_uuid' => ['string', Rule::exists(ConnectionEnum::GLOBAL->value . '.inspection_types', 'uuid')]
         ];
     }
 }
