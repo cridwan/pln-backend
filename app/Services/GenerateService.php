@@ -26,7 +26,7 @@ class GenerateService
             throw new Exception("Nama project sudah digunakan");
         }
 
-        DB::transaction(function () use ($request) {
+        DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // create project
             $project = Project::create($request->all());
 
