@@ -28,11 +28,6 @@ class ScopeStandart extends Model
         return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
     }
 
-    public function details(): HasMany
-    {
-        return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
-    }
-
     public function assetWelnes(): HasOne
     {
         return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::ASSET_WELNESS->value)->latest();
