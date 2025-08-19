@@ -31,7 +31,7 @@ class GenerateService
             $project = Project::create($request->all());
 
             // duplicate hse doc
-            HseDoc::each(function ($row) use ($project) {
+            HseDoc::select('uuid')->each(function ($row) use ($project) {
                 $duplicate = $row->replicate();
                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                 $duplicate->setTable('hse_docs');
