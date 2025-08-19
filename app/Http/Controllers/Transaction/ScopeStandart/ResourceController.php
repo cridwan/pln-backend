@@ -71,12 +71,12 @@ class ResourceController extends Controller implements HasMiddleware
 
     /**
      * Summary of total days
-     * @return number
+     * @return array
      */
     #[Route(method: 'GET')]
-    public function total(Request $request)
+    public function duration(Request $request)
     {
-        return Activity::when(
+        $total =  Activity::when(
             $request->filled('project_uuid'),
             function ($subQuery) use ($request) {
                 $subQuery->whereHas(
@@ -85,5 +85,7 @@ class ResourceController extends Controller implements HasMiddleware
                 );
             }
         )->sum('duration');
+
+        return ['data' => $total];
     }
 }
