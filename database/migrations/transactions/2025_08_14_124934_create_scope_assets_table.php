@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(ScopeStandart::class)->nullable()->constrained()->cascadeOnDelete();
             $table->foreignIdFor(AdditionalScope::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('status')->nullable();
+            $table->string('category');
             $table->timestamps();
         });
     }
