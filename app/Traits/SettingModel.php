@@ -18,4 +18,9 @@ trait SettingModel
     {
         return ['created_at', 'updated_at']; // Kembalikan nilai guarded sesuai kebutuhan
     }
+
+    public function getConnectionString()
+    {
+        return $this->connection;
+    }
 }

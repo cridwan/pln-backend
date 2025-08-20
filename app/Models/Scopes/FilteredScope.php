@@ -48,7 +48,7 @@ class FilteredScope implements Scope
                     });
                 }
             } else {
-                $validColumns = Schema::getColumnListing($model->getTable());
+                $validColumns = Schema::connection($model->getConnectionString())->getColumnListing($model->getTable());
                 if (in_array($column, $validColumns)) {
                     self::applyOperator($query, $column, $operator, $value, $callback);
                 }
