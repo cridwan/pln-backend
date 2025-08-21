@@ -129,8 +129,8 @@ class GenerateService
             // duplicate additional scope
             AdditionalScope::select('uuid', 'name', 'sequence_uuid')
                 ->where('inspection_type_uuid', $request->inspection_type_uuid)
-                ->each(function ($row) use ($project) {
-                    $duplicate = $row->replicate();
+                ->each(function ($addScope) use ($project) {
+                    $duplicate = $addScope->replicate();
                     $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                     $duplicate->setTable('additional_scopes');
                     $duplicate->project_uuid = $project->uuid;
@@ -138,12 +138,12 @@ class GenerateService
 
                     // duplicate scope standart
                     ScopeStandart::select('uuid', 'name', 'link', 'category', 'sub_bidang_uuid')
-                        ->where('additional_scope_uuid', $duplicate->uuid)
-                        ->each(function ($row) use ($project) {
+                        ->where('additional_scope_uuid', $addScope->uuid)
+                        ->each(function ($row) use ($duplicate) {
                             $duplicate = $row->replicate();
                             $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                             $duplicate->setTable('scope_standarts');
-                            $duplicate->project_uuid = $project->uuid;
+                            $duplicate->additional_scope_uuid = $duplicate->uuid;
                             $duplicate->save();
 
                             // duplicate equipment

@@ -11,6 +11,8 @@ class Manpower extends Model
 {
     use SettingModel, HasFactory;
 
+    protected $table = 'manpower_stds';
+
     protected $connection = ConnectionEnum::TRANSACTION->value;
 
     public function additionalScope()

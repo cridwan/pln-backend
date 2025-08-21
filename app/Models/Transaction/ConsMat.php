@@ -16,7 +16,7 @@ class ConsMat extends Model
 
     protected $connection = ConnectionEnum::TRANSACTION->value;
 
-    protected $table = 'cons_mats';
+    protected $table = 'cons_mat_stds';
 
     public function document(): MorphOne
     {

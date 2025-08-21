@@ -25,7 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $th) {
-            $statusCode = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $statusCode =  HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
             $message = $th->getMessage();
             $errors = null;
             $validationError = false;

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Transaction\ConsumableMaterial;
 
 use App\Enums\AuthPermissionEnum;
+use App\Enums\ConnectionEnum;
 use App\Exports\TransactionTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Transaction\CloneConsMatRequest;
+use App\Models\ConsMatStd;
 use App\Models\Transaction\ConsMat;
 use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
@@ -48,21 +51,26 @@ class ResourceController extends Controller implements HasMiddleware
     }
 
     /**
-     * import template
+     * clone data
      */
-    #[Route('post', 'export')]
-    public function export()
+    #[Route(method: 'post')]
+    public function clone(CloneConsMatRequest $request)
     {
-        return (new TransactionTemplateExport(
-            [
-                'uuid',
-                'name',
-                'merk',
-                'global_unit.name',
-                'qty',
-            ],
-            ConsMat::query()
-                ->with('globalUnit')
-        ))->download('consmat-template-' . date('YmdHis') . '.xlsx');
+        DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
+            // duplicate consumable material
+            ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
+                ->where('uuid', $request->cons_mat_uuid)
+                ->each(function ($row) use ($request) {
+                    $duplicate = $row->replicate();
+                    $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
+                    $duplicate->setTable('cons_mat_stds');
+                    $duplicate->activity_uuid = $request->activity_uuid;
+                    $duplicate->save();
+                });
+        });
+
+        return [
+            'message' => 'Clone running successfully',
+        ];
     }
 }

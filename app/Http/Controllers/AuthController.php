@@ -45,8 +45,9 @@ class AuthController extends Controller
         ];
     }
 
+    #[Route(method: 'get', name: 'login')]
     public function anauthenticate()
     {
-        throw new AnauthenticateException('Anauthenticate');
+        throw new AnauthenticateException('Anauthenticate', 401);
     }
 }

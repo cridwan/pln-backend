@@ -15,6 +15,8 @@ class Part extends Model
 
     protected $connection = ConnectionEnum::TRANSACTION->value;
 
+    protected $table = 'part_stds';
+
     public function globalUnit(): BelongsTo
     {
         return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');

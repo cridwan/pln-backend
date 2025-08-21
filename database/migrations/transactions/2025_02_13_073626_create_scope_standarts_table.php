@@ -3,6 +3,7 @@
 use App\Enums\ConnectionEnum;
 use App\Enums\DatabaseConnectionEnum;
 use App\Models\SubBidang;
+use App\Models\Transaction\AdditionalScope;
 use App\Models\Transaction\Project;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -21,6 +22,7 @@ return new class extends Migration {
             $table->string('category');
             $table->foreignIdFor(SubBidang::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.sub_bidangs')->cascadeOnDelete();
             $table->foreignIdFor(Project::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(AdditionalScope::class)->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }
