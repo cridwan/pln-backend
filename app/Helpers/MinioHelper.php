@@ -2,12 +2,14 @@
 
 namespace App\Helpers;
 
+use Aws\Exception\AwsException;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Aws\S3\S3Client;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class MinioHelper
 {
@@ -30,7 +32,7 @@ class MinioHelper
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => true,
             'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'key' => env('AWS_ACCESS_KEY_ID'),
                 'secret' => env('AWS_SECRET_ACCESS_KEY'),
             ],
         ]);
@@ -38,8 +40,8 @@ class MinioHelper
         try {
             $s3->putObject([
                 'Bucket' => $bucket,
-                'Key'    => $key,
-                'Body'   => fopen($file->getRealPath(), 'rb'),
+                'Key' => $key,
+                'Body' => fopen($file->getRealPath(), 'rb'),
                 'ContentType' => $contentType,
                 'ACL' => 'public-read', // optional
             ]);
@@ -73,7 +75,7 @@ class MinioHelper
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => true,
             'credentials' => [
-                'key'    => env('AWS_ACCESS_KEY_ID'),
+                'key' => env('AWS_ACCESS_KEY_ID'),
                 'secret' => env('AWS_SECRET_ACCESS_KEY'),
             ],
         ]);
@@ -81,10 +83,10 @@ class MinioHelper
         try {
             $s3->putObject([
                 'Bucket' => $bucket,
-                'Key'    => $key,
-                'Body'   => $stream,
+                'Key' => $key,
+                'Body' => $stream,
                 'ContentType' => $contentType,
-                'ACL'    => 'public-read', // opsional, tergantung kebutuhan
+                'ACL' => 'public-read', // opsional, tergantung kebutuhan
             ]);
             Log::info('upload selesai stream');
             fclose($stream);
@@ -103,6 +105,41 @@ class MinioHelper
             Log::info('error stream');
             fclose($stream);
             throw $e;
+        }
+    }
+
+    public static function preview(string $path)
+    {
+        $bucket = env('AWS_BUCKET');
+
+        $s3 = new S3Client([
+            'version' => 'latest',
+            'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+            'endpoint' => env('AWS_ENDPOINT'), // isi kalau pakai MinIO
+            'use_path_style_endpoint' => true, // untuk MinIO biasanya perlu
+            'credentials' => [
+                'key' => env('AWS_ACCESS_KEY_ID'),
+                'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            ],
+        ]);
+
+        try {
+            // Ambil object dari S3/MinIO
+            $result = $s3->getObject([
+                'Bucket' => $bucket,
+                'Key' => urldecode($path),
+            ]);
+
+            // Stream response ke browser
+            return new StreamedResponse(function () use ($result) {
+                echo $result['Body'];
+            }, 200, [
+                'Content-Type' => $result['ContentType'] ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+            ]);
+
+        } catch (AwsException $e) {
+            abort(404, 'File not found: ' . $e->getAwsErrorMessage());
         }
     }
 }
