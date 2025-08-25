@@ -11,7 +11,9 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
 {
     use Importable;
 
-    public function __construct(public string $model, public array $headings) {}
+    public function __construct(public string $model, public array $headings)
+    {
+    }
 
     public function model(array $row)
     {
@@ -20,7 +22,7 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
         $mapData = $this->mapData($row);
 
         // Create langsung di sini
-        return new $model($mapData);
+        return count($mapData) > 0 ? new $model($mapData) : null;
     }
 
     public function mapData(array $row)
@@ -29,10 +31,12 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
 
         foreach ($this->headings as $heading) {
             if (!array_key_exists($heading, $row)) {
-                throw new \App\Exceptions\BadRequestException("Kolom '$heading' tidak ditemukan dalam file Excel.");
+                continue;
             }
 
-            $data[$heading] = $row[$heading];
+            if (isset($row[$heading]) && trim((string) $row[$heading]) !== '') {
+                $data[$heading] = $row[$heading];
+            }
         }
 
         return $data;
