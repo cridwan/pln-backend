@@ -24,8 +24,8 @@ class CloneManpowerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'manpower_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL->value . '.manpower_stds')],
-            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.activities')]
+            'manpower_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.manpower_stds')],
+            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.activities')]
         ];
     }
 }

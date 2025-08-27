@@ -24,8 +24,8 @@ class CloneActivityRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'equipment_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.equipment', 'uuid')],
-            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL->value . '.activities', 'uuid')]
+            'equipment_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.equipment', 'uuid')],
+            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.activities', 'uuid')]
         ];
     }
 }

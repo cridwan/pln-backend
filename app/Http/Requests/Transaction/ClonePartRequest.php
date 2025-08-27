@@ -24,8 +24,8 @@ class ClonePartRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'manpower_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL->value . '.part_stds')],
-            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.activities')]
+            'manpower_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.part_stds')],
+            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.activities')]
         ];
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Transaction;
 
+use App\Enums\ConnectionEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CloneAdditionalScopeRequest extends FormRequest
 {
@@ -22,7 +24,8 @@ class CloneAdditionalScopeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'additional_scope_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.additional_scopes', 'uuid')],
+            'project_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.projects', 'uuid')],
         ];
     }
 }

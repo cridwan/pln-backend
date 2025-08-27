@@ -24,8 +24,8 @@ class CloneConsMatRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cons_mat_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL->value . '.cons_mat_stds')],
-            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.activities')]
+            'cons_mat_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.cons_mat_stds')],
+            'activity_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.activities')]
         ];
     }
 }
