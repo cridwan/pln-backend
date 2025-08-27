@@ -24,8 +24,8 @@ class CloneEquipmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'equipment_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL->value . '.equipment', 'uuid')],
-            'scope_standart_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.scope_standarts', 'uuid')]
+            'equipment_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.equipment', 'uuid')],
+            'scope_standart_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL ->value . '.scope_standarts', 'uuid')]
         ];
     }
 }
