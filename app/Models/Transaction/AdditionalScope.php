@@ -17,37 +17,37 @@ class AdditionalScope extends Model
 
     public function details(): HasMany
     {
-        return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
+        return $this->hasMany(DetailScopeStandart::class, 'additional_scope_uuid');
     }
 
     public function assetWelnes(): HasOne
     {
-        return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::ASSET_WELNESS->value)->latest();
+        return $this->hasOne(ScopeStandartAsset::class, 'additional_scope_uuid')->where('category', ScopeStandartTypeEnum::ASSET_WELNESS->value)->latest();
     }
 
     public function ohRecom(): HasOne
     {
-        return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::OH_RECOM->value)->latest();
+        return $this->hasOne(ScopeStandartAsset::class, 'additional_scope_uuid')->where('category', ScopeStandartTypeEnum::OH_RECOM->value)->latest();
     }
 
     public function woPriority(): HasOne
     {
-        return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::WO_PRIORITY->value)->latest();
+        return $this->hasOne(ScopeStandartAsset::class, 'additional_scope_uuid')->where('category', ScopeStandartTypeEnum::WO_PRIORITY->value)->latest();
     }
 
     public function history(): HasOne
     {
-        return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::HISTORY->value)->latest();
+        return $this->hasOne(ScopeStandartAsset::class, 'additional_scope_uuid')->where('category', ScopeStandartTypeEnum::HISTORY->value)->latest();
     }
 
     public function rla(): HasOne
     {
-        return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::RLA->value)->latest();
+        return $this->hasOne(ScopeStandartAsset::class, 'additional_scope_uuid')->where('category', ScopeStandartTypeEnum::RLA->value)->latest();
     }
 
     public function ncr(): HasOne
     {
-        return $this->hasOne(ScopeStandartAsset::class, 'scope_standart_uuid')->where('category', ScopeStandartTypeEnum::NCR->value)->latest();
+        return $this->hasOne(ScopeStandartAsset::class, 'additional_scope_uuid')->where('category', ScopeStandartTypeEnum::NCR->value)->latest();
     }
 
     public function sequenceAnimation(): HasOne
