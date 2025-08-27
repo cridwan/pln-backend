@@ -57,7 +57,7 @@ class ResourceController extends Controller
     {
         $equipment = Equipment::where('uuid', $request->equipment_uuid)->first();
 
-        if (!$equipment) {
+        if ($equipment) {
             throw new BadRequestException('Data ' . $equipment->name . ' sudah dilakukan cloning');
         }
 
