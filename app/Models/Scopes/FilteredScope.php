@@ -25,7 +25,8 @@ class FilteredScope implements Scope
             $value = $filter['value'] ?? null;
             $group = strtoupper($filter['group'] ?? 'AND');
 
-            if (!$column) continue;
+            if (!$column)
+                continue;
             $callback = $group === 'OR' ? 'orWhere' : 'where';
 
             $segments = explode('.', $column);
@@ -54,7 +55,6 @@ class FilteredScope implements Scope
                 }
             }
         }
-
         return $query;
     }
 

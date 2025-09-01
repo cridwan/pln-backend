@@ -20,9 +20,10 @@ return new class extends Migration {
             $table->text('name');
             $table->string('link')->nullable();
             $table->string('category');
-            $table->foreignIdFor(SubBidang::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.sub_bidangs')->cascadeOnDelete();
+            $table->foreignIdFor(SubBidang::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.sub_bidangs')->cascadeOnDelete();
             $table->foreignIdFor(Project::class)->nullable()->constrained()->cascadeOnDelete();
             $table->foreignIdFor(AdditionalScope::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });
     }

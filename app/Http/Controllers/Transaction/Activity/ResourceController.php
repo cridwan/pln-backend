@@ -31,7 +31,7 @@ class ResourceController extends Controller
 
     protected $model = TransactionActivity::class;
     protected array $search = ['name'];
-    protected array $with = ['activity'];
+    protected array $with = ['equipment'];
     protected $rules = [];
 
     #[DoNotDiscover]
@@ -67,6 +67,7 @@ class ResourceController extends Controller
                     $duplicateActivity = $activity->replicate();
                     $duplicateActivity->setConnection(ConnectionEnum::TRANSACTION->value);
                     $duplicateActivity->setTable('activities');
+                    $duplicateActivity->uuid = $activity->uuid;
                     $duplicateActivity->equipment_uuid = $request->equipment_uuid;
                     $duplicateActivity->save();
 
@@ -88,7 +89,7 @@ class ResourceController extends Controller
                         $duplicate = $row->replicate();
                         $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                         $duplicate->setTable('part_stds');
-                        $duplicate->activity_uuid = $duplicate->uuid;
+                        $duplicate->activity_uuid = $duplicateActivity->uuid;
                         $duplicate->save();
                     });
 
@@ -99,7 +100,7 @@ class ResourceController extends Controller
                         $duplicate = $row->replicate();
                         $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                         $duplicate->setTable('manpower_stds');
-                        $duplicate->activity_uuid = $duplicate->uuid;
+                        $duplicate->activity_uuid = $duplicateActivity->uuid;
                         $duplicate->save();
                     });
                 });

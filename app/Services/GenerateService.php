@@ -13,6 +13,7 @@ use App\Models\ManpowerStd;
 use App\Models\PartStd;
 use App\Models\ScopeStandart;
 use App\Models\Transaction\Project;
+use App\Models\Transaction\QcPlan;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -35,7 +36,7 @@ class GenerateService
                 $duplicate = $row->replicate();
                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                 $duplicate->setTable('hse_docs');
-                $duplicate->uuid = $row->uuid;
+                $duplicate->original_uuid = $row->uuid;
                 $duplicate->project_uuid = $project->uuid;
                 $duplicate->hse_doc_uuid = $row->uuid;
                 $duplicate->save();
@@ -48,7 +49,7 @@ class GenerateService
                     $duplicate = $scope->replicate();
                     $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                     $duplicate->setTable('scope_standarts');
-                    $duplicate->uuid = $scope->uuid;
+                    $duplicate->original_uuid = $scope->uuid;
                     $duplicate->project_uuid = $project->uuid;
                     $duplicate->save();
 
@@ -60,7 +61,7 @@ class GenerateService
                         $duplicate = $equipment->replicate();
                         $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                         $duplicate->setTable('equipment');
-                        $duplicate->uuid = $equipment->uuid;
+                        $duplicate->original_uuid = $equipment->uuid;
                         $duplicate->scope_standart_uuid = $scope->uuid;
                         $duplicate->save();
 
@@ -71,7 +72,7 @@ class GenerateService
                             $duplicate = $activity->replicate();
                             $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                             $duplicate->setTable('activities');
-                            $duplicate->uuid = $activity->uuid;
+                            $duplicate->original_uuid = $activity->uuid;
                             $duplicate->equipment_uuid = $equipment->uuid;
                             $duplicate->save();
 
@@ -82,7 +83,7 @@ class GenerateService
                                 $duplicate = $row->replicate();
                                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                 $duplicate->setTable('cons_mat_stds');
-                                $duplicate->uuid = $row->uuid;
+                                $duplicate->original_uuid = $row->uuid;
                                 $duplicate->activity_uuid = $activity->uuid;
                                 $duplicate->save();
                             });
@@ -95,7 +96,7 @@ class GenerateService
                                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                 $duplicate->setTable('part_stds');
                                 $duplicate->activity_uuid = $activity->uuid;
-                                $duplicate->uuid = $row->uuid;
+                                $duplicate->original_uuid = $row->uuid;
                                 $duplicate->save();
                             });
 
@@ -106,7 +107,7 @@ class GenerateService
                                 $duplicate = $row->replicate();
                                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                 $duplicate->setTable('manpower_stds');
-                                $duplicate->uuid = $row->uuid;
+                                $duplicate->original_uuid = $row->uuid;
                                 $duplicate->activity_uuid = $activity->uuid;
                                 $duplicate->save();
                             });
@@ -115,101 +116,100 @@ class GenerateService
                 });
 
             // TODO duplicate Qc Plan
-            // QcPlan::insert([
-            //     [
-            //         'uuid' => Str::uuid(),
-            //         'name' => 'QC Plan Mekanik',
-            //         'project_uuid' => $project->uuid
-            //     ],
-            //     [
-            //         'uuid' => Str::uuid(),
-            //         'name' => 'QC Plan Listrik',
-            //         'project_uuid' => $project->uuid
-            //     ],
-            //     [
-            //         'uuid' => Str::uuid(),
-            //         'name' => 'QC Plan Instrument',
-            //         'project_uuid' => $project->uuid
-            //     ]
-            // ]);
+            collect([
+                [
+                    'name' => 'QC Plan Mekanik',
+                ],
+                [
+                    'name' => 'QC Plan Listrik',
+                ],
+                [
+                    'name' => 'QC Plan Instrument',
+                ]
+            ])->each(function ($row) use ($project) {
+                QcPlan::create([
+                    'name' => $row['name'],
+                    'project_uuid' => $project->uuid
+                ]);
+            });
 
             // duplicate additional scope
             AdditionalScope::select('uuid', 'name', 'sequence_uuid')
                 ->where('inspection_type_uuid', $request->inspection_type_uuid)
                 ->each(function ($addScope) use ($project) {
-                    $duplicate = $addScope->replicate();
-                    $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                    $duplicate->setTable('additional_scopes');
-                    $duplicate->project_uuid = $project->uuid;
-                    $duplicate->uuid = $addScope->uuid;
-                    $duplicate->save();
+                    $duplicateAdScope = $addScope->replicate();
+                    $duplicateAdScope->setConnection(ConnectionEnum::TRANSACTION->value);
+                    $duplicateAdScope->setTable('additional_scopes');
+                    $duplicateAdScope->project_uuid = $project->uuid;
+                    $duplicateAdScope->original_uuid = $addScope->uuid;
+                    $duplicateAdScope->save();
 
                     // duplicate scope standart
                     ScopeStandart::select('uuid', 'name', 'link', 'category', 'sub_bidang_uuid')
                         ->where('additional_scope_uuid', $addScope->uuid)
-                        ->each(function ($row) use ($addScope) {
-                        $duplicate = $row->replicate();
-                        $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                        $duplicate->setTable('scope_standarts');
-                        $duplicate->additional_scope_uuid = $addScope->uuid;
-                        $duplicate->uuid = $row->uuid;
-                        $duplicate->save();
+                        ->each(function ($scope) use ($duplicateAdScope) {
+                        $duplicateScope = $scope->replicate();
+                        $duplicateScope->setConnection(ConnectionEnum::TRANSACTION->value);
+                        $duplicateScope->setTable('scope_standarts');
+                        $duplicateScope->additional_scope_uuid = $duplicateAdScope->uuid;
+                        $duplicateScope->original_uuid = $scope->uuid;
+                        $duplicateScope->save();
 
                         // duplicate equipment
                         Equipment::select('uuid', 'scope_standart_uuid', 'name', 'link_ik1', 'link_ik2')
-                            ->whereHas('scopeStandart', fn($query) => $query->where('scope_standart_uuid', $row->uuid))
-                            ->each(function ($equipment) use ($row) {
-                            $duplicate = $equipment->replicate();
-                            $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                            $duplicate->setTable('equipment');
-                            $duplicate->uuid = $equipment->uuid;
-                            $duplicate->scope_standart_uuid = $row->uuid;
-                            $duplicate->save();
+                            ->whereHas('scopeStandart', fn($query) => $query->where('scope_standart_uuid', $scope->uuid))
+                            ->each(function ($equipment) use ($duplicateScope) {
+                            $duplicateEquipment = $equipment->replicate();
+                            $duplicateEquipment->setConnection(ConnectionEnum::TRANSACTION->value);
+                            $duplicateEquipment->setTable('equipment');
+                            $duplicateEquipment->original_uuid = $equipment->uuid;
+                            $duplicateEquipment->scope_standart_uuid = $duplicateScope->uuid;
+                            $duplicateEquipment->save();
 
                             // duplicate activity
                             Activity::select('uuid', 'equipment_uuid', 'name', 'duration', 'link_ik1', 'link_ik2')
                                 ->whereHas('equipment.scopeStandart', fn($query) => $query->where('equipment_uuid', $equipment->uuid))
-                                ->each(function ($activity) use ($equipment) {
-                                $duplicate = $activity->replicate();
-                                $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                                $duplicate->setTable('activities');
-                                $duplicate->uuid = $activity->uuid;
-                                $duplicate->equipment_uuid = $equipment->uuid;
-                                $duplicate->save();
+                                ->each(function ($activity) use ($duplicateEquipment) {
+                                $duplicateActivity = $activity->replicate();
+                                $duplicateActivity->setConnection(ConnectionEnum::TRANSACTION->value);
+                                $duplicateActivity->setTable('activities');
+                                $duplicateActivity->original_uuid = $activity->uuid;
+                                $duplicateActivity->equipment_uuid = $duplicateEquipment->uuid;
+                                $duplicateActivity->save();
 
                                 // duplicate consumable material
                                 ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
                                     ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('activity_uuid', $activity->uuid))
-                                    ->each(function ($row) use ($activity) {
+                                    ->each(function ($row) use ($duplicateActivity) {
                                     $duplicate = $row->replicate();
                                     $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                     $duplicate->setTable('cons_mat_stds');
-                                    $duplicate->uuid = $row->uuid;
-                                    $duplicate->activity_uuid = $activity->uuid;
+                                    $duplicate->original_uuid = $row->uuid;
+                                    $duplicate->activity_uuid = $duplicateActivity->uuid;
                                     $duplicate->save();
                                 });
 
                                 // duplicate part std
                                 PartStd::select('uuid', 'activity_uuid', 'part_uuid', 'qty')
                                     ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('activity_uuid', $activity->uuid))
-                                    ->each(function ($row) use ($activity) {
+                                    ->each(function ($row) use ($duplicateActivity) {
                                     $duplicate = $row->replicate();
                                     $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                     $duplicate->setTable('part_stds');
-                                    $duplicate->uuid = $row->uuid;
-                                    $duplicate->activity_uuid = $activity->uuid;
+                                    $duplicate->original_uuid = $row->uuid;
+                                    $duplicate->activity_uuid = $duplicateActivity->uuid;
                                     $duplicate->save();
                                 });
 
                                 // duplicate manpower std
                                 ManpowerStd::select('uuid', 'activity_uuid', 'manpower_uuid', 'qty')
                                     ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('activity_uuid', $activity->uuid))
-                                    ->each(function ($row) use ($activity) {
+                                    ->each(function ($row) use ($duplicateActivity) {
                                     $duplicate = $row->replicate();
                                     $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                     $duplicate->setTable('manpower_stds');
-                                    $duplicate->uuid = $row->uuid;
-                                    $duplicate->activity_uuid = $activity->uuid;
+                                    $duplicate->original_uuid = $row->uuid;
+                                    $duplicate->activity_uuid = $duplicateActivity->uuid;
                                     $duplicate->save();
                                 });
                             });

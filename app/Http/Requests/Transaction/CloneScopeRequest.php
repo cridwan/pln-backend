@@ -24,8 +24,9 @@ class CloneScopeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'scope_standart_uuid' => ['required', Rule::exists(ConnectionEnum::GLOBAL->value . '.scope_standarts', 'uuid')],
-            'project_uuid' => ['required', Rule::exists(ConnectionEnum::TRANSACTION->value . '.projects', 'uuid')],
+            'scope_standart_uuid' => ['nullable', Rule::exists(ConnectionEnum::GLOBAL ->value . '.scope_standarts', 'uuid')],
+            'project_uuid' => ['nullable', Rule::exists(ConnectionEnum::TRANSACTION->value . '.projects', 'uuid')],
+            'additional_scope_uuid' => ['nullable', Rule::exists(ConnectionEnum::GLOBAL ->value . '.additional_scopes', 'uuid')]
         ];
     }
 }

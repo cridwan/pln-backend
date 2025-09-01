@@ -8,8 +8,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,9 +16,10 @@ return new class extends Migration
     {
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('hse_docs', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->foreignIdFor(HseDoc::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.hse_docs')->cascadeOnDelete();
+            $table->foreignIdFor(HseDoc::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.hse_docs')->cascadeOnDelete();
             $table->foreignIdFor(Project::class)->constrained()->cascadeOnDelete();
             $table->string('link')->nullable();
+            $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });
     }

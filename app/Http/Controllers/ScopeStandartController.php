@@ -63,7 +63,7 @@ class ScopeStandartController extends Controller
             $order = explode(',', $request->order);
             $subQuery->orderBy($order[0], $order[1]);
         });
-
+        \Log::info($query->toSql());
         return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
@@ -73,7 +73,7 @@ class ScopeStandartController extends Controller
     #[Route(method: 'post', uri: '/')]
     public function store(ScopeStandartMasterRequest $request)
     {
-        $scopeStandart =  ScopeStandart::create($request->except('details'));
+        $scopeStandart = ScopeStandart::create($request->except('details'));
 
         $scopeStandart->details()->createMany($request->details);
 

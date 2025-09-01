@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->string('category');
             $table->string('color')->nullable();
             $table->text('note')->nullable();
+            $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });
     }

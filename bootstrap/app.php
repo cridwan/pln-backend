@@ -6,6 +6,7 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\ValidationErrorException;
 use App\Response\ErrorResponse;
 use App\Response\ValidationErrorResponse;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,7 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (Throwable $th) {
-            $statusCode =  HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
+            $statusCode = HttpFoundationResponse::HTTP_INTERNAL_SERVER_ERROR;
             $message = $th->getMessage();
             $errors = null;
             $validationError = false;
@@ -57,6 +58,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 $statusCode = HttpFoundationResponse::HTTP_UNPROCESSABLE_ENTITY;
                 $message = 'Validation errors';
                 $errors = $th->errors();
+                $validationError = true;
+            }
+
+            if ($th instanceof QueryException) {
+                $statusCode = HttpFoundationResponse::HTTP_CONFLICT;
+                $message = "[DUPLICATE] Data sudah di tambahkan!";
+                $errors = $th->errorInfo[1] ?? null;
                 $validationError = true;
             }
 

@@ -18,7 +18,8 @@ return new class extends Migration {
             $table->uuid()->primary();
             $table->text('name');
             $table->foreignIdFor(Project::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Sequence::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL->value . '.sequences')->cascadeOnDelete();
+            $table->foreignIdFor(Sequence::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.sequences')->cascadeOnDelete();
+            $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });
     }
