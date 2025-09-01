@@ -8,9 +8,6 @@ use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Activity;
-use App\Models\Bidang;
-use App\Models\Equipment;
-use App\Models\SubBidang;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use App\Traits\ImportExportExcel;
@@ -45,7 +42,7 @@ class ActivityController extends Controller implements HasMiddleware
 
     protected $model = Activity::class;
     protected array $search = ['name'];
-    protected array $with = ['equipment'];
+    protected array $with = ['equipment', 'equipment.scopeStandart', 'equipment.scopeStandart.inspectionType', 'equipment.scopeStandart.inspectionType.machine', 'equipment.scopeStandart.inspectionType.machine.unit', 'equipment.scopeStandart.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang', 'equipment.scopeStandart.subBidang.bidang'];
     protected $rules = [
         'name' => 'required',
         'duration' => 'required',

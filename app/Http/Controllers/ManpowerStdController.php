@@ -7,8 +7,6 @@ use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Models\Bidang;
-use App\Models\ConsMatStd;
 use App\Models\ManpowerStd;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -44,7 +42,7 @@ class ManpowerStdController extends Controller implements HasMiddleware
 
     protected $model = ManpowerStd::class;
     protected array $search = [];
-    protected array $with = ['activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'manpower'];
+    protected array $with = ['manpower', 'activity', 'activity.equipment', 'activity.equipment.scopeStandart', 'activity.equipment.scopeStandart.inspectionType', 'activity.equipment.scopeStandart.inspectionType.machine', 'activity.equipment.scopeStandart.inspectionType.machine.unit', 'activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'activity.equipment.scopeStandart.subBidang', 'activity.equipment.scopeStandart.subBidang.bidang'];
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'manpower_uuid' => 'required|exists:manpowers,uuid',

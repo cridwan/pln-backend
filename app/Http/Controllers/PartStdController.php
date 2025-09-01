@@ -7,9 +7,6 @@ use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Models\Bidang;
-use App\Models\ConsMatStd;
-use App\Models\ManpowerStd;
 use App\Models\PartStd;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -45,7 +42,7 @@ class PartStdController extends Controller implements HasMiddleware
 
     protected $model = PartStd::class;
     protected array $search = [];
-    protected array $with = ['part', 'activity.equipment.scopeStandart.inspectionType.machine.unit.location'];
+    protected array $with = ['part', 'activity', 'activity.equipment', 'activity.equipment.scopeStandart', 'activity.equipment.scopeStandart.inspectionType', 'activity.equipment.scopeStandart.inspectionType.machine', 'activity.equipment.scopeStandart.inspectionType.machine.unit', 'activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'activity.equipment.scopeStandart.subBidang', 'activity.equipment.scopeStandart.subBidang.bidang'];
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'part_uuid' => 'required|exists:parts,uuid',

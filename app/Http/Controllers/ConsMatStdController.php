@@ -7,7 +7,6 @@ use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Models\Bidang;
 use App\Models\ConsMatStd;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -43,7 +42,7 @@ class ConsMatStdController extends Controller implements HasMiddleware
 
     protected $model = ConsMatStd::class;
     protected array $search = [];
-    protected array $with = ['activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'consmat'];
+    protected array $with = ['consmat', 'activity', 'activity.equipment', 'activity.equipment.scopeStandart', 'activity.equipment.scopeStandart.inspectionType', 'activity.equipment.scopeStandart.inspectionType.machine', 'activity.equipment.scopeStandart.inspectionType.machine.unit', 'activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'activity.equipment.scopeStandart.subBidang', 'activity.equipment.scopeStandart.subBidang.bidang'];
     protected $rules = [
         'activity_uuid' => 'required|exists:activities,uuid',
         'cons_mat_uuid' => 'required|exists:const_mats,uuid',

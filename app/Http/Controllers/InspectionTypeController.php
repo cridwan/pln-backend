@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\InspectionType;
@@ -43,7 +42,7 @@ class InspectionTypeController extends Controller implements HasMiddleware
 
     protected $model = InspectionType::class;
     protected array $search = ['name'];
-    protected array $with = ['machine.unit.location', 'sequence.document'];
+    protected array $with = ['machine', 'machine.unit', 'machine.unit.location', 'sequence.document'];
     protected $rules = [];
 
     #[DoNotDiscover]

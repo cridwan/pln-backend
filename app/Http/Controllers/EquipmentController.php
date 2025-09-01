@@ -7,16 +7,13 @@ use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Models\Bidang;
 use App\Models\Equipment;
-use App\Models\SubBidang;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use App\Traits\ImportExportExcel;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
@@ -44,8 +41,8 @@ class EquipmentController extends Controller implements HasMiddleware
     use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = Equipment::class;
-    protected array $search = ['name'];
-    protected array $with = ['scopeStandart'];
+    protected array $search = [];
+    protected array $with = ['scopeStandart', 'scopeStandart.inspectionType', 'scopeStandart.inspectionType.machine', 'scopeStandart.inspectionType.machine.unit', 'scopeStandart.inspectionType.machine.unit.location', 'scopeStandart.subBidang', 'scopeStandart.subBidang.bidang'];
     protected $rules = [
         'name' => 'required',
         'scope_standart_uuid' => 'required|exists:scope_standarts,uuid',

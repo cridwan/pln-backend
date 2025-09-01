@@ -21,6 +21,8 @@ class ScopeStandartController extends Controller
     use ImportExportExcel;
     protected $model = ScopeStandart::class;
 
+    protected $with = ['inspectionType', 'inspectionType.machine', 'inspectionType.machine.unit', 'inspectionType.machine.unit.location', 'subBidang', 'subBidang.bidang'];
+
     #[DoNotDiscover]
     public static function middleware()
     {

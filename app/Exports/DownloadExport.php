@@ -4,6 +4,8 @@ namespace App\Exports;
 
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -11,22 +13,78 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithStyles
+class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithStyles, WithMapping, ShouldAutoSize
 {
     use Exportable;
+
     private $instanceModel;
-    public function __construct(private readonly string $model)
+    public function __construct(private readonly string $model, private readonly mixed $with)
     {
         $this->instanceModel = new $model;
     }
+
     public function query()
     {
-        return $this->model::query();
+        return $this->model::query()->with($this->with);
+    }
+
+    public function map($row): array
+    {
+        $base = [];
+
+        // isi kolom dari table
+        foreach ($this->getAttributes() as $attr) {
+            if (!str_ends_with($attr, '_uuid') && !str_ends_with($attr, '_at')) {
+                $base[$attr] = $row->{$attr};
+            }
+        }
+
+        // Relasi dinamis
+        foreach ((array) $this->with as $relation) {
+            $parts = explode('.', $relation);
+
+            $relatedModel = $row;
+            foreach ($parts as $part) {
+                $relatedModel = $relatedModel?->$part;
+            }
+
+            // pakai nama relasi terakhir sebagai key
+            $last = end($parts);
+            $base[$last] = $relatedModel?->name ?? null;
+        }
+
+        foreach ($this->getAttributes() as $attr) {
+            if (!str_ends_with($attr, '_uuid') && str_ends_with($attr, '_at')) {
+                $base[$attr] = $row->{$attr};
+            }
+        }
+
+        return $base;
     }
 
     public function headings(): array
     {
-        return $this->getAttributes();
+        $columns = [];
+
+        foreach ((array) $this->getAttributes() as $attribute) {
+            if (!str_ends_with($attribute, '_uuid') && !str_ends_with($attribute, '_at')) {
+                $columns[] = join(' ', explode('_', strtoupper($attribute)));
+            }
+        }
+
+        foreach ((array) $this->with as $relation) {
+            $parts = explode('.', $relation);
+
+            $columns[] = strtoupper(end($parts));
+        }
+
+        foreach ((array) $this->getAttributes() as $attribute) {
+            if (!str_ends_with($attribute, '_uuid') && str_ends_with($attribute, '_at')) {
+                $columns[] = join(' ', explode('_', strtoupper($attribute)));
+            }
+        }
+
+        return $columns;
     }
 
     public function chunkSize(): int
@@ -52,7 +110,7 @@ class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithS
 
     public function styles(Worksheet $sheet)
     {
-        $convertColumn = $this->numberToAlphabet(count($this->getAttributes()));
+        $convertColumn = $this->numberToAlphabet(count($this->headings()));
         $count = $this->query()->count() + 1;
         $range = "A1:{$convertColumn}{$count}";
 

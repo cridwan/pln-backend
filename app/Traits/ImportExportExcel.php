@@ -40,11 +40,11 @@ trait ImportExportExcel
             throw new BadRequestException('Model not defined');
         }
 
-        $filteredAttributes = $this->filteredAttributes();
-
         $tableName = $this->getTableName();
 
-        return (new DownloadExport($this->model))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
+        $with = isset($this->with) ? $this->with : [];
+
+        return (new DownloadExport($this->model, $with))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
 
     /**
