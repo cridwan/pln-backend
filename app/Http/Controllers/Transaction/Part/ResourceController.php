@@ -25,7 +25,7 @@ class ResourceController extends Controller implements HasMiddleware
 
     protected $model = Part::class;
     protected array $search = ['no_drawing', 'name'];
-    protected array $with = ['globalUnit'];
+    protected array $with = ['part', 'part.globalUnit'];
 
     protected $rules = [];
 

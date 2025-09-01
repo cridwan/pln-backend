@@ -32,4 +32,9 @@ class ConsMat extends Model
     {
         return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
     }
+
+    public function activity()
+    {
+        return $this->belongsTo(\App\Models\Activity::class, 'activity_uuid');
+    }
 }

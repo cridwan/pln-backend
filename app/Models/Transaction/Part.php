@@ -17,6 +17,11 @@ class Part extends Model
 
     protected $table = 'part_stds';
 
+    public function part()
+    {
+        return $this->belongsTo(\App\Models\Part::class);
+    }
+
     public function globalUnit(): BelongsTo
     {
         return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');
@@ -25,5 +30,10 @@ class Part extends Model
     public function additionalScope()
     {
         return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
+
+    public function activity()
+    {
+        return $this->belongsTo(\App\Models\Activity::class, 'activity_uuid');
     }
 }

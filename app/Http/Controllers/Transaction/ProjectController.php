@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Enums\AuthPermissionEnum;
+use App\Exceptions\BadRequestException;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\Transaction\Project;
@@ -27,6 +28,30 @@ class ProjectController extends Controller implements HasMiddleware
     {
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list']),
+        ];
+    }
+
+    /**
+     * delete project
+     */
+    #[Route(method: 'delete', uri: 'project/destroy/{uuid}')]
+    public function destroy(string $uuid)
+    {
+        $project = Project::where('uuid', '=', $uuid)->first();
+
+        \Log::info('project', [
+            'data' => $project,
+            'uuid' => $uuid
+        ]);
+
+        if (!$project) {
+            throw new BadRequestException('Project tidak ditemukan');
+        }
+
+        $project->delete();
+
+        return [
+            'message' => 'Data berhasil di delete'
         ];
     }
 }
