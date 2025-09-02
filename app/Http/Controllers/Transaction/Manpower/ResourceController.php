@@ -24,7 +24,7 @@ class ResourceController extends Controller implements HasMiddleware
 
     protected $model = Manpower::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['manpower.globalUnit'];
 
     protected $rules = [];
 

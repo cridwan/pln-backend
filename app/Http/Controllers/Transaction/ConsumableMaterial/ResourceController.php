@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Transaction\ConsumableMaterial;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
-use App\Exports\TransactionTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Transaction\CloneConsMatRequest;
 use App\Models\ConsMatStd;
@@ -26,7 +25,7 @@ class ResourceController extends Controller implements HasMiddleware
 
     protected $model = ConsMat::class;
     protected array $search = ['name', 'merk'];
-    protected array $with = ['document', 'globalUnit'];
+    protected array $with = ['consmat.globalUnit'];
     protected $rules = [];
 
     #[DoNotDiscover]

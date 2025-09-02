@@ -37,4 +37,9 @@ class ConsMat extends Model
     {
         return $this->belongsTo(\App\Models\Activity::class, 'activity_uuid');
     }
+
+    public function consmat()
+    {
+        return $this->belongsTo(\App\Models\ConsMat::class, 'cons_mat_uuid');
+    }
 }

@@ -24,4 +24,9 @@ class Manpower extends Model
     {
         return $this->belongsTo(\App\Models\Activity::class, 'activity_uuid');
     }
+
+    public function manpower()
+    {
+        return $this->belongsTo(\App\Models\Manpower::class, 'manpower_uuid');
+    }
 }

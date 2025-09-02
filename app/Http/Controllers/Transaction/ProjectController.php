@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Enums\AuthPermissionEnum;
+use App\Enums\ProjectStatusEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Resources\ProjectResource;
 use App\Models\Transaction\Project;
 use App\Traits\HasList;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -53,5 +55,33 @@ class ProjectController extends Controller implements HasMiddleware
         return [
             'message' => 'Data berhasil di delete'
         ];
+    }
+
+    /**
+     * get one project
+     */
+    #[Route(method: 'get', uri: 'project/{uuid}/show')]
+    public function show(string $uuid)
+    {
+        $project = Project::where('uuid', '=', $uuid)->first();
+        return ProjectResource::make($project)->response()->setStatusCode(200);
+    }
+
+    /**
+     * approve project project
+     */
+    #[Route(method: 'put', uri: '{uuid}/approve')]
+    public function approve(string $uuid)
+    {
+        $project = Project::where('uuid', '=', $uuid)->first();
+
+        if (!$project) {
+            throw new BadRequestException('Project tidak ditemukan');
+        }
+
+        $project->status = ProjectStatusEnum::APPROVE->value;
+        $project->save();
+
+        return $this->show($uuid);
     }
 }
