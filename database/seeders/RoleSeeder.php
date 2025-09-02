@@ -15,15 +15,27 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $role = Role::where('name', RoleEnum::SUPERUSER->value)->first();
-
-        if (!$role) {
-            Role::create([
-                'name' => RoleEnum::SUPERUSER->value,
-                'display_name' => 'Super User',
+        collect([
+            [
+                "name" => RoleEnum::SUPERUSER->value,
+                "display_name" => "Super User"
+            ],
+            [
+                "name" => RoleEnum::PLANNER->value,
+                "display_name" => "Planner"
+            ],
+            [
+                "name" => RoleEnum::APPROVAL->value,
+                "display_name" => "Approval"
+            ]
+        ])->each(function ($item) {
+            Role::firstOrCreate([
+                'name' => $item['name'],
+            ], [
+                'display_name' => $item['display_name'],
                 'guard_name' => 'api',
                 'uuid' => Str::uuid()
             ]);
-        }
+        });
     }
 }
