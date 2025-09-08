@@ -65,7 +65,9 @@ class ScopeStandartController extends Controller
             $order = explode(',', $request->order);
             $subQuery->orderBy($order[0], $order[1]);
         });
-        \Log::info($query->toSql());
+
+        $query->fromTransaction();
+
         return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 

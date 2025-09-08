@@ -52,6 +52,10 @@ trait HasPagination
             $subQuery->orderBy($order[0], $order[1]);
         });
 
+        if (method_exists($this->model, 'scopeFromTransaction')) {
+            $query->fromTransaction();
+        }
+
         return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 }

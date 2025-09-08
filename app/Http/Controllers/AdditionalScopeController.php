@@ -63,6 +63,8 @@ class AdditionalScopeController extends Controller
             $subQuery->orderBy($order[0], $order[1]);
         });
 
+        $query->fromTransaction();
+
         return $query->has('inspectionType')->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
@@ -72,7 +74,7 @@ class AdditionalScopeController extends Controller
     #[Route(method: 'post', uri: '/')]
     public function store(AdditionalScopeRequest $request)
     {
-        $additionalScope =  AdditionalScope::create($request->except('details'));
+        $additionalScope = AdditionalScope::create($request->except('details'));
 
         return $additionalScope;
     }
