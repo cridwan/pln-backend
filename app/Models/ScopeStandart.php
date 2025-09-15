@@ -57,11 +57,15 @@ class ScopeStandart extends Model
                     ->whereColumn('trx.original_uuid', '=', 'scope_standarts.uuid');
                 if (request()->filled('project_uuid')) {
                     $subQuery->where('trx.project_uuid', '=', request()->get('project_uuid'));
+                } else if (request()->filled('additional_scope_uuid')) {
+                    $subQuery->where('trx.additional_scope_uuid', '=', request()->get('additional_scope_uuid'));
                 }
             });
 
             if (request()->filled('from_add_scope')) {
-                $builder->doesntHave('inspectionType');
+                $builder
+                    ->where('additional_scope_uuid', '=', request()->get('original_uuid'))
+                    ->doesntHave('inspectionType');
             } else {
                 $builder->doesntHave('additionalScope');
             }

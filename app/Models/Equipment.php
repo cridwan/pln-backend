@@ -33,11 +33,15 @@ class Equipment extends Model
                     ->whereColumn('trx.original_uuid', '=', 'equipment.uuid');
                 if (request()->filled('project_uuid')) {
                     $subQuery->where('ss.project_uuid', '=', request()->get('project_uuid'));
+                } else if (request()->filled('additional_scope_uuid')) {
+                    $subQuery->where('ss.additional_scope_uuid', '=', request()->get('additional_scope_uuid'));
                 }
             });
 
             if (request()->filled('from_add_scope')) {
-                $builder->doesntHave('scopeStandart.inspectionType');
+                $builder
+                    ->whereHas('scopeStandart', fn($query) => $query->where('additional_scope_uuid', '=', request()->get('original_uuid')))
+                    ->doesntHave('scopeStandart.inspectionType');
             } else {
                 $builder->doesntHave('scopeStandart.additionalScope');
             }
