@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transaction\ScopeStandart;
 
+use App\Data\PaginationData;
 use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
 use App\Enums\RoleEnum;
@@ -197,5 +198,28 @@ class ResourceController extends Controller implements HasMiddleware
         return [
             'message' => 'Clone running successfully',
         ];
+    }
+
+    /**
+     * data for options select
+     */
+    #[Route(method: 'get', uri: 'select/options')]
+    public function select(Request $request)
+    {
+        $pagination = new PaginationData($request);
+        abort_if(!$request->filled('project_uuid'), 400, 'project_uuid harus diisi');
+
+        $scopes = ModelsScopeStandart::query()
+            ->whereNotExists(function ($subQuery) use ($request) {
+                $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                $subQuery->selectRaw(1)
+                    ->from($trxDb . '.scope_standarts as trx')
+                    ->whereColumn('trx.original_uuid', '=', 'scope_standarts.uuid')
+                    ->whereHas('scopeStandart', fn($scope) => $scope->where('project_uuid', $request->project_uuid));
+            })
+            ->when($request->filled('sub_bidang_uuid'), fn($scope) => $scope->where('sub_bidang_uuid', $request->sub_bidang_uuid))
+            ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
+
+        return $scopes;
     }
 }

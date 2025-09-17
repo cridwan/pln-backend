@@ -116,19 +116,9 @@ class GenerateService
                 });
 
             // TODO duplicate Qc Plan
-            collect([
-                [
-                    'name' => 'QC Plan Mekanik',
-                ],
-                [
-                    'name' => 'QC Plan Listrik',
-                ],
-                [
-                    'name' => 'QC Plan Instrument',
-                ]
-            ])->each(function ($row) use ($project) {
+            \App\Models\QcPlan::select('uuid', 'name')->each(function ($row) use ($project) {
                 QcPlan::create([
-                    'name' => $row['name'],
+                    'name' => $row->name,
                     'project_uuid' => $project->uuid
                 ]);
             });
