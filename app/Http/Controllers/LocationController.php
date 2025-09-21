@@ -29,10 +29,9 @@ class LocationController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionRoleMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::LOCATION,
-                        RoleEnum::PLANNER
+                        RoleEnum::SUPERUSER
                     ]
                 ),
                 except: ['list', 'show', 'index']

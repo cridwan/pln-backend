@@ -3,6 +3,7 @@
 namespace App\Models\Transaction;
 
 use App\Enums\ConnectionEnum;
+use App\Enums\ProjectStatusEnum;
 use App\Models\InspectionType;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Project extends Model
 {
     use SettingModel;
+
+    protected $casts = [
+        'status' => ProjectStatusEnum::class
+    ];
 
     protected $connection = ConnectionEnum::TRANSACTION->value;
 

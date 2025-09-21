@@ -7,6 +7,7 @@ use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Unit;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -30,10 +31,9 @@ class UnitController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionRoleMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::UNIT,
-                        RoleEnum::PLANNER
+                        RoleEnum::SUPERUSER
                     ]
                 ),
                 except: ['list', 'show', 'index']

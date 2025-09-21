@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Transaction\QcPlan;
 
 use App\Enums\AuthPermissionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Transaction\QcPlan;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
@@ -24,7 +26,13 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['pagination']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
+            new Middleware(
+                RoleMiddleware::using(
+                    RoleEnum::transactionRole()
+                ),
+                except: ['list', 'show', 'index', 'pagination']
+            )
         ];
     }
 }

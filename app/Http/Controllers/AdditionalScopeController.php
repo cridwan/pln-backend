@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Middleware\PermissionMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\AdditionalScopeRequest;
 use App\Models\AdditionalScope;
 use App\Traits\ImportExportExcel;
@@ -24,13 +26,14 @@ class AdditionalScopeController extends Controller
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::ADDITIONAL_SCOPE,
+                        RoleEnum::SUPERUSER
                     ],
                 ),
+                except: ['list', 'show', 'index']
             ),
         ];
     }

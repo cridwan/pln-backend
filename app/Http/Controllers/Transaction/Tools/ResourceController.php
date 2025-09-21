@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Transaction\Tools;
 
 use App\Enums\AuthPermissionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Transaction\Tools;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -27,7 +29,12 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['index']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
+            new Middleware(
+                RoleMiddleware::using(
+                    RoleEnum::transactionRole()
+                )
+            )
         ];
     }
 

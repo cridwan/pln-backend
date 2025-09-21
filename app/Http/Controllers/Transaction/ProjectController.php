@@ -79,7 +79,7 @@ class ProjectController extends Controller implements HasMiddleware
             throw new BadRequestException('Project tidak ditemukan');
         }
 
-        $project->status = ProjectStatusEnum::APPROVE->value;
+        $project->status = $project->status->updateStatus();
         $project->save();
 
         return $this->show($uuid);

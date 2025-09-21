@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Tools;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -27,14 +29,14 @@ class ToolsController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::TOOLS
+                        RoleEnum::SUPERUSER
                     ]
                 ),
-                except: ['list']
+                except: ['list', 'show', 'index']
             )
         ];
     }

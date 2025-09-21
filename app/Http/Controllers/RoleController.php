@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\RoleRequest;
 use App\Models\Permission;
 use App\Models\Role;
@@ -26,13 +28,14 @@ class RoleController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::ROLE
+                        RoleEnum::SUPERUSER
                     ]
                 ),
+                except: ['list', 'show', 'index']
             )
         ];
     }
@@ -90,7 +93,7 @@ class RoleController extends Controller implements HasMiddleware
     #[Route(method: 'post', uri: '/')]
     public function store(RoleRequest $request)
     {
-        $role =  Role::create([
+        $role = Role::create([
             ...$request->except('permissions'),
             'name' => \Illuminate\Support\Str::slug($request->display_name),
             'guard_name' => 'api'

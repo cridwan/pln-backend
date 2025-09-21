@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Transaction\AdditionalScope;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\AdditionalScopeRequest;
 use App\Http\Requests\ScopeStandartAdditionalRequest;
 use App\Models\Activity;
@@ -37,7 +39,13 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['pagination']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
+            new Middleware(
+                RoleMiddleware::using(
+                    RoleEnum::transactionRole()
+                ),
+                except: ['list', 'show', 'index', 'pagination']
+            )
         ];
     }
 

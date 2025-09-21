@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\PermissionEnum;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
@@ -25,13 +27,14 @@ class UserController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::USER
+                        RoleEnum::SUPERUSER
                     ]
-                )
+                ),
+                except: ['list', 'show', 'index']
             )
         ];
     }

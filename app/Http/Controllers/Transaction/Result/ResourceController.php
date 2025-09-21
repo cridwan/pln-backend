@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transaction\Result;
 
 use App\Enums\AuthPermissionEnum;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Exports\ConsMatExport;
 use App\Exports\HseExport;
@@ -13,6 +14,7 @@ use App\Exports\ScopeStandartSheetExport;
 use App\Exports\ToolsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Transaction\Project;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -30,7 +32,13 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            // new Middleware(AuthPermissionEnum::AUTH_API->value),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
+            new Middleware(
+                RoleMiddleware::using(
+                    RoleEnum::transactionRole()
+                ),
+                except: ['list', 'show', 'index', 'pagination']
+            )
         ];
     }
 

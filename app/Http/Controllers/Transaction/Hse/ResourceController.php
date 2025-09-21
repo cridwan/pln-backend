@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Transaction\Hse;
 
 use App\Enums\AuthPermissionEnum;
 use App\Enums\HseTypeEnum;
+use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\Transaction\Hse;
 use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
@@ -29,7 +31,13 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['pagination']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
+            new Middleware(
+                RoleMiddleware::using(
+                    RoleEnum::transactionRole()
+                ),
+                except: ['list', 'show', 'index', 'pagination']
+            )
         ];
     }
 

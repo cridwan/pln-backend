@@ -7,6 +7,7 @@ use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Models\ManpowerStd;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
@@ -25,15 +26,14 @@ class ManpowerStdController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                PermissionRoleMiddleware::using(
+                RoleMiddleware::using(
                     [
-                        PermissionEnum::LOCATION,
-                        RoleEnum::PLANNER
+                        RoleEnum::SUPERUSER
                     ]
                 ),
-                except: ['list', 'show']
+                except: ['list', 'show', 'index']
             )
         ];
     }
