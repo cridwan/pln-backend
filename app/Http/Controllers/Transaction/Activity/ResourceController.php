@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transaction\Activity;
 
+use App\Data\PaginationData;
 use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
 use App\Enums\RoleEnum;
@@ -15,9 +16,11 @@ use App\Models\ConsMatStd;
 use App\Models\ManpowerStd;
 use App\Models\PartStd;
 use App\Models\Transaction\Activity as TransactionActivity;
+use App\Models\Transaction\Equipment;
 use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
@@ -109,5 +112,34 @@ class ResourceController extends Controller
         return [
             'message' => 'Clone running successfully',
         ];
+    }
+
+
+    /**
+     * data for options select
+     */
+    #[Route(method: 'get', uri: 'select/options')]
+    public function select(Request $request)
+    {
+        $pagination = new PaginationData($request);
+
+        $trxEquipment = Equipment::where('uuid', $request->get('equipment_uuid'))->first();
+        $equipment = Activity::query()
+            ->whereNotExists(function ($subQuery) use ($request) {
+                $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                $subQuery->selectRaw(1)
+                    ->from($trxDb . '.activities as trx')
+                    ->join($trxDb . '.equipment as eq', 'eq.uuid', '=', 'trx.equipment_uuid')
+                    ->join($trxDb . '.scope_standarts as ss', 'ss.uuid', '=', 'eq.scope_standart_uuid')
+                    ->whereColumn('trx.original_uuid', '=', 'activities.uuid')
+                    ->when($request->filled('project_uuid'), fn($query) => $query->where('ss.project_uuid', '=', $request->get('project_uuid')))
+                    ->when($request->filled('additional_scope_uuid'), fn($query) => $query->where('ss.additional_scope_uuid', '=', $request->get('additional_scope_uuid')));
+            })
+            ->when($trxEquipment, fn($query) => $query->where('equipment_uuid', '=', $trxEquipment->original_uuid))
+            ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
+            ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))
+            ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
+
+        return $equipment;
     }
 }

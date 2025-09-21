@@ -127,8 +127,9 @@ class ResourceController extends Controller implements HasMiddleware
                     $duplicateScope = $scope->replicate();
                     $duplicateScope->setConnection(ConnectionEnum::TRANSACTION->value);
                     $duplicateScope->setTable('scope_standarts');
+                    $duplicateScope->original_uuid = $scope->uuid;
 
-                    if ($request->filled('scope_project_uuid')) {
+                    if ($request->filled('project_uuid')) {
                         $duplicateScope->project_uuid = $request->project_uuid;
                     }
 
@@ -146,6 +147,7 @@ class ResourceController extends Controller implements HasMiddleware
                         $duplicateEquipment->setConnection(ConnectionEnum::TRANSACTION->value);
                         $duplicateEquipment->setTable('equipment');
                         $duplicateEquipment->scope_standart_uuid = $duplicateScope->uuid;
+                        $duplicateEquipment->original_uuid = $equipment->uuid;
                         $duplicateEquipment->save();
 
                         // duplicate activity
@@ -156,38 +158,42 @@ class ResourceController extends Controller implements HasMiddleware
                             $duplicateActivity->setConnection(ConnectionEnum::TRANSACTION->value);
                             $duplicateActivity->setTable('activities');
                             $duplicateActivity->equipment_uuid = $duplicateEquipment->uuid;
+                            $duplicateActivity->original_uuid = $activity->uuid;
                             $duplicateActivity->save();
 
                             // duplicate consumable material
                             ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
                                 ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('activity_uuid', $activity->uuid))
-                                ->each(function ($row) use ($duplicateActivity) {
+                                ->each(function ($row) use ($duplicateActivity, $activity) {
                                 $duplicate = $row->replicate();
                                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                 $duplicate->setTable('cons_mat_stds');
                                 $duplicate->activity_uuid = $duplicateActivity->uuid;
+                                $duplicateActivity->original_uuid = $activity->uuid;
                                 $duplicate->save();
                             });
 
                             // duplicate part std
                             PartStd::select('uuid', 'activity_uuid', 'part_uuid', 'qty')
                                 ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('activity_uuid', $activity->uuid))
-                                ->each(function ($row) use ($duplicateActivity) {
+                                ->each(function ($row) use ($duplicateActivity, $activity) {
                                 $duplicate = $row->replicate();
                                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                 $duplicate->setTable('part_stds');
                                 $duplicate->activity_uuid = $duplicateActivity->uuid;
+                                $duplicateActivity->original_uuid = $activity->uuid;
                                 $duplicate->save();
                             });
 
                             // duplicate manpower std
                             ManpowerStd::select('uuid', 'activity_uuid', 'manpower_uuid', 'qty')
                                 ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('activity_uuid', $activity->uuid))
-                                ->each(function ($row) use ($duplicateActivity) {
+                                ->each(function ($row) use ($duplicateActivity, $activity) {
                                 $duplicate = $row->replicate();
                                 $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                                 $duplicate->setTable('manpower_stds');
                                 $duplicate->activity_uuid = $duplicateActivity->uuid;
+                                $duplicateActivity->original_uuid = $activity->uuid;
                                 $duplicate->save();
                             });
                         });
@@ -207,7 +213,6 @@ class ResourceController extends Controller implements HasMiddleware
     public function select(Request $request)
     {
         $pagination = new PaginationData($request);
-        abort_if(!$request->filled('project_uuid'), 400, 'project_uuid harus diisi');
 
         $scopes = ModelsScopeStandart::query()
             ->whereNotExists(function ($subQuery) use ($request) {
@@ -215,9 +220,12 @@ class ResourceController extends Controller implements HasMiddleware
                 $subQuery->selectRaw(1)
                     ->from($trxDb . '.scope_standarts as trx')
                     ->whereColumn('trx.original_uuid', '=', 'scope_standarts.uuid')
-                    ->whereHas('scopeStandart', fn($scope) => $scope->where('project_uuid', $request->project_uuid));
+                    ->when($request->filled('project_uuid'), fn($scope) => $scope->where('trx.project_uuid', $request->project_uuid))
+                    ->when($request->filled('additional_scope_uuid'), fn($scope) => $scope->where('trx.additional_scope_uuid', $request->additional_scope_uuid));
             })
             ->when($request->filled('sub_bidang_uuid'), fn($scope) => $scope->where('sub_bidang_uuid', $request->sub_bidang_uuid))
+            ->when($request->filled('project_uuid'), fn($query) => $query->doesntHave('additionalScope'))
+            ->when($request->filled('additional_scope'), fn($query) => $query->doesntHave('inspectionType'))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $scopes;
