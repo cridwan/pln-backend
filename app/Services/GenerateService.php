@@ -77,7 +77,7 @@ class GenerateService
                             $duplicateActivity->save();
 
                             // duplicate consumable material
-                            ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
+                            ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid', 'qty')
                                 ->whereHas('activity', fn($query) => $query->where('uuid', $activity->uuid))
                                 ->each(function ($row) use ($duplicateActivity) {
                                 $duplicate = $row->replicate();
@@ -168,7 +168,7 @@ class GenerateService
                                 $duplicateActivity->save();
 
                                 // duplicate consumable material
-                                ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
+                                ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid', 'qty')
                                     ->whereHas('activity', fn($query) => $query->where('uuid', $activity->uuid))
                                     ->each(function ($row) use ($duplicateActivity) {
                                     $duplicate = $row->replicate();

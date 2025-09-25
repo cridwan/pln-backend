@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->uuid()->primary();
             $table->foreignIdFor(Activity::class)->constrained()->onDelete('CASCADE');
             $table->foreignIdFor(ConsMat::class)->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.const_mats')->onDelete('CASCADE');
+            $table->integer('qty')->default(0);
             $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });

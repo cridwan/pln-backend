@@ -61,13 +61,15 @@ return Application::configure(basePath: dirname(__DIR__))
                 $validationError = true;
             }
 
-            // if ($th instanceof QueryException) {
-            //     $statusCode = HttpFoundationResponse::HTTP_CONFLICT;
-            //     $message = "[DUPLICATE] Data sudah di tambahkan!";
-            //     $errors = $th->errorInfo[1] ?? null;
-            //     $validationError = true;
-            // }
-    
+            if ($th instanceof QueryException) {
+                if (str($th->getMessage())->contains('Duplicate entry')) {
+                    $statusCode = HttpFoundationResponse::HTTP_CONFLICT;
+                    $message = "[DUPLICATE] Data sudah di tambahkan!";
+                    $errors = $th->errorInfo[1] ?? null;
+                    $validationError = true;
+                }
+            }
+
             return $validationError ? (new ValidationErrorResponse($statusCode, $message, $errors))->toJson() : (new ErrorResponse($statusCode, $message, $th->getTrace()))->toJson();
         });
     })->create();
