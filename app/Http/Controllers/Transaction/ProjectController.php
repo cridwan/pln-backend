@@ -10,6 +10,7 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Resources\ProjectResource;
 use App\Models\Transaction\Project;
 use App\Traits\HasList;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
@@ -64,14 +65,14 @@ class ProjectController extends Controller implements HasMiddleware
     public function show(string $uuid)
     {
         $project = Project::where('uuid', '=', $uuid)->first();
-        return ProjectResource::make($project)->response()->setStatusCode(200);
+        return ProjectResource::make($project->loadMissing(['inspectionType', 'approvedByUser']))->response()->setStatusCode(200);
     }
 
     /**
      * approve project project
      */
     #[Route(method: 'put', uri: '{uuid}/approve')]
-    public function approve(string $uuid)
+    public function approve(Request $request, string $uuid)
     {
         $project = Project::where('uuid', '=', $uuid)->first();
 
@@ -80,6 +81,10 @@ class ProjectController extends Controller implements HasMiddleware
         }
 
         $project->status = $project->status->updateStatus();
+        $project->approved_at = $project->status == ProjectStatusEnum::PENDING ? null : now();
+        $project->unapproved_at = $project->status == ProjectStatusEnum::APPROVE ? null : now();
+        $project->approved_by = $request->user()->id;
+        $project->reason = $request->reason;
         $project->save();
 
         return $this->show($uuid);

@@ -68,6 +68,7 @@ class ResourceController extends Controller implements HasMiddleware
     #[Route(method: 'post')]
     public function clone(ClonePartRequest $request)
     {
+        \Log::info('trigger');
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // duplicate part std
             PartStd::select('uuid', 'activity_uuid', 'part_uuid', 'qty')

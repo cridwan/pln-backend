@@ -14,7 +14,11 @@ class Project extends Model
     use SettingModel;
 
     protected $casts = [
-        'status' => ProjectStatusEnum::class
+        'status' => ProjectStatusEnum::class,
+        'approved_at' => 'datetime',
+        'unapproved_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
 
     protected $connection = ConnectionEnum::TRANSACTION->value;
@@ -22,5 +26,10 @@ class Project extends Model
     public function inspectionType(): BelongsTo
     {
         return $this->belongsTo(InspectionType::class, 'inspection_type_uuid');
+    }
+
+    public function approvedByUser()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'approved_by');
     }
 }

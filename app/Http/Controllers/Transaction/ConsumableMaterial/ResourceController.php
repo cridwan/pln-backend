@@ -68,7 +68,7 @@ class ResourceController extends Controller implements HasMiddleware
     {
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // duplicate consumable material
-            ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
+            ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid', 'qty')
                 ->where('uuid', $request->cons_mat_uuid)
                 ->each(function ($row) use ($request) {
                     $duplicate = $row->replicate();
