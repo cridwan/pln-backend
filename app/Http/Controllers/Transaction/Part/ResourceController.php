@@ -38,12 +38,12 @@ class ResourceController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination', 'grouping']),
             new Middleware(
                 RoleMiddleware::using(
                     RoleEnum::transactionRole()
                 ),
-                except: ['list', 'show', 'index', 'pagination']
+                except: ['list', 'show', 'index', 'pagination', 'grouping']
             )
         ];
     }

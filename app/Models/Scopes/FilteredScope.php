@@ -27,6 +27,9 @@ class FilteredScope implements Scope
 
             if (!$column)
                 continue;
+            if ($value == "undefined")
+                continue;
+
             $callback = $group === 'OR' ? 'orWhere' : 'where';
 
             $segments = explode('.', $column);
