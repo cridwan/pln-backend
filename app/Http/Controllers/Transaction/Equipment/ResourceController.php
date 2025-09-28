@@ -35,7 +35,7 @@ class ResourceController extends Controller
 
     protected $model = Equipment::class;
     protected array $search = ['name'];
-    protected array $with = [];
+    protected array $with = ['scopeStandart'];
     protected $rules = [];
 
     #[DoNotDiscover]

@@ -26,7 +26,7 @@ class CloneScopeRequest extends FormRequest
         return [
             'scope_standart_uuid' => ['nullable', Rule::exists(ConnectionEnum::GLOBAL ->value . '.scope_standarts', 'uuid')],
             'project_uuid' => ['nullable', Rule::exists(ConnectionEnum::TRANSACTION->value . '.projects', 'uuid')],
-            'additional_scope_uuid' => ['nullable', Rule::exists(ConnectionEnum::GLOBAL ->value . '.additional_scopes', 'uuid')]
+            'additional_scope_uuid' => ['nullable', Rule::exists(ConnectionEnum::TRANSACTION->value . '.additional_scopes', 'uuid')]
         ];
     }
 }

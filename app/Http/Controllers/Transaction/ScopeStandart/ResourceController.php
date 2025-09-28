@@ -121,8 +121,7 @@ class ResourceController extends Controller implements HasMiddleware
 
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             ModelsScopeStandart::select('uuid', 'name', 'link', 'category', 'sub_bidang_uuid')
-                ->when($request->filled('scope_standart_uuid') && $request->filled('project_uuid'), fn($query) => $query->where('uuid', $request->scope_standart_uuid))
-                ->when($request->filled('additional_scope_uuid'), fn($query) => $query->where('additional_scope_uuid', $request->additional_scope_uuid))
+                ->where('uuid', $request->scope_standart_uuid)
                 ->each(function ($scope) use ($request) {
                     $duplicateScope = $scope->replicate();
                     $duplicateScope->setConnection(ConnectionEnum::TRANSACTION->value);
@@ -225,7 +224,7 @@ class ResourceController extends Controller implements HasMiddleware
             })
             ->when($request->filled('sub_bidang_uuid'), fn($scope) => $scope->where('sub_bidang_uuid', $request->sub_bidang_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->doesntHave('additionalScope'))
-            ->when($request->filled('additional_scope'), fn($query) => $query->doesntHave('inspectionType'))
+            ->when($request->filled('additional_scope_uuid'), fn($query) => $query->doesntHave('inspectionType'))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $scopes;
