@@ -23,4 +23,9 @@ class QcPlan extends Model
     {
         return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
     }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_uuid');
+    }
 }

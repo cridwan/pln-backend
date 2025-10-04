@@ -59,8 +59,7 @@ class ResourceController extends Controller implements HasMiddleware
         }
 
         $project->loadMissing(['inspectionType.machine']);
-        $filename = date('YmdHis') . '-qc-plan.xlsx';
-        return Excel::download(new QcPlanExport('QC PLAN', $project), $filename);
+        return (new QcPlanExport($project))->execute();
     }
 
     /**
@@ -80,8 +79,7 @@ class ResourceController extends Controller implements HasMiddleware
         }
 
         $project->loadMissing(['inspectionType.machine']);
-        $filename = date('YmdHis') . '-hse.xlsx';
-        return Excel::download(new HseExport('HSE', $project), $filename);
+        return (new HseExport($project))->execute();
     }
 
     /**
@@ -102,7 +100,7 @@ class ResourceController extends Controller implements HasMiddleware
 
         $project->loadMissing(['inspectionType.machine']);
         $filename = date('YmdHis') . '-consumable-material.xlsx';
-        return Excel::download(new ConsMatExport('CONSUMABLE MATERIAL', $project), $filename);
+        return (new ConsMatExport($project))->execute();
     }
 
     /**
@@ -122,8 +120,7 @@ class ResourceController extends Controller implements HasMiddleware
         }
 
         $project->loadMissing(['inspectionType.machine']);
-        $filename = date('YmdHis') . '-part.xlsx';
-        return Excel::download(new PartExport('PART', $project), $filename);
+        return (new PartExport($project))->execute();
     }
 
     /**
@@ -143,8 +140,7 @@ class ResourceController extends Controller implements HasMiddleware
         }
 
         $project->loadMissing(['inspectionType.machine']);
-        $filename = date('YmdHis') . '-manpower.xlsx';
-        return Excel::download(new ManpowerExport('MANPOWER', $project), $filename);
+        return (new ManpowerExport($project))->execute();
     }
 
     /**

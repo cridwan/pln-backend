@@ -24,4 +24,14 @@ class HseDoc extends Model
     {
         return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(\App\Models\HseDoc::class, 'hse_doc_uuid');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_uuid');
+    }
 }

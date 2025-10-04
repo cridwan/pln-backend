@@ -22,7 +22,7 @@ class Manpower extends Model
 
     public function activity()
     {
-        return $this->belongsTo(\App\Models\Activity::class, 'activity_uuid');
+        return $this->belongsTo(Activity::class, 'activity_uuid');
     }
 
     public function manpower()

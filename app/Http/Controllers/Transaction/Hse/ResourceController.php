@@ -8,6 +8,7 @@ use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Transaction\Hse;
+use App\Models\Transaction\HseDoc;
 use App\Traits\HasApiResource;
 use App\Traits\HasPagination;
 use Dedoc\Scramble\Attributes\Group;
@@ -21,9 +22,9 @@ class ResourceController extends Controller implements HasMiddleware
 {
     use HasPagination, HasApiResource;
 
-    protected $model = Hse::class;
+    protected $model = HseDoc::class;
     protected array $search = ['title'];
-    protected array $with = ['documents', 'document'];
+    protected array $with = ['documents', 'document', 'parent'];
 
     protected $rules = [];
 
