@@ -2,7 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\ExportTypeEnum;
 use App\Models\Transaction\Project;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -10,19 +12,21 @@ use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Writer;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use function Spatie\LaravelPdf\Support\pdf;
 
 abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyles, WithTitle, WithCustomStartCell
 {
     use Exportable;
     protected string $title = 'PLN IP UBH';
-    protected $fileName = 'export.xlsx';
+    protected string $fileName = "export";
 
-    public function __construct(public readonly Project $project)
+    public function __construct(public readonly Project $project, private readonly ExportTypeEnum $exportType = ExportTypeEnum::XLSX)
     {
     }
 
@@ -166,7 +170,23 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
 
     public function getFileName()
     {
-        return $this->fileName;
+        return $this->exportType == ExportTypeEnum::XLSX ? now()->toDateString() . '-' . $this->fileName . '.xlsx' : now()->toDateString() . '-' . $this->fileName . '.pdf';
+    }
+
+    private function pdfData()
+    {
+        return [
+            'inspection' => $this->inspection(),
+            'machine' => $this->machine(),
+            'exporter' => $this->getExporter()
+        ];
+    }
+
+    private function processPdf()
+    {
+        return Pdf::loadView('export.pdf.horizontal', $this->pdfData())
+            ->setPaper('A4')
+            ->download($this->getFileName());
     }
 
     public function execute()

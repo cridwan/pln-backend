@@ -64,3 +64,39 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## GD ISSUE
+
+Please install gd extension
+
+
+```bash
+docker exec -it nama-container sh
+```
+
+```bash
+apk add --no-cache \
+    freetype-dev \
+    libjpeg-turbo-dev \
+    libpng-dev \
+    libwebp-dev \
+    libxpm-dev
+```
+
+```bash
+docker-php-ext-configure gd \
+    --with-freetype \
+    --with-jpeg \
+    --with-webp \
+    --with-xpm
+```
+
+```bash
+docker-php-ext-install gd
+```
+
+```bash
+php -m | grep gd
+```
+
+

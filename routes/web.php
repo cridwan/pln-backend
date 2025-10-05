@@ -12,3 +12,8 @@ Route::get('/preview/{path}', function ($path) {
     // Kalau pakai spasi atau karakter khusus
     return MinioHelper::preview($path);
 })->where('path', '.*'); // support path berisi slash (/)
+
+
+Route::get('testing', function () {
+    return view('export.pdf.horizontal');
+});

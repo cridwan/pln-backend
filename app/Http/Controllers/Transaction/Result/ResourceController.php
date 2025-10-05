@@ -10,6 +10,7 @@ use App\Exports\HseExport;
 use App\Exports\ManpowerExport;
 use App\Exports\PartExport;
 use App\Exports\QcPlanExport;
+use App\Exports\ScopeStandartExport;
 use App\Exports\ScopeStandartSheetExport;
 use App\Exports\ToolsExport;
 use App\Http\Controllers\Controller;
@@ -182,7 +183,6 @@ class ResourceController extends Controller implements HasMiddleware
 
         $project->loadMissing(['inspectionType.machine']);
 
-        $filename = date('YmdHis') . '-scope-standart.xlsx';
-        return (new ScopeStandartSheetExport($project))->download($filename);
+        return (new ScopeStandartExport($project))->execute();
     }
 }
