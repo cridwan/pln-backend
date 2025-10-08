@@ -92,7 +92,11 @@ class ResourceController extends Controller implements HasMiddleware
     {
         $pagination = new PaginationData($request);
         $query = ConsMat::query()
-            ->select('cons_mat_uuid', DB::raw('SUM(qty) as total_qty'))
+            ->select([
+                'cons_mat_uuid',
+                DB::raw('SUM(qty) as total_qty'),
+                DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
+            ])
             ->with($this->with)
             ->groupBy('cons_mat_uuid');
 

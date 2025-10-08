@@ -29,4 +29,9 @@ class Equipment extends Model
     {
         return $this->belongsTo(ScopeStandart::class, 'scope_standart_uuid');
     }
+
+    public function activities()
+    {
+        return $this->hasMany(Activity::class, 'equipment_uuid');
+    }
 }

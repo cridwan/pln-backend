@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Transaction\Result;
 use App\Enums\AuthPermissionEnum;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
+use App\Exports\BudgetActivityExport;
 use App\Exports\ConsMatExport;
 use App\Exports\HseExport;
 use App\Exports\ManpowerExport;
@@ -184,5 +185,26 @@ class ResourceController extends Controller implements HasMiddleware
         $project->loadMissing(['inspectionType.machine']);
 
         return (new ScopeStandartExport($project))->execute();
+    }
+
+    /**
+     * download recap budget activity
+     */
+    #[Route(method: 'get', uri: 'export/budget-activity')]
+    public function exportBudgetActivity(Request $request)
+    {
+        if ($request->isNotFilled('project_uuid')) {
+            throw new BadRequestException('Project tidak terpilih');
+        }
+
+        $project = Project::find($request->project_uuid);
+
+        if (!$project) {
+            throw new BadRequestException('Project tidak ditemukan');
+        }
+
+        $project->loadMissing(['inspectionType.machine.unit.location']);
+
+        return (new BudgetActivityExport($project))->execute();
     }
 }

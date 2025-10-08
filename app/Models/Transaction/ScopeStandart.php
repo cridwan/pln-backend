@@ -5,6 +5,7 @@ namespace App\Models\Transaction;
 use App\Enums\ConnectionEnum;
 use App\Enums\ScopeStandartTypeEnum;
 use App\Models\Storage\Document;
+use App\Models\SubBidang;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -61,5 +62,15 @@ class ScopeStandart extends Model
     public function additionalScope()
     {
         return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
+
+    public function subBidang()
+    {
+        return $this->belongsTo(SubBidang::class, 'sub_bidang_uuid');
+    }
+
+    public function equipments()
+    {
+        return $this->hasMany(Equipment::class, 'scope_standart_uuid');
     }
 }

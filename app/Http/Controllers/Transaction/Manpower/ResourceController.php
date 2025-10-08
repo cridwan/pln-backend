@@ -93,7 +93,11 @@ class ResourceController extends Controller implements HasMiddleware
     {
         $pagination = new PaginationData($request);
         $query = Manpower::query()
-            ->select('manpower_uuid', DB::raw('SUM(qty) as total_qty'))
+            ->select([
+                'manpower_uuid',
+                DB::raw('SUM(qty) as total_qty'),
+                DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
+            ])
             ->with($this->with)
             ->groupBy('manpower_uuid');
 

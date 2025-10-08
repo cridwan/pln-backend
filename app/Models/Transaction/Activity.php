@@ -29,4 +29,19 @@ class Activity extends Model
     {
         return $this->belongsTo(Equipment::class, 'equipment_uuid');
     }
+
+    public function materials()
+    {
+        return $this->hasMany(ConsMat::class, 'activity_uuid');
+    }
+
+    public function manpowers()
+    {
+        return $this->hasMany(Manpower::class, 'activity_uuid');
+    }
+
+    public function parts()
+    {
+        return $this->hasMany(Part::class, 'activity_uuid');
+    }
 }
