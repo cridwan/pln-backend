@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Exceptions\BadRequestException;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
@@ -21,8 +22,12 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
 
         $mapData = $this->mapData($row);
 
+        if (count($mapData) == 0) {
+            throw new BadRequestException("Format excel tidak valid, pastikan anda menggunakan format excel yang sudah di sediakan");
+        }
+
         // Create langsung di sini
-        return count($mapData) > 0 ? new $model($mapData) : null;
+        return new $model($mapData);
     }
 
     public function mapData(array $row)
@@ -31,7 +36,7 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
 
         foreach ($this->headings as $heading) {
             if (!array_key_exists($heading, $row)) {
-                continue;
+                throw new BadRequestException("Pastikan anda menggunakan format excel yang sudah di sediakan");
             }
 
             if (isset($row[$heading]) && trim((string) $row[$heading]) !== '') {

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Manpower;
@@ -42,6 +40,7 @@ class ManpowerController extends Controller implements HasMiddleware
 
     protected $model = Manpower::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = ['globalUnit'];
     protected $rules = [
         "name" => "required",

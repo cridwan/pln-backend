@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Machine;
@@ -43,6 +41,7 @@ class MachineController extends Controller implements HasMiddleware
 
     protected $model = Machine::class;
     protected $search = ['name', 'unit.name'];
+    protected array $order = ['name', 'asc'];
     protected $with = ['unit', 'unit.location'];
     protected $rules = [];
 

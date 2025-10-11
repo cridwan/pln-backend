@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\UserRequest;
@@ -75,7 +73,7 @@ class UserController extends Controller implements HasMiddleware
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**

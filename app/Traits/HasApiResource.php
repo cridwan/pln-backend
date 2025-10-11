@@ -19,6 +19,7 @@ trait HasApiResource
         $perPage = $request->filled('perPage') ? (int) $request->perPage : 10;
         $currentPage = $request->filled('currentPage') ? (int) $request->currentPage : 1;
         $with = isset($this->with) ? $this->with : [];
+        $order = isset($this->order) ? $this->order : ['created_at', 'desc'];
         $query = $this->model::query();
         $query->with($with);
 
@@ -58,7 +59,14 @@ trait HasApiResource
             $query->fromTransaction();
         }
 
-        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
+        [$column, $direction] = $order;
+
+        if (str($column)->contains('.')) {
+            [$relation, $attribute] = str($column)->explode('.');
+            $query->withAggregate($relation, $attribute);
+            $column = "{$relation}_{$attribute}";
+        }
+        return $query->orderBy($column, $direction)->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**

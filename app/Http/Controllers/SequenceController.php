@@ -3,14 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
-use App\Models\Bidang;
 use App\Models\Sequence;
-use App\Models\SubBidang;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use App\Traits\ImportExportExcel;
@@ -42,6 +38,7 @@ class SequenceController extends Controller implements HasMiddleware
 
     protected $model = Sequence::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = ['document'];
     protected $rules = [
         'name' => 'required',

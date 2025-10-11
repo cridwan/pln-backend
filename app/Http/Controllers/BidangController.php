@@ -42,6 +42,7 @@ class BidangController extends Controller implements HasMiddleware
 
     protected $model = Bidang::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = [];
     protected $rules = [
         'name' => 'required'

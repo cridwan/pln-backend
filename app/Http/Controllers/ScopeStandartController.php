@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\ScopeStandartMasterRequest;
 use App\Models\ScopeStandart;
@@ -22,6 +20,7 @@ class ScopeStandartController extends Controller
 {
     use ImportExportExcel;
     protected $model = ScopeStandart::class;
+    protected array $order = ['name', 'asc'];
 
     protected $with = ['inspectionType', 'inspectionType.machine', 'inspectionType.machine.unit', 'inspectionType.machine.unit.location', 'subBidang', 'subBidang.bidang'];
 
@@ -71,7 +70,7 @@ class ScopeStandartController extends Controller
 
         $query->fromTransaction();
 
-        return $query->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**

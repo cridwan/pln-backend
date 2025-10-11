@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionMiddleware;
-use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Location;
@@ -42,6 +39,7 @@ class LocationController extends Controller implements HasMiddleware
     use HasList, HasApiResource, ImportExportExcel;
 
     protected $model = Location::class;
+    protected array $order = ['name', 'asc'];
     protected array $search = ['name', 'slug'];
     protected array $with = [];
     protected $rules = [

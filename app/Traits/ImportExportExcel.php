@@ -7,6 +7,7 @@ use App\Exports\DownloadExport;
 use App\Exports\TemplateExport;
 use App\Http\Requests\ImportRequest;
 use App\Imports\BulkDataImport;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
@@ -53,15 +54,34 @@ trait ImportExportExcel
     #[Route(method: 'post', name: "import/excel")]
     public function import(ImportRequest $request)
     {
-        if (!\class_exists($this->model)) {
-            throw new BadRequestException('Model cannot be found');
+        try {
+            if (!\class_exists($this->model)) {
+                throw new BadRequestException('Model cannot be found');
+            }
+
+            (new BulkDataImport($this->model, $this->filteredAttributes()))->import($request->file('file'), 'local', \Maatwebsite\Excel\Excel::XLSX);
+
+            return [
+                'message' => 'Import data successfully'
+            ];
+        } catch (QueryException $e) {
+            // Tangkap Duplicate Entry
+            if ($e->getCode() == 23000) {
+                $message = $e->getMessage();
+
+                // Regex untuk ambil bagian dalam tanda kutip Duplicate entry '___'
+                if (preg_match("/Duplicate entry '([^']+)'/", $message, $matches)) {
+                    $duplicateValue = $matches[1];  // ADIPALA--77219-109183400
+                    throw new BadRequestException("[Duplicate] data sudah di tambahkan: {$duplicateValue}");
+                }
+
+                throw new BadRequestException("Terjadi duplikat data.");
+            }
+
+            throw new BadRequestException($e->getMessage());
+        } catch (\Throwable $th) {
+            throw $th;
         }
-
-        (new BulkDataImport($this->model, $this->filteredAttributes()))->import($request->file('file'), 'local', \Maatwebsite\Excel\Excel::XLSX);
-
-        return [
-            'message' => 'Import data successfully'
-        ];
     }
 
 

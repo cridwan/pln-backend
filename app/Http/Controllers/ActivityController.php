@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Activity;
@@ -42,6 +40,7 @@ class ActivityController extends Controller implements HasMiddleware
 
     protected $model = Activity::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = ['equipment', 'equipment.scopeStandart', 'equipment.scopeStandart.inspectionType', 'equipment.scopeStandart.inspectionType.machine', 'equipment.scopeStandart.inspectionType.machine.unit', 'equipment.scopeStandart.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang', 'equipment.scopeStandart.subBidang.bidang'];
     protected $rules = [
         'name' => 'required',

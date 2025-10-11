@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\Equipment;
@@ -42,6 +40,7 @@ class EquipmentController extends Controller implements HasMiddleware
 
     protected $model = Equipment::class;
     protected array $search = [];
+    protected array $order = ['name', 'asc'];
     protected array $with = ['scopeStandart', 'scopeStandart.inspectionType', 'scopeStandart.inspectionType.machine', 'scopeStandart.inspectionType.machine.unit', 'scopeStandart.inspectionType.machine.unit.location', 'scopeStandart.subBidang', 'scopeStandart.subBidang.bidang'];
     protected $rules = [
         'name' => 'required',

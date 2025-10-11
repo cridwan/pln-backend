@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\QcPlan;
 use App\Traits\HasApiResource;
 use App\Traits\HasList;
 use App\Traits\ImportExportExcel;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
@@ -37,6 +34,7 @@ class QcPlanController extends Controller
 
     protected $model = QcPlan::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = [];
     protected $rules = [
         "name" => "required",

@@ -17,6 +17,7 @@ trait HasList
     public function list(ListRequest $request)
     {
         $with = isset($this->with) ? $this->with : [];
+        $order = isset($this->order) ? $this->order : ['created_at', 'desc'];
         $searchColumn = isset($this->search) ? $this->search : [];
         $query = $this->model::query();
         $query->with($with);
@@ -56,7 +57,12 @@ trait HasList
         if (method_exists($this->model, 'scopeFromTransaction')) {
             $query->fromTransaction();
         }
-
-        return $query->orderBy('created_at', 'DESC')->get();
+        [$column, $direction] = $order;
+        if (str($column)->contains('.')) {
+            [$relation, $attribute] = str($column)->explode('.');
+            $query->withAggregate($relation, $attribute);
+            $column = "{$relation}_{$attribute}";
+        }
+        return $query->orderBy($column, $direction)->get();
     }
 }

@@ -38,6 +38,7 @@ class SubBidangController extends Controller implements HasMiddleware
 
     protected $model = SubBidang::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = ['bidang'];
     protected $rules = [
         'name' => 'required',

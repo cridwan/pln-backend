@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Models\ConsMat;
@@ -41,6 +39,7 @@ class ConsumbleMaterialController extends Controller implements HasMiddleware
 
     protected $model = ConsMat::class;
     protected array $search = ['name'];
+    protected array $order = ['name', 'asc'];
     protected array $with = ['globalUnit'];
 
     protected $rules = [

@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
-use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\AdditionalScopeRequest;
 use App\Models\AdditionalScope;
@@ -68,7 +66,7 @@ class AdditionalScopeController extends Controller
 
         $query->fromTransaction();
 
-        return $query->has('inspectionType')->orderBy('created_at', 'DESC')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->has('inspectionType')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**
