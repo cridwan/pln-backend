@@ -6,9 +6,11 @@ use App\Models\Transaction\Manpower;
 use App\Models\Transaction\Part;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
 
 
-class PartExport extends Export implements WithColumnFormatting
+class PartExport extends Export implements WithColumnFormatting, WithEvents
 {
     protected int $index = 0;
 
@@ -74,6 +76,30 @@ class PartExport extends Export implements WithColumnFormatting
         return [
             'E' => '"Rp" #,##0.00_-',
             'F' => '"Rp" #,##0.00_-',
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+
+                $sheet = $event->sheet->getDelegate();
+                $highestRow = $sheet->getHighestRow();   // Row terakhir data
+    
+                // Misal kolom yang akan di-SUM adalah kolom B & C
+                $sumRow = $highestRow + 1; // Baris SUM baru
+    
+                // Menulis formula SUM
+                $sheet->setCellValue("C{$sumRow}", 'TOTAL');
+                $sheet->getStyle("C{$sumRow}:C{$sumRow}")->getFont()->setBold(true);
+                collect(['D', 'E', 'F'])->map(function ($column) use ($sheet, $sumRow, $highestRow) {
+                    $sheet->setCellValue("{$column}{$sumRow}", "=SUM({$column}7:{$column}{$highestRow})");
+                    $sheet->getStyle("{$column}{$sumRow}:{$column}{$sumRow}")->getNumberFormat()
+                        ->setFormatCode($column == "D" ? '#,##0' : '"Rp" #,##0.00_-');
+                    $sheet->getStyle("{$column}{$sumRow}:{$column}{$sumRow}")->getFont()->setBold(true);
+                });
+            },
         ];
     }
 }

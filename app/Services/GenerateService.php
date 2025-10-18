@@ -115,7 +115,6 @@ class GenerateService
                     });
                 });
 
-            // TODO duplicate Qc Plan
             \App\Models\QcPlan::select('uuid', 'name')->each(function ($row) use ($project) {
                 QcPlan::create([
                     'name' => $row->name,

@@ -18,7 +18,13 @@ class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithS
     use Exportable;
 
     private $instanceModel;
-    public function __construct(private readonly string $model, private readonly mixed $with)
+
+    /**
+     * @param string $model
+     * @param mixed $with
+     * @param \App\Data\AttributeData[] $customAttribute
+     */
+    public function __construct(private readonly string $model, private readonly mixed $with, private readonly array $customAttribute = [])
     {
         $this->instanceModel = new $model;
     }
@@ -29,6 +35,24 @@ class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithS
     }
 
     public function map($row): array
+    {
+        if (count($this->customAttribute) > 0) {
+            return $this->customAttributeMap($row);
+        }
+        return $this->baseMap($row);
+    }
+
+    private function customAttributeMap($row)
+    {
+        $base = [];
+        foreach ($this->customAttribute as $attribute) {
+            $base[] = is_callable($attribute->key) ? ($attribute->key)($row) : $row->{$attribute->key};
+        }
+
+        return $base;
+    }
+
+    private function baseMap($row)
     {
         $base = [];
 
@@ -63,6 +87,26 @@ class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithS
     }
 
     public function headings(): array
+    {
+        if (count($this->customAttribute) > 0) {
+            return $this->customHeadings();
+        }
+
+        return $this->baseHeadings();
+    }
+
+    private function customHeadings()
+    {
+        $columns = [];
+
+        foreach ($this->customAttribute as $attribute) {
+            $columns[] = $attribute->label;
+        }
+
+        return $columns;
+    }
+
+    private function baseHeadings()
     {
         $columns = [];
 

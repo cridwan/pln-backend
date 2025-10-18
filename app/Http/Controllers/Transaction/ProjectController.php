@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Transaction;
 
+use App\Data\NotificationData;
 use App\Enums\AuthPermissionEnum;
+use App\Enums\NotificationTypeEnum;
 use App\Enums\ProjectStatusEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Resources\ProjectResource;
 use App\Models\Transaction\Project;
+use App\Services\NotificationService;
 use App\Traits\HasList;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -32,6 +35,11 @@ class ProjectController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list']),
         ];
+    }
+
+    #[DoNotDiscover]
+    public function __construct(public readonly NotificationService $notificationService)
+    {
     }
 
     /**
@@ -88,5 +96,37 @@ class ProjectController extends Controller implements HasMiddleware
         $project->save();
 
         return $this->show($uuid);
+    }
+
+    /**
+     * request approve project project
+     */
+    #[Route(method: 'put', uri: '{uuid}/request-approve')]
+    public function requestApprove(Request $request, string $uuid)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'uri' => 'required'
+        ]);
+
+        $project = Project::where('uuid', '=', $uuid)->first();
+
+        if (!$project) {
+            throw new BadRequestException('Project tidak ditemukan');
+        }
+
+        if ($project->status->isApprove()) {
+            throw new BadRequestException('Project sudah disetujui');
+        }
+
+        return $this->notificationService->store(new NotificationData(
+            title: 'Request Approval Project',
+            body: 'Anda memiliki permintaan approval project ' . $project->name,
+            type: NotificationTypeEnum::REQUEST,
+            receiver_id: $request->user_id, // ID user yang menerima notifikasi
+            sender_id: $request->user()->id,
+            uri: $request->uri, // Link ke halaman yang relevan
+            summary: 'Permintaan approval project dari ' . $request->user()->name,
+        ));
     }
 }

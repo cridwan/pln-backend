@@ -12,9 +12,10 @@ class UppercaseObservser
         'updated_at',
         'deleted_at',
         'password',
+        'description'
     ];
 
-    public function creating($model)
+    private function toUpperCase($model)
     {
         foreach ($model->getAttributes() as $key => $value) {
             if (
@@ -28,8 +29,17 @@ class UppercaseObservser
         }
     }
 
+    public function creating($model)
+    {
+        $this->toUpperCase($model);
+        // user activity observer
+        (new UserActivity())->creating($model);
+    }
+
     public function updating($model)
     {
-        $this->creating($model);
+        $this->toUpperCase($model);
+        // user activity observer
+        (new UserActivity())->updating($model);
     }
 }

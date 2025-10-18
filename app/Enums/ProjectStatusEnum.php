@@ -11,4 +11,9 @@ enum ProjectStatusEnum: string
     {
         return $this == self::PENDING ? self::APPROVE : self::PENDING;
     }
+
+    public function isApprove()
+    {
+        return $this == self::APPROVE;
+    }
 }

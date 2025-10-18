@@ -9,6 +9,7 @@ use App\Enums\RoleEnum;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\Transaction\ClonePartRequest;
+use App\Http\Resources\PaginationResource;
 use App\Models\PartStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\Part;
@@ -103,7 +104,23 @@ class ResourceController extends Controller implements HasMiddleware
             ->with($this->with)
             ->groupBy('part_uuid');
 
-        return $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
+        $pagination = $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
+
+        // Ambil data untuk summary (pakai clone supaya query asli tidak terganggu)
+        $summaryQuery = clone $query;
+        $summaryCollection = $summaryQuery->get();
+
+        return PaginationResource::collection($pagination)->additional([
+            'summary' => [
+                'total_qty' => $summaryCollection->sum('total_qty'),
+                'total_price' => $summaryCollection->sum(function ($item) {
+                    return optional($item->part)->price * $item->total_qty;
+                }),
+                'price' => $summaryCollection->sum(function ($item) {
+                    return optional($item->part)->price;
+                })
+            ],
+        ]);
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 #[ObservedBy([UppercaseObservser::class])]
 class ConsMatStd extends Model
@@ -17,6 +18,16 @@ class ConsMatStd extends Model
     protected $connection = 'masterdata';
 
     protected $table = 'cons_mat_stds';
+
+    protected $appends = [
+        'use_transaction'
+    ];
+
+
+    public function getUseTransactionAttribute()
+    {
+        return DB::connection(ConnectionEnum::TRANSACTION->value)->table('cons_mat_stds')->where('original_uuid', $this->uuid)->exists();
+    }
 
     public function activity()
     {

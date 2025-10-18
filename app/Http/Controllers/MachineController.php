@@ -25,14 +25,14 @@ class MachineController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
             new Middleware(
                 RoleMiddleware::using(
                     [
-                        RoleEnum::PLANNER
+                        RoleEnum::SUPERUSER
                     ]
                 ),
-                except: ['list', 'show', 'index']
+                except: ['list', 'show', 'index', 'pagination']
             )
         ];
     }

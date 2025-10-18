@@ -8,6 +8,7 @@ use App\Exports\TemplateExport;
 use App\Http\Requests\ImportRequest;
 use App\Imports\BulkDataImport;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
@@ -45,7 +46,9 @@ trait ImportExportExcel
 
         $with = isset($this->with) ? $this->with : [];
 
-        return (new DownloadExport($this->model, $with))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
+        $customAttributes = isset($this->customAttribute) ? $this->customAttribute : [];
+
+        return (new DownloadExport($this->model, $with, $customAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
 
     /**
@@ -54,17 +57,23 @@ trait ImportExportExcel
     #[Route(method: 'post', name: "import/excel")]
     public function import(ImportRequest $request)
     {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:15000', // Validate file type and size
+        ]);
+
         try {
+            DB::beginTransaction();
             if (!\class_exists($this->model)) {
                 throw new BadRequestException('Model cannot be found');
             }
 
-            (new BulkDataImport($this->model, $this->filteredAttributes()))->import($request->file('file'), 'local', \Maatwebsite\Excel\Excel::XLSX);
-
+            (new BulkDataImport($this->model, $this->filteredAttributes()))->importWithTransaction($request->file('file'), 'local', \Maatwebsite\Excel\Excel::XLSX);
+            DB::commit();
             return [
                 'message' => 'Import data successfully'
             ];
         } catch (QueryException $e) {
+            DB::rollBack();
             // Tangkap Duplicate Entry
             if ($e->getCode() == 23000) {
                 $message = $e->getMessage();
@@ -80,6 +89,7 @@ trait ImportExportExcel
 
             throw new BadRequestException($e->getMessage());
         } catch (\Throwable $th) {
+            DB::rollBack();
             throw $th;
         }
     }
@@ -100,11 +110,16 @@ trait ImportExportExcel
     #[DoNotDiscover]
     public function filteredAttributes()
     {
+        // $except = match ($this->model) {
+        //     "App\Models\ScopeStandart" => 'additional_scope_uuid',
+        //     default => '',
+        // };
         return array_values(array_diff($this->getAttributes(), [
             'created_at',
             'updated_at',
             'id',
-            'uuid'
+            'uuid',
+            // $except,
         ]));
     }
 }

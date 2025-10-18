@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Enums\ConnectionEnum;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\Equipment;
 use App\Models\Transaction\ScopeStandart;
@@ -9,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class ScopeStandartExport extends Export
 {
+    public function __construct(\App\Models\Transaction\Project $project, \App\Enums\ExportTypeEnum $exportType = \App\Enums\ExportTypeEnum::XLSX, public string $type = "SCOPE STANDART")
+    {
+        parent::__construct($project, $exportType);
+    }
+
     public int $number = 1;
 
     public function headers(): array
@@ -24,28 +30,37 @@ class ScopeStandartExport extends Export
 
     public function query()
     {
-        return ScopeStandart::query()
-            ->addSelect([
-                "scope_standarts.*",
-                DB::raw("('SCOPE STANDART') as type")
+        $baseQuery = ScopeStandart::query()
+            ->select([
+                'scope_standarts.*',
+                DB::raw("'SCOPE STANDART' as type")
             ])
-            ->where('project_uuid', $this->project?->uuid)
-            ->union(
-                query: ScopeStandart::query()
-                    ->addSelect([
-                        'scope_standarts.*',
-                        DB::raw("('ADDITIONAL SCOPE') AS type")
-                    ])
-                    ->whereHas('additionalScope', function ($query) {
-                        $query->has('assetWelnes')
-                            ->orHas('ohRecom')
-                            ->orHas('woPriority')
-                            ->orHas('history')
-                            ->orHas('rla')
-                            ->orHas('ncr')
-                            ->where('project_uuid', $this->project?->uuid);
-                    })
-            )->orderBy("type", "DESC");
+            ->where('project_uuid', $this->project?->uuid);
+
+        $additionalQuery = ScopeStandart::query()
+            ->select([
+                'scope_standarts.*',
+                DB::raw("'ADDITIONAL SCOPE' as type")
+            ])
+            ->whereHas('additionalScope', function ($query) {
+                $query->where('project_uuid', $this->project?->uuid);
+                // ->where(function ($q) {
+                //     $q->has('assetWelnes')
+                //         ->orHas('ohRecom')
+                //         ->orHas('woPriority')
+                //         ->orHas('history')
+                //         ->orHas('rla')
+                //         ->orHas('ncr');
+                // });
+            });
+
+        $query = $baseQuery
+            ->unionAll($additionalQuery);
+
+        return DB::connection(ConnectionEnum::TRANSACTION->value)->query()
+            ->fromSub($query, 'union_scope')
+            ->when($this->type, fn($q) => $q->where('type', $this->type))
+            ->orderBy('type', 'DESC');
     }
 
     /**

@@ -41,7 +41,7 @@ class InspectionTypeController extends Controller implements HasMiddleware
     protected $model = InspectionType::class;
     protected array $search = ['name'];
     protected array $order = ['name', 'asc'];
-    protected array $with = ['machine', 'machine.unit', 'machine.unit.location', 'sequence.document'];
+    protected array $with = ['machine', 'machine.unit', 'machine.unit.location', 'sequence'];
     protected $rules = [];
 
     #[DoNotDiscover]

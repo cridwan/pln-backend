@@ -14,4 +14,14 @@ class Location extends Model
     use SettingModel, HasFactory;
 
     protected $connection = 'masterdata';
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_uuid', 'id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_uuid', 'id');
+    }
 }

@@ -7,6 +7,10 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 
 class BudgetActivityExport extends Export
 {
+    public function __construct(\App\Models\Transaction\Project $project, \App\Enums\ExportTypeEnum $exportType = \App\Enums\ExportTypeEnum::XLSX, public string $type = "SCOPE STANDART")
+    {
+        parent::__construct($project, $exportType);
+    }
     private int $number = 1;
 
     public function headers(): array
@@ -40,7 +44,11 @@ class BudgetActivityExport extends Export
                 'equipments.activities.manpowers.manpower',
                 'equipments.activities.materials.consmat.globalUnit'
             ])
-            ->when($this->project, fn($query) => $query->where('project_uuid', '=', $this->project->uuid));
+            ->when(
+                $this->type == 'SCOPE STANDART',
+                fn($query) => $query->where('project_uuid', '=', $this->project->uuid),
+                fn($query) => $query->whereHas('additionalScope', fn($as) => $as->where('project_uuid', '=', $this->project->uuid))
+            );
     }
 
     /**

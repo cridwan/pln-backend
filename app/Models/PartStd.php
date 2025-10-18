@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ConnectionEnum;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
+use DB;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -18,6 +19,17 @@ class PartStd extends Model
     protected $connection = 'masterdata';
 
     protected $table = 'part_stds';
+
+
+    protected $appends = [
+        'use_transaction'
+    ];
+
+
+    public function getUseTransactionAttribute()
+    {
+        return DB::connection(ConnectionEnum::TRANSACTION->value)->table('part_stds')->where('original_uuid', $this->uuid)->exists();
+    }
 
     public function activity()
     {

@@ -4,6 +4,7 @@
 namespace App\Traits;
 
 use App\Http\Requests\PaginationRequest;
+use App\Http\Resources\PaginationResource;
 
 trait HasPagination
 {
@@ -64,6 +65,8 @@ trait HasPagination
             $column = "{$relation}_{$attribute}";
         }
 
-        return $query->orderBy($column, $direction)->paginate($perPage, ['*'], 'page', $currentPage);
+        $pagination = $query->orderBy($column, $direction)->paginate($perPage, ['*'], 'page', $currentPage);
+
+        return PaginationResource::collection($pagination);
     }
 }

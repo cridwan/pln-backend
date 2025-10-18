@@ -12,7 +12,6 @@ use App\Exports\ManpowerExport;
 use App\Exports\PartExport;
 use App\Exports\QcPlanExport;
 use App\Exports\ScopeStandartExport;
-use App\Exports\ScopeStandartSheetExport;
 use App\Exports\ToolsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
@@ -184,7 +183,9 @@ class ResourceController extends Controller implements HasMiddleware
 
         $project->loadMissing(['inspectionType.machine']);
 
-        return (new ScopeStandartExport($project))->execute();
+        $type = $request->get('type', 'SCOPE STANDART');
+
+        return (new ScopeStandartExport($project, type: $type))->execute();
     }
 
     /**
@@ -204,7 +205,8 @@ class ResourceController extends Controller implements HasMiddleware
         }
 
         $project->loadMissing(['inspectionType.machine.unit.location']);
+        $type = $request->get('type', 'SCOPE STANDART');
 
-        return (new BudgetActivityExport($project))->execute();
+        return (new BudgetActivityExport($project, type: $type))->execute();
     }
 }
