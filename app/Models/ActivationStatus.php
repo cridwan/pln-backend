@@ -1,13 +1,17 @@
 <?php
 
-
-namespace App\Traits;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
-trait SettingModel
+class ActivationStatus extends Model
 {
-    use HasUuids, HasAutoFilter, ActivityLog, ActivationStatus;
+    use HasUuids;
+
+    protected $casts = [
+        'status' => 'boolean'
+    ];
 
     public function getKeyName(): string
     {

@@ -1,13 +1,13 @@
 <?php
 
-
-namespace App\Traits;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
 
-trait SettingModel
+class ActivityLog extends Model
 {
-    use HasUuids, HasAutoFilter, ActivityLog, ActivationStatus;
+    use HasUuids;
 
     public function getKeyName(): string
     {
@@ -22,5 +22,15 @@ trait SettingModel
     public function getConnectionString()
     {
         return $this->connection;
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_uuid', 'id');
+    }
+
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_uuid', 'id');
     }
 }

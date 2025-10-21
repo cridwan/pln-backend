@@ -5,10 +5,13 @@ namespace App\Models\Transaction;
 use App\Enums\ConnectionEnum;
 use App\Enums\ProjectStatusEnum;
 use App\Models\InspectionType;
+use App\Observers\ProjectSafeObserver;
 use App\Traits\SettingModel;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[ObservedBy([ProjectSafeObserver::class])]
 class Project extends Model
 {
     use SettingModel;
@@ -31,5 +34,10 @@ class Project extends Model
     public function approvedByUser()
     {
         return $this->belongsTo(\App\Models\User::class, 'approved_by');
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(ProjectActivity::class, 'project_uuid');
     }
 }

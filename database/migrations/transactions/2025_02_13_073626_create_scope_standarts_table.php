@@ -19,7 +19,6 @@ return new class extends Migration {
             $table->uuid()->primary();
             $table->text('name');
             $table->string('link')->nullable();
-            $table->string('category');
             $table->foreignIdFor(SubBidang::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.sub_bidangs')->cascadeOnDelete();
             $table->foreignIdFor(Project::class)->nullable()->constrained()->cascadeOnDelete();
             $table->foreignIdFor(AdditionalScope::class)->nullable()->constrained()->cascadeOnDelete();

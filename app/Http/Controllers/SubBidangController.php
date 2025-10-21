@@ -26,9 +26,7 @@ class SubBidangController extends Controller implements HasMiddleware
         return [
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
-                RoleMiddleware::using([
-                    RoleEnum::SUPERUSER
-                ]),
+                RoleMiddleware::using(RoleEnum::masterRole(), ),
                 except: ['list', 'show', 'index']
             )
         ];

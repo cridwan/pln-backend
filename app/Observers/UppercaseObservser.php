@@ -42,4 +42,19 @@ class UppercaseObservser
         // user activity observer
         (new UserActivity())->updating($model);
     }
+
+    public function created($model)
+    {
+        (new ActivityLogObserver())->created($model);
+    }
+
+    public function updated($model)
+    {
+        (new ActivityLogObserver())->updated($model);
+    }
+
+    public function deleted($model)
+    {
+        (new ActivityLogObserver())->deleted($model);
+    }
 }

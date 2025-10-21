@@ -28,9 +28,7 @@ class UserController extends Controller implements HasMiddleware
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
                 RoleMiddleware::using(
-                    [
-                        RoleEnum::SUPERUSER
-                    ]
+                    RoleEnum::masterRole(),
                 ),
                 except: ['list', 'show', 'index']
             )
@@ -84,7 +82,8 @@ class UserController extends Controller implements HasMiddleware
     {
         $user = User::create([
             ...$request->except('password'),
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'first_create' => true,
         ]);
 
         $user->syncRoles($request->roles);

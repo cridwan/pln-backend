@@ -6,6 +6,7 @@ use App\Data\NotificationData;
 use App\Enums\AuthPermissionEnum;
 use App\Enums\NotificationTypeEnum;
 use App\Enums\ProjectStatusEnum;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
@@ -22,8 +23,6 @@ use Spatie\RouteDiscovery\Attributes\Route;
 #[Route(middleware: [ResponseMiddleware::class])]
 class ProjectController extends Controller implements HasMiddleware
 {
-    use HasList;
-
     protected $model = Project::class;
     protected array $search = [];
     protected array $with = ['inspectionType'];
@@ -33,13 +32,55 @@ class ProjectController extends Controller implements HasMiddleware
     public static function middleware()
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value),
         ];
     }
 
     #[DoNotDiscover]
     public function __construct(public readonly NotificationService $notificationService)
     {
+    }
+
+    /**
+     * list project
+     */
+    #[Route(method: 'get')]
+    public function list(Request $request)
+    {
+        $query = Project::query();
+        $searchColumn = ['name'];
+
+        $query->when($request->filled('search'), function ($subQuery) use ($request, $searchColumn) {
+            $subQuery->where(function ($search) use ($request, $searchColumn) {
+                foreach ($searchColumn as $index => $item) {
+                    if ($index == 0) {
+                        $explode = explode('.', $item);
+                        if (count($explode) > 1) {
+                            $search->whereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                        } else {
+                            $search->where($item, 'like', "%$request->search%");
+                        }
+                    } else {
+                        $explode = explode('.', $item);
+                        if (count($explode) > 1) {
+                            $search->orWhereHas($explode[0], fn($related) => $related->where($explode[1], 'like', "%$request->search%"));
+                        } else {
+                            $search->orWhere($item, 'like', "%$request->search%");
+                        }
+                    }
+                }
+            });
+        });
+        $query->when(auth()->user()->hasAnyRole(...RoleEnum::accessProject()), function ($query) {
+            $query->whereHas('activities', fn($sub) => $sub->where('user_id', '=', auth()->user()->id));
+        });
+
+        $query->when($request->filled('filter'), function ($subQuery) use ($request) {
+            $filter = explode(',', $request->filter);
+            $subQuery->where($filter[0], $filter[1]);
+        });
+
+        return $query->orderBy('created_at', 'desc')->get();
     }
 
     /**
@@ -118,6 +159,11 @@ class ProjectController extends Controller implements HasMiddleware
         if ($project->status->isApprove()) {
             throw new BadRequestException('Project sudah disetujui');
         }
+
+        $project->activities()->create([
+            'user_id' => $request->user_id,
+            'activity' => 'approval',
+        ]);
 
         return $this->notificationService->store(new NotificationData(
             title: 'Request Approval Project',

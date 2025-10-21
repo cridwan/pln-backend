@@ -43,7 +43,7 @@ class GenerateService
             });
 
             // duplicate scope standart
-            ScopeStandart::select('uuid', 'name', 'link', 'category', 'sub_bidang_uuid')
+            ScopeStandart::select('uuid', 'name', 'link', 'sub_bidang_uuid')
                 ->where('inspection_type_uuid', $request->inspection_type_uuid)
                 ->each(function ($scope) use ($project) {
                     $duplicateScope = $scope->replicate();
@@ -134,7 +134,7 @@ class GenerateService
                     $duplicateAdScope->save();
 
                     // duplicate scope standart
-                    ScopeStandart::select('uuid', 'name', 'link', 'category', 'sub_bidang_uuid')
+                    ScopeStandart::select('uuid', 'name', 'link', 'sub_bidang_uuid')
                         ->where('additional_scope_uuid', $addScope->uuid)
                         ->each(function ($scope) use ($duplicateAdScope) {
                         $duplicateScope = $scope->replicate();

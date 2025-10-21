@@ -30,9 +30,7 @@ class UnitController extends Controller implements HasMiddleware
             new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
             new Middleware(
                 RoleMiddleware::using(
-                    [
-                        RoleEnum::SUPERUSER
-                    ]
+                    RoleEnum::masterRole(),
                 ),
                 except: ['list', 'show', 'index']
             )
