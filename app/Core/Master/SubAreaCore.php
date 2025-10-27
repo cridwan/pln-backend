@@ -6,22 +6,19 @@ use App\Core\MasterCore;
 use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
-use App\Enums\GeneratorTypeEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
-use App\Models\Location;
+use App\Models\Area;
 use App\Models\SubArea;
-use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
-abstract class LocationCore extends MasterCore implements WithImportExcel
+abstract class SubAreaCore extends MasterCore implements WithImportExcel
 {
     #[DoNotDiscover]
     public function with(): array
     {
         return [
-            'updatedBy',
-            'subArea'
+            'area'
         ];
     }
 
@@ -37,20 +34,15 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
     #[DoNotDiscover]
     public function model(): string
     {
-        return Location::class;
+        return SubArea::class;
     }
 
     #[DoNotDiscover]
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'slug' => 'required',
-            'description' => 'nullable',
-            'lat' => 'required',
-            'lon' => 'required',
-            'color' => 'required',
-            'sub_area_uuid' => ['required', Rule::exists(SubArea::class, 'uuid')]
+            "name" => "required",
+            'area_uuid' => 'required|exists:areas,uuid'
         ];
     }
 
@@ -59,7 +51,6 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
     {
         return [
             'name',
-            'slug',
         ];
     }
 
@@ -69,18 +60,9 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
         return [
             new AttributeData('uuid', 'UUID'),
             new AttributeData('name', 'NAME'),
-            new AttributeData('slug', 'KODE'),
-            new AttributeData('description', 'DESCRIPTION'),
-            new AttributeData('lat', 'LAT'),
-            new AttributeData('lon', 'LON'),
-            new AttributeData('color', 'COLOR'),
             new AttributeData(function ($row) {
-                $getType = GeneratorTypeEnum::getType($row->color)->name ?? '';
-                return str($getType)->explode('_')->join('/');
-            }, 'GENERATOR TYPE'),
-            new AttributeData(function ($row) {
-                return $row->updatedBy?->name ?? '';
-            }, 'LAST UPDATED BY'),
+                return $row->area?->name ?? '';
+            }, 'SUB AREA'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
         ];
@@ -91,14 +73,13 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
     {
         return new TemplateData([
             'name',
-            'slug',
-            'description',
-            'lat',
-            'lon',
-            'generator_type'
+            'area_uuid'
         ], new OptionData(
-            column: 'F',
-            options: array_map(fn($case) => $case->name . ' / #' . $case->value, GeneratorTypeEnum::cases()),
+            'B',
+            Area::pluck('name', 'uuid')
+                ->map(fn($name, $uuid) => "$name / $uuid")
+                ->values()
+                ->toArray()
         ));
     }
 
@@ -112,13 +93,9 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
         }
 
         try {
-            Location::create([
+            SubArea::create([
                 'name' => $data['name'],
-                'slug' => $data['slug'],
-                'description' => $data['description'],
-                'lat' => $data['lat'],
-                'lon' => $data['lon'],
-                'color' => trim(str($data['generator_type'])->explode('/')->toArray()[1]),
+                'area_uuid' => trim(str($data['area_uuid'])->explode('/')->toArray()[1]),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Area;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,10 +23,11 @@ class UserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $rules =  [
+        $rules = [
             'name' => 'required',
-            'email' => ['required',  Rule::unique('masterdata.users', 'email')],
+            'email' => ['required', Rule::unique('masterdata.users', 'email')],
             'password' => 'required',
+            'area_uuid' => ['required', Rule::exists(Area::class, 'uuid')],
             'roles' => 'array'
         ];
 

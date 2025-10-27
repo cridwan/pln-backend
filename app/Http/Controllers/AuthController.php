@@ -93,7 +93,7 @@ class AuthController extends Controller implements HasMiddleware
                 receiver_id: $user->id,
                 sender_id: $user->id,
                 is_read: false,
-                uri: '',
+                uri: '/profile',
                 summary: 'Halo ' . $user->name . ', demi keamana silahkan untuk mengganti password akun anda di profile.'
             ));
             $user->notify(new PasswordChangeAlert($user));

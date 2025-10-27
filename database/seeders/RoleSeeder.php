@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Enums\RoleEnum;
 use App\Models\Role;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -27,6 +26,10 @@ class RoleSeeder extends Seeder
             [
                 "name" => RoleEnum::APPROVAL->value,
                 "display_name" => "Approval"
+            ],
+            [
+                "name" => RoleEnum::GUEST->value,
+                "display_name" => "Guest"
             ]
         ])->each(function ($item) {
             Role::firstOrCreate([

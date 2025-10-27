@@ -46,7 +46,7 @@ class UserController extends Controller implements HasMiddleware
 
 
         $query = User::query();
-        $query->with('roles');
+        $query->with(['roles', 'area']);
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");

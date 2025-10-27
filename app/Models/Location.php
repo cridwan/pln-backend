@@ -24,4 +24,9 @@ class Location extends Model
     {
         return $this->belongsTo(User::class, 'updated_uuid', 'id');
     }
+
+    public function subArea()
+    {
+        return $this->belongsTo(SubArea::class, 'sub_area_uuid');
+    }
 }

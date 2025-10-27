@@ -26,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
         'first_create',
+        'area_uuid'
     ];
 
     /**
@@ -55,5 +56,10 @@ class User extends Authenticatable
     public function guardName()
     {
         return 'api';
+    }
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_uuid');
     }
 }
