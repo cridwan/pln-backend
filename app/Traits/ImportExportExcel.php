@@ -39,8 +39,8 @@ trait ImportExportExcel
     #[Route(method: 'post', name: "export/excel")]
     public function export()
     {
-        if (!$this->model) {
-            throw new BadRequestException('Model not defined');
+        if (!method_exists($this, 'query')) {
+            throw new BadRequestException('Query method is not defined');
         }
 
         $tableName = $this->getTableName();
@@ -49,7 +49,7 @@ trait ImportExportExcel
 
         $customAttributes = isset($this->attributeExport) ? $this->attributeExport : [];
 
-        return (new DownloadExport($this->model, $with, $customAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
+        return (new DownloadExport($this->query(), $with, $customAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
 
     /**

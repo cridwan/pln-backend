@@ -24,4 +24,9 @@ abstract class MasterCore extends Controller implements BaseCore
             )
         ];
     }
+
+    public function query(): mixed
+    {
+        return $this->model()::query();
+    }
 }

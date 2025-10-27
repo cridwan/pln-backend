@@ -20,18 +20,18 @@ class DownloadExport implements FromQuery, WithChunkReading, WithHeadings, WithS
     private $instanceModel;
 
     /**
-     * @param string $model
+     * @param mixed $query
      * @param mixed $with
      * @param \App\Data\AttributeData[] $customAttribute
      */
-    public function __construct(private readonly string $model, private readonly mixed $with, private readonly array $customAttribute = [])
+    public function __construct(private mixed $query, private readonly mixed $with, private readonly array $customAttribute = [])
     {
-        $this->instanceModel = new $model;
+        $this->query = $query;
     }
 
     public function query()
     {
-        return $this->model::query()->with($this->with);
+        return $this->query->with($this->with);
     }
 
     public function map($row): array

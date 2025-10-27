@@ -3,6 +3,7 @@
 namespace App\Core;
 
 use App\Data\TemplateData;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Routing\Controllers\HasMiddleware;
 
 interface BaseCore extends HasMiddleware
@@ -43,4 +44,10 @@ interface BaseCore extends HasMiddleware
      * @return string
      */
     public function model(): string;
+
+    /**
+     * Summary of query
+     * @return mixed
+     */
+    public function query(): mixed;
 }
