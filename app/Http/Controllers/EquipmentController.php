@@ -2,48 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AuthPermissionEnum;
-use App\Enums\RoleEnum;
+use App\Core\Master\EquipmentCore;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Http\Middleware\RoleMiddleware;
-use App\Models\Equipment;
-use App\Traits\HasApiResource;
-use App\Traits\HasList;
-use App\Traits\ImportExportExcel;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
 #[Group(name: 'Master Equipment')]
-class EquipmentController extends Controller implements HasMiddleware
+class EquipmentController extends EquipmentCore
 {
+    use InitCore;
     #[DoNotDiscover]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::masterRole(),
-                ),
-                except: ['list', 'show', 'index']
-            )
-        ];
+        $this->initCore();
     }
-
-    use HasList, HasApiResource, ImportExportExcel;
-
-    protected $model = Equipment::class;
-    protected array $search = [];
-    protected array $order = ['name', 'asc'];
-    protected array $with = ['scopeStandart', 'scopeStandart.inspectionType', 'scopeStandart.inspectionType.machine', 'scopeStandart.inspectionType.machine.unit', 'scopeStandart.inspectionType.machine.unit.location', 'scopeStandart.subBidang', 'scopeStandart.subBidang.bidang'];
-    protected $rules = [
-        'name' => 'required',
-        'scope_standart_uuid' => 'required|exists:scope_standarts,uuid',
-        'link_ik1' => 'nullable',
-        'link_ik2' => 'nullable',
-    ];
 }

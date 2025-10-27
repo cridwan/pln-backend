@@ -2,56 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Core\Master\ManpowerStdCore;
 use App\Data\PaginationData;
-use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionRoleMiddleware;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Http\Middleware\RoleMiddleware;
 use App\Models\ManpowerStd;
-use App\Traits\HasApiResource;
-use App\Traits\HasList;
-use App\Traits\ImportExportExcel;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
 #[Group(name: 'Manpower STD')]
-class ManpowerStdController extends Controller implements HasMiddleware
+class ManpowerStdController extends ManpowerStdCore
 {
+    use InitCore;
     #[DoNotDiscover]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'grouping']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::masterRole(),
-                ),
-                except: ['list', 'show', 'index', 'grouping']
-            )
-        ];
+        $this->initCore();
     }
-
-    use HasList, HasApiResource, ImportExportExcel;
-
-    protected $model = ManpowerStd::class;
-    protected array $search = [];
-
-    protected array $order = ['manpower.name', 'asc'];
-    protected array $with = ['manpower', 'activity', 'activity.equipment', 'activity.equipment.scopeStandart', 'activity.equipment.scopeStandart.inspectionType', 'activity.equipment.scopeStandart.inspectionType.machine', 'activity.equipment.scopeStandart.inspectionType.machine.unit', 'activity.equipment.scopeStandart.inspectionType.machine.unit.location', 'activity.equipment.scopeStandart.subBidang', 'activity.equipment.scopeStandart.subBidang.bidang'];
-    protected $rules = [
-        'activity_uuid' => 'required|exists:activities,uuid',
-        'manpower_uuid' => 'required|exists:manpowers,uuid',
-        'qty' => 'required',
-    ];
-
 
     /**
      * list data by grouping data

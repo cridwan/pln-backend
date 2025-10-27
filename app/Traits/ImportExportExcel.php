@@ -26,10 +26,11 @@ trait ImportExportExcel
         }
 
         $filteredAttributes = $this->filteredAttributes();
+        $customAttributes = isset($this->attributeTemplate) ? $this->attributeTemplate : null;
 
         $tableName = $this->getTableName();
 
-        return (new TemplateExport($filteredAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
+        return (new TemplateExport($filteredAttributes, $customAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
 
     /**
@@ -46,7 +47,7 @@ trait ImportExportExcel
 
         $with = isset($this->with) ? $this->with : [];
 
-        $customAttributes = isset($this->customAttribute) ? $this->customAttribute : [];
+        $customAttributes = isset($this->attributeExport) ? $this->attributeExport : [];
 
         return (new DownloadExport($this->model, $with, $customAttributes))->download("Template data $tableName - " . date("YmdHis") . ".xlsx");
     }
@@ -63,11 +64,15 @@ trait ImportExportExcel
 
         try {
             DB::beginTransaction();
+
             if (!\class_exists($this->model)) {
                 throw new BadRequestException('Model cannot be found');
             }
 
-            (new BulkDataImport($this->model, $this->filteredAttributes()))->importWithTransaction($request->file('file'), 'local', \Maatwebsite\Excel\Excel::XLSX);
+            $callback = method_exists($this, 'mapping') ? [$this, 'mapping'] : null;
+
+            (new BulkDataImport($this->model, $this->filteredAttributes(), $callback))
+                ->import($request->file('file'), 'local', \Maatwebsite\Excel\Excel::XLSX);
             DB::commit();
             return [
                 'message' => 'Import data successfully'

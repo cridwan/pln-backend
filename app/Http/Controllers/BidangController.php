@@ -2,47 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AuthPermissionEnum;
-use App\Enums\PermissionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Middleware\PermissionRoleMiddleware;
+use App\Core\Master\BidangCore;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Http\Middleware\RoleMiddleware;
-use App\Models\Bidang;
-use App\Traits\HasApiResource;
-use App\Traits\HasList;
-use App\Traits\ImportExportExcel;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
 #[Group(name: 'Master Bidang')]
-class BidangController extends Controller implements HasMiddleware
+class BidangController extends BidangCore
 {
+    use InitCore;
     #[DoNotDiscover]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::masterRole(),
-                ),
-                except: ['list', 'show', 'index']
-            )
-        ];
+        $this->initCore();
     }
-
-    use HasList, HasApiResource, ImportExportExcel;
-
-    protected $model = Bidang::class;
-    protected array $search = ['name'];
-    protected array $order = ['name', 'asc'];
-    protected array $with = [];
-    protected $rules = [
-        'name' => 'required'
-    ];
 }

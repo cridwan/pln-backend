@@ -2,39 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AuthPermissionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Middleware\RoleMiddleware;
-use App\Models\QcPlan;
-use App\Traits\HasApiResource;
-use App\Traits\HasList;
-use App\Traits\ImportExportExcel;
-use Illuminate\Routing\Controllers\Middleware;
+use App\Core\Master\QcPlanCore;
+use App\Traits\InitCore;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
-class QcPlanController extends Controller
+class QcPlanController extends QcPlanCore
 {
-    use HasList, HasApiResource, ImportExportExcel;
+    use InitCore;
 
     #[DoNotDiscover()]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::masterRole(),
-                ),
-                except: ['list', 'show', 'index']
-            )
-        ];
+        $this->initCore();
     }
-
-    protected $model = QcPlan::class;
-    protected array $search = ['name'];
-    protected array $order = ['name', 'asc'];
-    protected array $with = [];
-    protected $rules = [
-        "name" => "required",
-    ];
 }

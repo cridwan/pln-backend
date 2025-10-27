@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\AdditionalControllers;
 
-use App\Core\Master\ConsumableMaterialStdCore;
+use App\Core\Master\ManpowerStdCore;
 use App\Data\PaginationData;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Models\ConsMatStd;
+use App\Models\ManpowerStd;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -14,8 +14,8 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group(name: 'Consumable Material STD')]
-class ConsMatStdController extends ConsumableMaterialStdCore
+#[Group(name: '(Additional) Manpower STD')]
+class ManpowerStdController extends ManpowerStdCore
 {
     use InitCore;
     #[DoNotDiscover]
@@ -31,14 +31,14 @@ class ConsMatStdController extends ConsumableMaterialStdCore
     public function grouping(Request $request)
     {
         $pagination = new PaginationData($request);
-        $query = ConsMatStd::query()
+        $query = ManpowerStd::query()
             ->select([
-                'cons_mat_uuid',
+                'manpower_uuid',
                 DB::raw('SUM(qty) as total_qty'),
                 DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
             ])
             ->with($this->with)
-            ->groupBy('cons_mat_uuid');
+            ->groupBy('manpower_uuid');
 
         return $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
     }

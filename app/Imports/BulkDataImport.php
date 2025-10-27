@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Exceptions\BadRequestException;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -14,39 +15,37 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
     private int $row = 0;
     use Importable;
 
-    public function __construct(public string $model, public array $headings)
+    /**
+     * Summary of __construct
+     * @param string $model
+     * @param array $headings
+     * @param \App\Data\AttributeData[] $customAttribute
+     */
+    public function __construct(public string $model, public array $headings, public mixed $callback = null)
     {
     }
 
     public function model(array $row)
     {
-        $modelClass = $this->model;
-        $mapData = $this->mapData($row);
-
-        \Log::info("before insert", $mapData);
-        // Jika baris kosong, skip
-        if (empty($mapData) || count($mapData) == 0) {
-            return null;
-        }
-
-        // ❗ VALIDASI WAJIB: Jika kolom penting kosong, lempar error
-        // if (empty($mapData['name'])) {
-        //     throw new \Exception("Nama tidak boleh kosong");
-        // }
-
-        // ✅ Insert manual agar bisa rollback total jika error di controller
+        $this->row++;
         try {
-            $this->row++;
-            return $modelClass::create($mapData);
-        } catch (\Throwable $e) {
-            \Log::info($e->getMessage());
-            // Lempar error agar transaksi berhenti → rollback di controller
-            $values = array_values($mapData);
-            if (str($e->getMessage())->contains('Duplicate entry')) {
-                throw new \Exception("[Duplicate]: Data (" . join(', ', $values) . ") sudah di tambahkan pada baris ke {$this->row}");
+            if (is_callable($this->callback)) {
+                call_user_func($this->callback, $row, $this->row);
+            } else {
+                $this->mapData($row);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+            $values = array_values($row);
+            if (str($th->getMessage())->contains('Duplicate entry') || str($th->getMessage())->contains('Duplicate')) {
+                throw new Exception("[Duplicate]: Data (" . join(', ', $values) . ") sudah di tambahkan pada baris ke {$this->row}");
             }
 
-            throw new \Exception("[Error]: Terjadi kesalahan ketika insert " . join(', ', $values) . " pada baris ke {$this->row}");
+            if ($th instanceof BadRequestException) {
+                throw new Exception($th->getMessage());
+            }
+
+            throw new Exception("[Error]: Gagal insert " . join(', ', $values) . " pada baris ke {$this->row}");
         }
     }
 
@@ -62,7 +61,15 @@ class BulkDataImport implements ToModel, WithChunkReading, WithHeadingRow
                 $data[$heading] = $row[$heading];
             }
         }
-        return $data;
+
+        $modelClass = $this->model;
+
+        // Jika baris kosong, skip
+        if (empty($data) || count($data) == 0) {
+            return null;
+        }
+
+        return $modelClass::create($data);
     }
 
     public function chunkSize(): int

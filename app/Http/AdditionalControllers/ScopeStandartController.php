@@ -1,26 +1,26 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\AdditionalControllers;
 
-use App\Core\Master\AdditionalScopeCore;
+use App\Core\Master\ScopeStandartCore;
 use App\Exceptions\BadRequestException;
-use App\Http\Requests\AdditionalScopeRequest;
-use App\Models\AdditionalScope;
+use App\Http\Requests\ScopeStandartMasterRequest;
+use App\Models\ScopeStandart;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
-#[Group("Master Additional Scope")]
-class AdditionalScopeController extends AdditionalScopeCore
+#[Group("(Additional) Master Scope Standart")]
+class ScopeStandartController extends ScopeStandartCore
 {
     use InitCore;
-    #[DoNotDiscover]
+
     public function __construct()
     {
         $this->initCore();
     }
+
     /**
      * list data
      */
@@ -31,9 +31,9 @@ class AdditionalScopeController extends AdditionalScopeCore
         $currentPage = $request->filled('currentPage') ? $request->currentPage : 1;
 
 
-        $query = AdditionalScope::query();
-        $query->with(['inspectionType.machine.unit.location', 'sequence']);
-        $query->when($request->filled('search'), function ($subQuery) use ($request) {
+        $query = ScopeStandart::query();
+        $query->with(['inspectionType.machine.unit.location', 'subBidang.bidang', 'document']);
+        $query->when($request->filled('search'), callback: function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
             });
@@ -51,18 +51,20 @@ class AdditionalScopeController extends AdditionalScopeCore
 
         $query->fromTransaction();
 
-        return $query->has('inspectionType')->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**
      * store data
      */
     #[Route(method: 'post', uri: '/')]
-    public function store(AdditionalScopeRequest $request)
+    public function store(ScopeStandartMasterRequest $request)
     {
-        $additionalScope = AdditionalScope::create($request->except('details'));
+        $scopeStandart = ScopeStandart::create($request->except('details'));
 
-        return $additionalScope;
+        $scopeStandart->details()->createMany($request->details);
+
+        return $scopeStandart;
     }
 
     /**
@@ -71,31 +73,41 @@ class AdditionalScopeController extends AdditionalScopeCore
     #[Route(method: 'get', uri: '{uuid}')]
     public function show(string $uuid)
     {
-        $additionalScope = AdditionalScope::find($uuid);
+        $scopeStandart = ScopeStandart::find($uuid);
 
-        if (!$additionalScope) {
+        if (!$scopeStandart) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        return $additionalScope;
+        return $scopeStandart;
     }
 
     /**
      * update data
      */
     #[Route(method: 'put', uri: '{uuid}')]
-    public function update(AdditionalScopeRequest $request, string $uuid)
+    public function update(ScopeStandartMasterRequest $request, string $uuid)
     {
-        $additionalScope = AdditionalScope::find($uuid);
+        $scopeStandart = ScopeStandart::find($uuid);
 
-        if (!$additionalScope) {
+        if (!$scopeStandart) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        $additionalScope->update($request->except('details'));
+        $scopeStandart->update($request->except('details'));
+
+        foreach ($request->details as $detail) {
+            $scopeStandart->details()->updateOrCreate([
+                'uuid' => $detail['uuid']
+            ], [
+                'name' => $detail['name'],
+                'uuid' => $detail['uuid']
+            ]);
+        }
 
 
-        return $additionalScope;
+
+        return $scopeStandart;
     }
 
     /**
@@ -104,12 +116,12 @@ class AdditionalScopeController extends AdditionalScopeCore
     #[Route(method: 'delete', uri: '{uuid}')]
     public function delete(string $uuid)
     {
-        $additionalScope = AdditionalScope::find($uuid);
+        $scopeStandart = ScopeStandart::find($uuid);
 
-        if (!$additionalScope) {
+        if (!$scopeStandart) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
         }
 
-        return $additionalScope->delete();
+        return $scopeStandart->delete();
     }
 }

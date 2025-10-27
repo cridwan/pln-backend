@@ -2,40 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AuthPermissionEnum;
-use App\Enums\RoleEnum;
+use App\Core\Master\ScopeStandartCore;
 use App\Exceptions\BadRequestException;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\ScopeStandartMasterRequest;
 use App\Models\ScopeStandart;
-use App\Traits\ImportExportExcel;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\Middleware;
-use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group("Master Scope Standart")]
-class ScopeStandartController extends Controller
+class ScopeStandartController extends ScopeStandartCore
 {
-    use ImportExportExcel;
-    protected $model = ScopeStandart::class;
-    protected array $order = ['name', 'asc'];
+    use InitCore;
 
-    protected $with = ['inspectionType', 'inspectionType.machine', 'inspectionType.machine.unit', 'inspectionType.machine.unit.location', 'subBidang', 'subBidang.bidang'];
-
-    #[DoNotDiscover]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::masterRole(),
-                ),
-                except: ['list', 'show', 'index']
-            )
-        ];
+        $this->initCore();
     }
 
     /**

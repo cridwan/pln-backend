@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\AdditionalControllers;
 
 use App\Core\Master\ConsumableMaterialStdCore;
 use App\Data\PaginationData;
@@ -14,7 +14,7 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group(name: 'Consumable Material STD')]
+#[Group(name: '(Additional) Consumable Material STD')]
 class ConsMatStdController extends ConsumableMaterialStdCore
 {
     use InitCore;
