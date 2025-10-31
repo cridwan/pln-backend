@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers\Transaction\AdditionalScope;
 
-use App\Enums\AuthPermissionEnum;
+use App\Core\Transaction\AdditionalScopeCore;
 use App\Enums\ConnectionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Controllers\Controller;
-use App\Http\Middleware\RoleMiddleware;
-use App\Http\Requests\AdditionalScopeRequest;
 use App\Http\Requests\ScopeStandartAdditionalRequest;
 use App\Http\Requests\Transaction\CloneAdditionalScopeRequest;
 use App\Models\Activity;
@@ -17,38 +13,20 @@ use App\Models\Equipment;
 use App\Models\ManpowerStd;
 use App\Models\PartStd;
 use App\Models\ScopeStandart;
-use App\Models\Transaction\AdditionalScope;
 use App\Models\Transaction\ScopeStandartAsset;
-use App\Traits\HasApiResource;
-use App\Traits\HasPagination;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
-use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group(name: 'Transaction Additional Scope Resources')]
-class ResourceController extends Controller implements HasMiddleware
+class ResourceController extends AdditionalScopeCore
 {
-    use HasPagination, HasApiResource;
+    use InitCore;
 
-    protected $model = AdditionalScope::class;
-    protected array $search = [];
-    protected array $with = ['assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document'];
-
-    #[DoNotDiscover]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::transactionRole()
-                ),
-                except: ['list', 'show', 'index', 'pagination']
-            )
-        ];
+        $this->initCore();
     }
 
     /**

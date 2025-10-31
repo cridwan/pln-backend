@@ -2,65 +2,30 @@
 
 namespace App\Http\Controllers\Transaction\Part;
 
+use App\Core\Transaction\PartStdCore;
 use App\Data\PaginationData;
-use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Controllers\Controller;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\Transaction\ClonePartRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\PartStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\Part;
-use App\Traits\HasApiResource;
-use App\Traits\HasPagination;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group(name: 'Transaction Part Resource')]
-class ResourceController extends Controller implements HasMiddleware
+class ResourceController extends PartStdCore
 {
-    use HasPagination, HasApiResource;
-
-    protected $model = Part::class;
-    protected array $search = ['no_drawing', 'name'];
-    protected array $with = ['part', 'part.globalUnit'];
-
-    protected $rules = [];
-
-    #[DoNotDiscover]
-    public static function middleware()
-    {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination', 'grouping']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::transactionRole()
-                ),
-                except: ['list', 'show', 'index', 'pagination', 'grouping']
-            )
-        ];
-    }
+    use InitCore;
 
     #[DoNotDiscover]
     public function __construct()
     {
-        $this->rules = [
-            'name' => 'required',
-            'qty' => 'required',
-            'noDrawing' => 'nullable',
-            'note' => 'nullable',
-            'global_unit_uuid' => ['required', Rule::exists('masterdata.global_units', 'uuid')],
-            'project_uuid' => ['nullable', Rule::exists('transaction.projects', 'uuid')],
-            'additional_scope_uuid' => 'nullable'
-        ];
+        $this->initCore();
     }
 
     /**
@@ -69,7 +34,6 @@ class ResourceController extends Controller implements HasMiddleware
     #[Route(method: 'post')]
     public function clone(ClonePartRequest $request)
     {
-        \Log::info('trigger');
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // duplicate part std
             PartStd::select('uuid', 'activity_uuid', 'part_uuid', 'qty')

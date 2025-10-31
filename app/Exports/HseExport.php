@@ -9,7 +9,7 @@ class HseExport extends Export
 {
     private int $number = 1;
 
-    public function headers(): array
+    public function headings(): array
     {
         return [
             'NO',

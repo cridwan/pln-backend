@@ -13,7 +13,8 @@ enum RoleEnum: string
     {
         return [
             self::PLANNER,
-            self::APPROVAL
+            self::APPROVAL,
+            self::GUEST
         ];
     }
 

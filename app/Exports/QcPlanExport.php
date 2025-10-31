@@ -27,7 +27,7 @@ class QcPlanExport extends Export
         ];
     }
 
-    public function headers(): array
+    public function headings(): array
     {
         return [
             'NO',

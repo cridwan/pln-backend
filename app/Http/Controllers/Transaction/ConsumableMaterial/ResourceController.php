@@ -2,63 +2,30 @@
 
 namespace App\Http\Controllers\Transaction\ConsumableMaterial;
 
+use App\Core\Transaction\ConsumableMaterialStdCore;
 use App\Data\PaginationData;
-use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Controllers\Controller;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\Transaction\CloneConsMatRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\ConsMatStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\ConsMat;
-use App\Traits\HasApiResource;
-use App\Traits\HasPagination;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group('Transaction Consumable Material Resource')]
-class ResourceController extends Controller implements HasMiddleware
+class ResourceController extends ConsumableMaterialStdCore
 {
-    use HasPagination, HasApiResource;
-
-    protected $model = ConsMat::class;
-    protected array $search = ['name', 'merk'];
-    protected array $with = ['consmat.globalUnit'];
-    protected $rules = [];
-
-    #[DoNotDiscover]
-    public static function middleware()
-    {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination', 'grouping']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::transactionRole()
-                ),
-                except: ['list', 'show', 'index', 'pagination', 'grouping']
-            )
-        ];
-    }
+    use InitCore;
 
     #[DoNotDiscover]
     public function __construct()
     {
-        $this->rules = [
-            'name' => 'required',
-            'merk' => 'nullable',
-            'qty' => 'required',
-            'global_unit_uuid' => ['required', Rule::exists('masterdata.global_units', 'uuid')],
-            'project_uuid' => 'nullable',
-            'additional_scope_uuid' => 'nullable'
-        ];
+        $this->initCore();
     }
 
     /**

@@ -2,37 +2,19 @@
 
 namespace App\Http\Controllers\Transaction\QcPlan;
 
-use App\Enums\AuthPermissionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Controllers\Controller;
-use App\Http\Middleware\RoleMiddleware;
-use App\Models\Transaction\QcPlan;
-use App\Traits\HasPagination;
+use App\Core\Transaction\QcPlanCore;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
 #[Group(name: 'Transaction Qc Plan Resource')]
-class ResourceController extends Controller implements HasMiddleware
+class ResourceController extends QcPlanCore
 {
-    use HasPagination;
-
-    protected $model = QcPlan::class;
-    protected array $search = [];
-    protected array $with = ['document'];
+    use InitCore;
 
     #[DoNotDiscover]
-    public static function middleware()
+    public function __construct()
     {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::transactionRole()
-                ),
-                except: ['list', 'show', 'index', 'pagination']
-            )
-        ];
+        $this->initCore();
     }
 }

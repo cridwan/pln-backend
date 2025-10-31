@@ -1,60 +1,41 @@
 <?php
 
-namespace App\Core\Master;
+namespace App\Core\Transaction;
 
-use App\Core\MasterCore;
+use App\Core\TransactionCore;
 use App\Data\AttributeData;
-use App\Data\OptionData;
 use App\Data\TemplateData;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
-use App\Models\Activity;
-use App\Models\Manpower;
-use App\Models\ManpowerStd;
+use App\Models\Transaction\ConsMat;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
-abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
+abstract class ConsumableMaterialStdCore extends TransactionCore implements WithImportExcel
 {
     #[DoNotDiscover]
     public function with(): array
     {
         return [
-            'manpower',
-            'activity',
-            'activity.equipment',
-            'activity.equipment.scopeStandart',
-            'activity.equipment.scopeStandart.inspectionType',
-            'activity.equipment.scopeStandart.inspectionType.machine',
-            'activity.equipment.scopeStandart.inspectionType.machine.unit',
-            'activity.equipment.scopeStandart.inspectionType.machine.unit.location',
-            'activity.equipment.scopeStandart.subBidang',
-            'activity.equipment.scopeStandart.subBidang.bidang'
+            'consmat.globalUnit'
         ];
     }
 
     #[DoNotDiscover]
     public function order(): array
     {
-        return [
-            'manpower.name',
-            'asc'
-        ];
+        return [];
     }
 
     #[DoNotDiscover]
     public function model(): string
     {
-        return ManpowerStd::class;
+        return ConsMat::class;
     }
 
     #[DoNotDiscover]
     public function rules(): array
     {
-        return [
-            'activity_uuid' => 'required|exists:activities,uuid',
-            'manpower_uuid' => 'required|exists:manpowers,uuid',
-            'qty' => 'required',
-        ];
+        return [];
     }
 
     #[DoNotDiscover]
@@ -69,8 +50,11 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
         return [
             new AttributeData('uuid', 'UUID'),
             new AttributeData(function ($row) {
-                return $row->manpower?->name ?? '';
-            }, 'MANPOWER'),
+                return $row->consmat?->name ?? '';
+            }, 'CONSUMABLE MATERIAL'),
+            new AttributeData(function ($row) {
+                return $row->consmat?->globalUnit?->name ?? '';
+            }, 'GLOBAL UNIT'),
             new AttributeData(function ($row) {
                 return $row->qty;
             }, 'QTY'),
@@ -115,23 +99,8 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
         return new TemplateData([
             'qty',
             'activity_uuid',
-            'manpower_uuid',
-        ], [
-            new OptionData(
-                'B',
-                Activity::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
-                    ->values()
-                    ->toArray()
-            ),
-            new OptionData(
-                'C',
-                Manpower::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
-                    ->values()
-                    ->toArray()
-            )
-        ]);
+            'cons_mat_uuid',
+        ], []);
     }
 
     #[DoNotDiscover]
@@ -144,10 +113,10 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
         }
 
         try {
-            ManpowerStd::create([
+            ConsMat::create([
                 'qty' => $data['qty'],
                 'activity_uuid' => trim(str($data['activity_uuid'])->explode('/')->toArray()[1]),
-                'manpower_uuid' => trim(str($data['manpower_uuid'])->explode('/')->toArray()[1]),
+                'cons_mat_uuid' => trim(str($data['cons_mat_uuid'])->explode('/')->toArray()[1]),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

@@ -13,7 +13,6 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Resources\ProjectResource;
 use App\Models\Transaction\Project;
 use App\Services\NotificationService;
-use App\Traits\HasList;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;

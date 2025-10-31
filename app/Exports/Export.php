@@ -9,16 +9,16 @@ use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyles, WithTitle, WithCustomStartCell
+abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyles, WithTitle, WithCustomStartCell, WithHeadings, WithEvents
 {
     use Exportable;
     protected string $title = 'PLN IP UBH';
@@ -30,7 +30,7 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
 
     abstract public function query();
 
-    abstract public function headers(): array;
+    abstract public function headings(): array;
 
     public function inspection(): string
     {
@@ -54,7 +54,7 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
 
     public function startCell(): string
     {
-        return 'A7'; // Data dimulai di bawah header
+        return 'A5'; // Data dimulai di bawah header
     }
 
     public function drawings()
@@ -87,7 +87,7 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
 
     private function setHeadings(Worksheet $sheet)
     {
-        foreach ($this->headers() as $index => $header) {
+        foreach ($this->headings() as $index => $header) {
             $col = $this->numberToAlpha($index + 1); // 0 = A, 1 = B, dst
             $sheet->setCellValue("{$col}5", $header);
 
@@ -102,68 +102,17 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
     public function styles(Worksheet $sheet)
     {
         // Ambil baris terakhir (biar tahu seberapa panjang data)
-        $lastRow = $sheet->getHighestRow();
-
-        $lastAlpha = $this->numberToAlpha(count($this->headers()));
+        $highestColumn = $sheet->getHighestColumn();
 
         $sheet->getColumnDimension('A')->setWidth(20);
         $sheet->mergeCells('A1:A4');
-        $sheet->mergeCells("B1:{$lastAlpha}1");
-        $sheet->mergeCells("B2:{$lastAlpha}2");
-        $sheet->mergeCells("B3:{$lastAlpha}3");
-        $sheet->mergeCells("B4:{$lastAlpha}4");
+        $sheet->mergeCells("B1:{$highestColumn}1");
+        $sheet->mergeCells("B2:{$highestColumn}2");
+        $sheet->mergeCells("B3:{$highestColumn}3");
+        $sheet->mergeCells("B4:{$highestColumn}4");
 
         // Menulis header langsung ke dalam Excel
         $this->setHeader($sheet);
-        $this->setHeadings($sheet);
-        // detail
-
-        // bold title
-        $sheet->getStyle("A1:{$lastAlpha}6")->applyFromArray([
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
-            'font' => [
-                'bold' => true,
-            ],
-        ]);
-
-        // background
-        $sheet->getStyle("B1:{$lastAlpha}1")->applyFromArray([
-            'fill' => array(
-                'fillType' => Fill::FILL_SOLID, // Gunakan FILL_SOLID agar warna tampil dengan jelas
-                'startColor' => [
-                    'rgb' => 'A1E3F9' // Warna merah
-                ]
-            )
-        ]);
-
-        $sheet->getStyle("A5:{$lastAlpha}6")->applyFromArray([
-            'font' => [
-                'bold' => true,
-            ],
-            'fill' => array(
-                'fillType' => Fill::FILL_SOLID, // Gunakan FILL_SOLID agar warna tampil dengan jelas
-                'startColor' => [
-                    'rgb' => 'A1E3F9' // Warna merah
-                ]
-            )
-        ]);
-
-        // BORDER
-        $sheet->getStyle("A1:{$lastAlpha}{$lastRow}")->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['argb' => '000000'], // Hitam
-                ],
-            ],
-            'alignment' => [
-                'wrapText' => true,
-            ],
-        ]);
-
     }
 
     public function getFileName()
@@ -190,6 +139,68 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
     public function execute()
     {
         return $this->download($this->getFileName());
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $highestColumn = $sheet->getHighestColumn();
+                $highestRow = $sheet->getHighestRow();
+
+                $sheet->getColumnDimension('A')->setWidth(20);
+
+                // auto size column
+                foreach (range('B', $sheet->getHighestColumn()) as $col) {
+                    $sheet->getColumnDimension($col)->setAutoSize(true);
+                }
+
+                // style header
+                $headerRows = is_array($this->headings()[0])
+                    ? count($this->headings()) + 4
+                    : 5;
+
+                $headerRange = 'A5:' . $sheet->getHighestColumn() . $headerRows;
+                $sheet->getStyle($headerRange)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'A1E3F9'],
+                    ],
+                ]);
+
+                // ✅ Terapkan border ke semua data (header + isi)
+                $dataRange = "A1:{$highestColumn}{$highestRow}";
+                $sheet->getStyle($dataRange)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['rgb' => '000000'],
+                        ],
+                    ],
+                ]);
+
+                // Tinggi baris header
+                for ($i = 1; $i <= $headerRows; $i++) {
+                    $sheet->getRowDimension($i)->setRowHeight(22);
+                    // Atur alignment isi di baris tersebut
+                    $cell = $sheet->getStyle("A{$i}:" . $sheet->getHighestColumn() . "{$i}");
+                    $cell->getAlignment()
+                        ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)
+                        ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER)
+                        ->setWrapText(true); // supaya teks panjang otomatis pindah baris
+                    $cell->getFont()->setBold(true);
+                }
+            },
+        ];
     }
 
 }

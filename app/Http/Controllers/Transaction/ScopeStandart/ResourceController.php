@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers\Transaction\ScopeStandart;
 
+use App\Core\Transaction\ScopeStandartCore;
 use App\Data\PaginationData;
-use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
-use App\Enums\RoleEnum;
-use App\Enums\ScopeStandartTypeEnum;
 use App\Exceptions\BadRequestException;
-use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\ScopeStandartRequest;
 use App\Http\Requests\Transaction\CloneScopeRequest;
 use App\Models\ConsMatStd;
@@ -21,51 +17,22 @@ use App\Models\ScopeStandart as ModelsScopeStandart;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\ScopeStandart;
 use App\Models\Transaction\ScopeStandartAsset;
-use App\Traits\HasApiResource;
-use App\Traits\HasPagination;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
 #[Group(name: 'Transaction Scope Standart Resource')]
-class ResourceController extends Controller implements HasMiddleware
+class ResourceController extends ScopeStandartCore
 {
-    use HasPagination, HasApiResource;
-
-    protected $model = ScopeStandart::class;
-    protected array $search = ['name'];
-    protected array $with = ['document', 'assetWelnes.document', 'ohRecom.document', 'woPriority.document', 'history.document', 'rla.document', 'ncr.document'];
-    protected $rules = [];
-
-    #[DoNotDiscover]
-    public static function middleware()
-    {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination', 'duration']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::transactionRole(),
-                ),
-                except: ['list', 'show', 'index', 'pagination', 'duration']
-            )
-        ];
-    }
-
+    use InitCore;
     #[DoNotDiscover]
     public function __construct()
     {
-        $this->rules = [
-            'name' => 'required',
-            'category' => ['required', Rule::enum(ScopeStandartTypeEnum::class)],
-            'project_uuid' => 'nullable',
-            'additional_scope_uuid' => 'nullable'
-        ];
+        $this->initCore();
     }
 
     /**

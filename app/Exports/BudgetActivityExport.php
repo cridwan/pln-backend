@@ -3,7 +3,6 @@
 namespace App\Exports;
 
 use App\Models\Transaction\ScopeStandart;
-use Maatwebsite\Excel\Concerns\FromCollection;
 
 class BudgetActivityExport extends Export
 {
@@ -13,25 +12,63 @@ class BudgetActivityExport extends Export
     }
     private int $number = 1;
 
-    public function headers(): array
+    public function headings(): array
     {
         return [
-            'NO',
-            'UNIT',
-            'BLOK',
-            'MESIN',
-            'TIPE MESIN',
-            'SCOPE',
-            'BIDANG',
-            'SUB BIDANG',
-            'EQUIPMENT',
-            'ACTIVITY',
-            'DURASI',
-            'NAMA MATERIAL',
-            'JUMLAH',
-            'SATUAN',
-            'MANPOWER',
-            'JUMLAH',
+            [
+                'NO',
+                'UNIT',
+                'BLOK',
+                'MESIN',
+                'TIPE MESIN',
+                'SCOPE',
+                'BIDANG',
+                'SUB BIDANG',
+                'EQUIPMENT',
+                'ACTIVITY',
+                'DURASI',
+                'MATERIAL',
+                '',
+                '',
+                '',
+                '',
+                'MANPOWER',
+                '',
+                '',
+                '',
+                'PART',
+                '',
+                '',
+                '',
+                '',
+            ],
+            [
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                'NAMA MATERIAL',
+                'JUMLAH',
+                'SATUAN',
+                'HARGA',
+                'TOTAL',
+                'NAMA MANPOWER',
+                'JUMLAH',
+                'HARGA',
+                'TOTAL',
+                'NAMA PART',
+                'JUMLAH',
+                'SATUAN',
+                'HARGA',
+                'TOTAL'
+            ]
         ];
     }
 
@@ -42,7 +79,8 @@ class BudgetActivityExport extends Export
                 'subBidang.bidang',
                 'equipments.activities',
                 'equipments.activities.manpowers.manpower',
-                'equipments.activities.materials.consmat.globalUnit'
+                'equipments.activities.materials.consmat.globalUnit',
+                'equipments.activities.parts.part.globalUnit'
             ])
             ->when(
                 $this->type == 'SCOPE STANDART',
@@ -82,21 +120,47 @@ class BudgetActivityExport extends Export
                     $activity->duration,
                 ];
 
-                $maxRow = max($activity->manpowers->count(), $activity->materials->count());
+                $maxRow = max($activity->manpowers->count(), $activity->materials->count(), $activity->parts->count());
+
 
                 for ($i = 0; $i < $maxRow; $i++) {
                     $data[] = [
                         ...collect(range(0, 10))->map(fn() => ''), // tambahkan offset kolom sesuai kebutuhan
+                        // materials
                         $activity->materials[$i]?->consmat?->name ?? '',
                         $activity->materials[$i]?->qty ?? '',
                         $activity->materials[$i]?->consmat?->globalUnit?->name ?? '',
+                        'Rp. ' . number_format($activity->materials[$i]?->consmat?->price ?? 0, 2),
+                        'Rp. ' . number_format(($activity->materials[$i]?->consmat?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0), 2),
+                        // manpower
                         $activity->manpowers[$i]?->manpower?->name ?? '',
                         $activity->manpowers[$i]?->qty ?? '',
+                        'Rp. ' . number_format($activity->manpowers[$i]?->manpower?->price ?? 0, 2),
+                        'Rp. ' . number_format(($activity->manpowers[$i]?->manpower?->price ?? 0) * ($activity->manpowers[$i]?->qty ?? 0), 2),
+                        // part
+                        $activity->parts[$i]?->part?->name ?? '',
+                        $activity->parts[$i]?->qty ?? '',
+                        $activity->parts[$i]?->part?->globalUnit?->name ?? '',
+                        'Rp. ' . number_format($activity->parts[$i]?->part?->price ?? 0, 2),
+                        'Rp. ' . number_format(($activity->parts[$i]?->part?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0), 2),
                     ];
                 }
             }
         }
 
         return $data;
+    }
+
+    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet)
+    {
+        parent::styles($sheet);
+
+        foreach (range('A', 'K') as $column) {
+            $sheet->mergeCells("{$column}5:{$column}6");
+        }
+
+        $sheet->mergeCells('L5:P5');
+        $sheet->mergeCells('Q5:T5');
+        $sheet->mergeCells('U5:Y5');
     }
 }

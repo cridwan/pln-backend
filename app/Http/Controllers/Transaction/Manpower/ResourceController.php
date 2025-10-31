@@ -2,63 +2,30 @@
 
 namespace App\Http\Controllers\Transaction\Manpower;
 
+use App\Core\Transaction\ManpowerStdCore;
 use App\Data\PaginationData;
-use App\Enums\AuthPermissionEnum;
 use App\Enums\ConnectionEnum;
-use App\Enums\RoleEnum;
-use App\Http\Controllers\Controller;
-use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\Transaction\CloneManpowerRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\ManpowerStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\Manpower;
-use App\Traits\HasApiResource;
-use App\Traits\HasPagination;
+use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Group(name: 'Transaction Manpower Resource')]
-class ResourceController extends Controller implements HasMiddleware
+class ResourceController extends ManpowerStdCore
 {
-    use HasPagination, HasApiResource;
-
-    protected $model = Manpower::class;
-    protected array $search = ['name'];
-    protected array $with = ['manpower.globalUnit'];
-
-    protected $rules = [];
-
-    #[DoNotDiscover]
-    public static function middleware()
-    {
-        return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'pagination', 'grouping']),
-            new Middleware(
-                RoleMiddleware::using(
-                    RoleEnum::transactionRole()
-                ),
-                except: ['list', 'show', 'index', 'pagination', 'grouping']
-            )
-        ];
-    }
+    use InitCore;
 
     #[DoNotDiscover]
     public function __construct()
     {
-        $this->rules = [
-            'name' => 'required',
-            'type' => 'required',
-            'qty' => 'required',
-            'note' => 'nullable',
-            'project_uuid' => 'nullable',
-            'additional_scope_uuid' => 'nullable'
-        ];
+        $this->initCore();
     }
 
     /**

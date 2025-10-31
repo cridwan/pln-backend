@@ -16,7 +16,7 @@ trait InitCore
     public array $with;
     public array $rules;
 
-    use HasList, HasApiResource, ImportExportExcel;
+    use HasList, HasApiResource, ImportExportExcel, HasPagination;
 
     #[DoNotDiscover]
     public function setup()

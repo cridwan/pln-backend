@@ -1,34 +1,22 @@
 <?php
 
-namespace App\Core\Master;
+namespace App\Core\Transaction;
 
-use App\Core\MasterCore;
+use App\Core\TransactionCore;
 use App\Data\AttributeData;
-use App\Data\OptionData;
 use App\Data\TemplateData;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
-use App\Models\Activity;
-use App\Models\Manpower;
-use App\Models\ManpowerStd;
+use App\Models\Transaction\Manpower;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
-abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
+abstract class ManpowerStdCore extends TransactionCore implements WithImportExcel
 {
     #[DoNotDiscover]
     public function with(): array
     {
         return [
-            'manpower',
-            'activity',
-            'activity.equipment',
-            'activity.equipment.scopeStandart',
-            'activity.equipment.scopeStandart.inspectionType',
-            'activity.equipment.scopeStandart.inspectionType.machine',
-            'activity.equipment.scopeStandart.inspectionType.machine.unit',
-            'activity.equipment.scopeStandart.inspectionType.machine.unit.location',
-            'activity.equipment.scopeStandart.subBidang',
-            'activity.equipment.scopeStandart.subBidang.bidang'
+            'manpower.globalUnit'
         ];
     }
 
@@ -44,17 +32,13 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
     #[DoNotDiscover]
     public function model(): string
     {
-        return ManpowerStd::class;
+        return Manpower::class;
     }
 
     #[DoNotDiscover]
     public function rules(): array
     {
-        return [
-            'activity_uuid' => 'required|exists:activities,uuid',
-            'manpower_uuid' => 'required|exists:manpowers,uuid',
-            'qty' => 'required',
-        ];
+        return [];
     }
 
     #[DoNotDiscover]
@@ -116,22 +100,7 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
             'qty',
             'activity_uuid',
             'manpower_uuid',
-        ], [
-            new OptionData(
-                'B',
-                Activity::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
-                    ->values()
-                    ->toArray()
-            ),
-            new OptionData(
-                'C',
-                Manpower::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
-                    ->values()
-                    ->toArray()
-            )
-        ]);
+        ], []);
     }
 
     #[DoNotDiscover]
@@ -144,7 +113,7 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
         }
 
         try {
-            ManpowerStd::create([
+            Manpower::create([
                 'qty' => $data['qty'],
                 'activity_uuid' => trim(str($data['activity_uuid'])->explode('/')->toArray()[1]),
                 'manpower_uuid' => trim(str($data['manpower_uuid'])->explode('/')->toArray()[1]),

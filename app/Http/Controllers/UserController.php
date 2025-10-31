@@ -10,10 +10,14 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Hash;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\AllowedSort;
+use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
@@ -44,34 +48,22 @@ class UserController extends Controller implements HasMiddleware
         $perPage = $request->filled('perPage') ? $request->perPage : 10;
         $currentPage = $request->filled('currentPage') ? $request->currentPage : 1;
 
-
-        $query = User::query();
-        $query->with(['roles', 'area']);
-        $query->when($request->filled('search'), function ($subQuery) use ($request) {
-            $subQuery->where(function ($search) use ($request) {
-                $search->where('name', 'like', "%$request->search%");
+        $query = User::query()
+            ->when($request->search, function ($subQuery) use ($request) {
+                $subQuery->where('name', 'like', '%' . $request->search . '%');
             });
-        });
 
-        $query->when($request->filled('filter'), function ($subQuery) use ($request) {
-            $filter = explode(',', $request->filter);
-            $subQuery->where($filter[0], $filter[1]);
-        });
+        $builder = QueryBuilder::for($query)
+            ->allowedFilters([
+                AllowedFilter::callback('role', function (Builder $query, $value) {
+                    $query->whereHas('roles', fn($role) => $role->where('name', '=', $value));
+                })
+            ])
+            ->with(['roles'])
+            ->allowedSorts('name')
+            ->defaultSort('name');
 
-        // $query->when($request->filled('filters'), function ($subQuery) use ($request) {
-        //     $filters = explode('&', $request->filters);
-        //     foreach ($filters as $filter) {
-        //         $filter = explode(',', $filter);
-        //         $subQuery->where($filter[0], $filter[1]);
-        //     }
-        // });
-
-        $query->when($request->filled('order'), function ($subQuery) use ($request) {
-            $order = explode(',', $request->order);
-            $subQuery->orderBy($order[0], $order[1]);
-        });
-
-        return $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+        return $builder->paginate($perPage, ['*'], 'page', $currentPage);
     }
 
     /**
