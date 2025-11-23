@@ -15,12 +15,12 @@ abstract class MasterCore extends Controller implements BaseCore
     public static function middleware(): array
     {
         return [
-            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index']),
+            new Middleware(AuthPermissionEnum::AUTH_API->value, except: ['list', 'show', 'index', 'grouping']),
             new Middleware(
                 RoleMiddleware::using(
                     RoleEnum::masterRole(),
                 ),
-                except: ['list', 'show', 'index']
+                except: ['list', 'show', 'index', 'grouping']
             )
         ];
     }
