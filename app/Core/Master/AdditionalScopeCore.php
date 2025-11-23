@@ -6,6 +6,7 @@ use App\Core\MasterCore;
 use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\AdditionalScope;
@@ -20,7 +21,9 @@ abstract class AdditionalScopeCore extends MasterCore implements WithImportExcel
     {
         return [
             'inspectionType.machine.unit.location',
-            'sequence'
+            'sequence',
+            'activityLog.updatedBy',
+            'activityLog.createdBy',
         ];
     }
 
@@ -62,21 +65,27 @@ abstract class AdditionalScopeCore extends MasterCore implements WithImportExcel
     {
         return [
             new AttributeData('uuid', 'UUID'),
-            new AttributeData('name', 'NAME'),
             new AttributeData(function ($row) {
-                return $row->inspectionType?->name ?? '';
-            }, 'INSPECTION TYPE'),
-            new AttributeData(function ($row) {
-                return $row->inspectionType?->machine?->name ?? '';
-            }, 'MACHINE'),
+                return $row->inspectionType?->machine?->unit?->location?->name ?? '';
+            }, 'LOCATION'),
             new AttributeData(function ($row) {
                 return $row->inspectionType?->machine?->unit?->name ?? '';
             }, 'UNIT'),
             new AttributeData(function ($row) {
-                return $row->inspectionType?->machine?->unit?->location?->name ?? '';
-            }, 'LOCATION'),
+                return $row->inspectionType?->machine?->name ?? '';
+            }, 'MACHINE'),
+            new AttributeData(function ($row) {
+                return $row->inspectionType?->name ?? '';
+            }, 'INSPECTION TYPE'),
+            new AttributeData('name', 'NAME'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -84,19 +93,29 @@ abstract class AdditionalScopeCore extends MasterCore implements WithImportExcel
     public function attributeTemplate(): TemplateData
     {
         return new TemplateData([
-            'name',
             'inspection_type_uuid',
             'sequence_uuid',
+            'name',
         ], [
             new OptionData(
-                'B',
-                InspectionType::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
+                'A',
+                InspectionType::
+                    when(auth()->user() && !auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($where) {
+                        $where->whereHas('machine.unit.location.subArea', fn($query) => $query->where('area_uuid', '=', auth()->user()->area_uuid));
+                    })
+                    ->with(['machine.unit.location'])
+                    ->get()
+                    ->map(function ($row) {
+                        $machine = $row->machine?->name;
+                        $unit = $row->machine?->unit?->name;
+                        $location = $row->machine?->unit?->location?->name;
+                        return "$machine / $unit / $location / $row->name / $row->uuid";
+                    })
                     ->values()
                     ->toArray()
             ),
             new OptionData(
-                'C',
+                'B',
                 Sequence::pluck('name', 'uuid')
                     ->map(fn($name, $uuid) => "$name / $uuid")
                     ->values()

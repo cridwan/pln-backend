@@ -18,7 +18,9 @@ abstract class SubBidangCore extends MasterCore implements WithImportExcel
     public function with(): array
     {
         return [
-            'bidang'
+            'bidang',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -65,6 +67,12 @@ abstract class SubBidangCore extends MasterCore implements WithImportExcel
             }, 'SUB BIDANG'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 

@@ -18,7 +18,9 @@ abstract class PartCore extends MasterCore implements WithImportExcel
     public function with(): array
     {
         return [
-            'globalUnit'
+            'globalUnit',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -35,6 +37,15 @@ abstract class PartCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return Part::class;
+    }
+
+    #[DoNotDiscover]
+    public function query(): mixed
+    {
+        $activity = request()->collect('filters')->where('column', '=', 'activity_uuid')->first();
+        return Part::
+            query()
+            ->doesntHaveStd($activity['value'] ?? null);
     }
 
     #[DoNotDiscover]
@@ -73,6 +84,12 @@ abstract class PartCore extends MasterCore implements WithImportExcel
             }, 'GLOBAL UNIT'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -81,9 +98,9 @@ abstract class PartCore extends MasterCore implements WithImportExcel
     {
         return new TemplateData([
             'name',
-            'price',
-            'no_drawing',
             'merk',
+            'no_drawing',
+            'price',
             'global_unit_uuid'
         ], new OptionData(
             'E',
@@ -105,11 +122,11 @@ abstract class PartCore extends MasterCore implements WithImportExcel
 
         try {
             Part::create([
-                'name' => $data['name'],
-                'merk' => $data['merk'],
-                'no_drawing' => $data['no_drawing'],
-                'price' => $data['price'],
-                'global_unit_uuid' => trim(str($data['global_unit_uuid'])->explode('/')->toArray()[1]),
+                'name' => $data['name'] ?? '',
+                'merk' => $data['merk'] ?? '',
+                'no_drawing' => $data['no_drawing'] ?? '',
+                'price' => $data['price'] ?? null,
+                'global_unit_uuid' => trim(str($data['global_unit_uuid'] ?? '')->explode('/')->toArray()[1]),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

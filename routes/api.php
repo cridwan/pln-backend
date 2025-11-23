@@ -16,7 +16,8 @@ Route::group([], function () {
 });
 
 // additional scope controller
-Route::prefix('add-scope/detail')->group(function () {
-    Discover::controllers()
-        ->in(app_path('Http/AdditionalControllers'));
-});
+Route::prefix('add-scope/detail')
+    ->group(function () {
+        Discover::controllers()
+            ->in(app_path('Http/AdditionalControllers'));
+    });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Master;
+namespace App\Core\Master\Detail;
 
 use App\Core\MasterCore;
 use App\Data\AttributeData;
@@ -10,17 +10,17 @@ use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\Activity;
-use App\Models\ConsMat;
-use App\Models\ConsMatStd;
+use App\Models\Part;
+use App\Models\PartStd;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
-abstract class ConsumableMaterialStdCore extends MasterCore implements WithImportExcel
+abstract class PartStdCore extends MasterCore implements WithImportExcel
 {
     #[DoNotDiscover]
     public function with(): array
     {
         return [
-            'consmat.globalUnit',
+            'part.globalUnit',
             'activity',
             'activity.equipment',
             'activity.equipment.scopeStandart',
@@ -30,8 +30,8 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
             'activity.equipment.scopeStandart.inspectionType.machine.unit.location',
             'activity.equipment.scopeStandart.subBidang',
             'activity.equipment.scopeStandart.subBidang.bidang',
-            'activityLog.updatedBy',
             'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -39,7 +39,7 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
     public function order(): array
     {
         return [
-            'consmat.name',
+            'part.name',
             'asc'
         ];
     }
@@ -47,15 +47,16 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
     #[DoNotDiscover]
     public function model(): string
     {
-        return ConsMatStd::class;
+        return PartStd::class;
     }
 
     #[DoNotDiscover]
     public function query(): mixed
     {
-        return ConsMatStd::query()
+        return PartStd::query()
+            ->has('activity.equipment.scopeStandart.additionalScope')
             ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
-                $query->whereHas('activity.equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                $query->whereHas('activity.equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
             });
@@ -66,7 +67,7 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
     {
         return [
             'activity_uuid' => 'required|exists:activities,uuid',
-            'cons_mat_uuid' => 'required|exists:const_mats,uuid',
+            'part_uuid' => 'required|exists:parts,uuid',
             'qty' => 'required',
         ];
     }
@@ -83,17 +84,20 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
         return [
             new AttributeData('uuid', 'UUID'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->location?->name ?? '';
             }, 'LOCATION'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->name ?? '';
             }, 'UNIT'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->name ?? '';
             }, 'MACHINE'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->name ?? '';
             }, 'INSPECTION TYPE'),
+            new AttributeData(function ($row) {
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->name ?? '';
+            }, 'ADDITIONAL SCOPE'),
             new AttributeData(function ($row) {
                 return $row->activity?->equipment?->scopeStandart?->subBidang?->bidang?->name ?? '';
             }, 'BIDANG'),
@@ -110,17 +114,20 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
                 return $row->activity?->name ?? '';
             }, 'ACTIVITY'),
             new AttributeData(function ($row) {
-                return $row->consmat?->name ?? '';
-            }, 'CONSUMABLE MATERIAL'),
+                return $row->part?->name ?? '';
+            }, 'PART'),
             new AttributeData(function ($row) {
-                return $row->consmat?->globalUnit?->name ?? '';
-            }, 'SATUAN'),
-            new AttributeData(function ($row) {
-                return $row->qty;
+                return $row->part?->qty ?? '';
             }, 'QTY'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->manpower?->price, 2);
+                return $row->part?->globalUnit?->name ?? '';
+            }, 'SATUAN'),
+            new AttributeData(function ($row) {
+                return 'Rp ' . number_format($row->part?->price, 2);
             }, 'PRICE'),
+            new AttributeData(function ($row) {
+                return $row->activity?->name ?? '';
+            }, 'EQUIPMENT'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
             new AttributeData(function ($row) {
@@ -135,37 +142,45 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
     #[DoNotDiscover]
     public function attributeTemplate(): TemplateData
     {
+        $additionalScope = request()->collect('filters')->where('column', '=', 'activity.equipment.scopeStandart.additionalScope')->first();
         return new TemplateData([
             'activity_uuid',
-            'cons_mat_uuid',
+            'part_uuid',
             'qty',
         ], [
             new OptionData(
                 'A',
                 Activity::
-                    when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
-                        $query->whereHas('equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                    has('equipment.scopeStandart.additionalScope')
+                    ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                        $query->whereHas('equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                             $where->where('area_uuid', '=', auth()->user()->area_uuid);
                         });
                     })
-                    ->with(['equipment.scopeStandart.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang'])
+                    ->when($additionalScope, function ($query) use ($additionalScope) {
+                        $query->whereHas('equipment.scopeStandart', function ($where) use ($additionalScope) {
+                            $where->where('additional_scope_uuid', '=', $additionalScope['value']);
+                        });
+                    })
+                    ->with(['equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang'])
                     ->get()
                     ->map(function ($row) {
                         $equipment = $row->equipment?->name ?? '';
                         $scope = $row->equipment?->scopeStandart?->name ?? '';
-                        $inspectionType = $row->equipment?->scopeStandart?->inspectionType?->name ?? '';
-                        $machine = $row->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
-                        $unit = $row->equipment?->scopeStandart?->inspectionType?->machine->unit?->name ?? '';
-                        $location = $row->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+                        $inspectionType = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->name ?? '';
+                        $machine = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->name ?? '';
+                        $unit = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine->unit?->name ?? '';
+                        $location = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->location?->name ?? '';
                         $subBidang = $row->equipment?->scopeStandart?->subBidang?->name ?? '';
-                        return "$location / $unit / $machine/ $inspectionType / $subBidang / $scope / $equipment / $row->name / $row->uuid";
+                        $addScope = $row->equipment?->scopeStandart?->additionalScope?->name ?? '';
+                        return "$location / $unit / $machine/ $inspectionType / $addScope / $subBidang / $scope / $equipment / $row->name / $row->uuid";
                     })
                     ->values()
                     ->toArray()
             ),
             new OptionData(
                 'B',
-                ConsMat::
+                Part::
                     with(['globalUnit'])
                     ->get()
                     ->map(function ($row) {
@@ -189,11 +204,11 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
 
         try {
             $activity = str($data['activity_uuid'] ?? '')->explode('/')->toArray();
-            $constmat = str($data['cons_mat_uuid'] ?? '')->explode('/')->toArray();
-            ConsMatStd::create([
+            $part = str($data['part_uuid'] ?? '')->explode('/')->toArray();
+            PartStd::create([
                 'qty' => $data['qty'] ?? null,
                 'activity_uuid' => trim(end($activity)),
-                'cons_mat_uuid' => trim(end($constmat)),
+                'part_uuid' => trim(end($part)),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

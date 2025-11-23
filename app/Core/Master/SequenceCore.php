@@ -17,6 +17,8 @@ abstract class SequenceCore extends MasterCore implements WithImportExcel
     {
         return [
             'document',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -60,6 +62,12 @@ abstract class SequenceCore extends MasterCore implements WithImportExcel
             new AttributeData('name', 'NAME'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 

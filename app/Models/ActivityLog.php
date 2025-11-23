@@ -26,11 +26,11 @@ class ActivityLog extends Model
 
     public function createdBy()
     {
-        return $this->belongsTo(User::class, 'created_uuid', 'id');
+        return $this->belongsTo(User::class, 'created_id', 'id');
     }
 
     public function updatedBy()
     {
-        return $this->belongsTo(User::class, 'updated_uuid', 'id');
+        return $this->belongsTo(User::class, 'updated_id', 'id');
     }
 }

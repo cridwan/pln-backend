@@ -2,7 +2,7 @@
 
 namespace App\Http\AdditionalControllers;
 
-use App\Core\Master\ActivityCore;
+use App\Core\Master\Detail\ActivityCore;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;

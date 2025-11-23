@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Master;
+namespace App\Core\Master\Detail;
 
 use App\Core\MasterCore;
 use App\Data\AttributeData;
@@ -50,8 +50,9 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
     public function query(): mixed
     {
         return Equipment::query()
+            ->has('scopeStandart.additionalScope')
             ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
-                $query->whereHas('scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                $query->whereHas('scopeStandart.additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
             });
@@ -82,22 +83,25 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
         return [
             new AttributeData('uuid', 'UUID'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+                return $row->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->location?->name ?? '';
             }, 'LOCATION'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->inspectionType?->machine?->unit?->name ?? '';
+                return $row->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->name ?? '';
             }, 'UNIT'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->inspectionType?->machine?->name ?? '';
+                return $row->scopeStandart?->additionalScope?->inspectionType?->machine?->name ?? '';
             }, 'MACHINE'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->inspectionType?->name ?? '';
+                return $row->scopeStandart?->additionalScope?->inspectionType?->name ?? '';
             }, 'INSPECTION TYPE'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->subBidang?->bidang?->name ?? '';
+                return $row->scopeStandart?->additionalScope?->name ?? '';
+            }, 'INSPECTION TYPE'),
+            new AttributeData(function ($row) {
+                return $row->scopeStandart?->additionalScope?->subBidang?->bidang?->name ?? '';
             }, 'BIDANG'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->subBidang?->name ?? '';
+                return $row->scopeStandart?->additionalScope?->subBidang?->name ?? '';
             }, 'SUB BIDANG'),
             new AttributeData(function ($row) {
                 return $row->scopeStandart?->name ?? '';
@@ -117,26 +121,32 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
     #[DoNotDiscover]
     public function attributeTemplate(): TemplateData
     {
+        $additionalScope = request()->collect('filters')->where('column', '=', 'scopeStandart.additional_scope_uuid')->first();
         return new TemplateData([
             'scope_standart_uuid',
             'name',
         ], new OptionData(
             'A',
             ScopeStandart::
-                when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
-                    $query->whereHas('inspectionType.machine.unit.location.subArea', function ($where) {
+                has('additionalScope')
+                ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                    $query->whereHas('additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                         $where->where('area_uuid', '=', auth()->user()->area_uuid);
                     });
                 })
-                ->with(['inspectionType.machine.unit.location', 'subBidang'])
+                ->when($additionalScope, function ($query) use ($additionalScope) {
+                    $query->where('additional_scope_uuid', '=', $additionalScope['value']);
+                })
+                ->with(['additionalScope.inspectionType.machine.unit.location', 'subBidang'])
                 ->get()
                 ->map(function ($row) {
-                    $inspectionType = $row->inspectionType?->name ?? '';
-                    $machine = $row->inspectionType?->machine?->name ?? '';
-                    $unit = $row->inspectionType?->machine->unit?->name ?? '';
-                    $location = $row->inspectionType?->machine?->unit?->location?->name ?? '';
+                    $additional = $row->additionalScope?->name ?? '';
+                    $inspectionType = $row->additionalScope?->inspectionType?->name ?? '';
+                    $machine = $row->additionalScope?->inspectionType?->machine?->name ?? '';
+                    $unit = $row->additionalScope?->inspectionType?->machine->unit?->name ?? '';
+                    $location = $row->additionalScope?->inspectionType?->machine?->unit?->location?->name ?? '';
                     $subBidang = $row->subBidang?->name ?? '';
-                    return "$location / $unit / $machine/ $inspectionType / $subBidang / $row->name / $row->uuid";
+                    return "$location / $unit / $machine/ $inspectionType / $additional / $subBidang / $row->name / $row->uuid";
                 })
                 ->values()
                 ->toArray()

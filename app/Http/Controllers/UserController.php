@@ -59,7 +59,7 @@ class UserController extends Controller implements HasMiddleware
                     $query->whereHas('roles', fn($role) => $role->where('name', '=', $value));
                 })
             ])
-            ->with(['roles'])
+            ->with(['roles', 'area', 'activityLog.updatedBy'])
             ->allowedSorts('name')
             ->defaultSort('name');
 

@@ -43,7 +43,7 @@ interface BaseCore extends HasMiddleware
      * Summary of with
      * @return string
      */
-    public function model(): string;
+    public function model(): mixed;
 
     /**
      * Summary of query

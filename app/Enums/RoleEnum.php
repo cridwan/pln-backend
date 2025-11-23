@@ -21,7 +21,8 @@ enum RoleEnum: string
     public static function masterRole()
     {
         return [
-            self::SUPERUSER
+            self::SUPERUSER,
+            self::PLANNER
         ];
     }
 

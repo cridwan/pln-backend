@@ -16,7 +16,9 @@ abstract class ManpowerCore extends MasterCore implements WithImportExcel
     public function with(): array
     {
         return [
-            'globalUnit'
+            'globalUnit',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -33,6 +35,13 @@ abstract class ManpowerCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return Manpower::class;
+    }
+
+    public function query(): mixed
+    {
+        $activity = request()->collect('filters')->where('column', '=', 'activity_uuid')->first();
+        return Manpower::query()
+            ->doesntHaveStd($activity['value'] ?? null);
     }
 
     #[DoNotDiscover]
@@ -63,6 +72,12 @@ abstract class ManpowerCore extends MasterCore implements WithImportExcel
             }, 'PRICE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 

@@ -20,7 +20,7 @@ trait HasApiResource
         $currentPage = $request->filled('currentPage') ? (int) $request->currentPage : 1;
         $with = isset($this->with) ? $this->with : [];
         $order = isset($this->order) ? $this->order : ['created_at', 'desc'];
-        $query = $this->model::query();
+        $query = method_exists($this, 'query') ? $this->query() : $this->model::query();
         $query->with($with);
 
         $query->when($request->filled('search'), function ($subQuery) use ($request) {

@@ -7,6 +7,7 @@ use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
 use App\Enums\GeneratorTypeEnum;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\Location;
@@ -21,7 +22,9 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
     {
         return [
             'updatedBy',
-            'subArea'
+            'subArea',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -38,6 +41,15 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return Location::class;
+    }
+
+    #[DoNotDiscover]
+    public function query(): mixed
+    {
+        return Location::query()
+            ->when(auth()->user() && !auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($where) {
+                $where->whereHas('subArea', fn($query) => $query->where('area_uuid', '=', auth()->user()->area_uuid));
+            });
     }
 
     #[DoNotDiscover]
@@ -78,11 +90,14 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
                 $getType = GeneratorTypeEnum::getType($row->color)->name ?? '';
                 return str($getType)->explode('_')->join('/');
             }, 'GENERATOR TYPE'),
-            new AttributeData(function ($row) {
-                return $row->updatedBy?->name ?? '';
-            }, 'LAST UPDATED BY'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -91,15 +106,29 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
     {
         return new TemplateData([
             'name',
-            'slug',
+            'kode',
             'description',
             'lat',
             'lon',
-            'generator_type'
-        ], new OptionData(
-            column: 'F',
-            options: array_map(fn($case) => $case->name . ' / #' . $case->value, GeneratorTypeEnum::cases()),
-        ));
+            'generator_type',
+            'sub_area_uuid',
+        ], [
+            new OptionData(
+                column: 'F',
+                options: array_map(fn($case) => $case->name . ' / #' . $case->value, GeneratorTypeEnum::cases()),
+            ),
+            new OptionData(
+                column: 'G',
+                options: SubArea::
+                    when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                        $query->where('area_uuid', '=', auth()->user()->area_uuid);
+                    })
+                    ->pluck('name', 'uuid')
+                    ->map(fn($name, $uuid) => "$name / $uuid")
+                    ->values()
+                    ->toArray(),
+            )
+        ]);
     }
 
     #[DoNotDiscover]
@@ -113,12 +142,13 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
 
         try {
             Location::create([
-                'name' => $data['name'],
-                'slug' => $data['slug'],
-                'description' => $data['description'],
-                'lat' => $data['lat'],
-                'lon' => $data['lon'],
+                'name' => $data['name'] ?? '',
+                'slug' => $data['kode'] ?? '',
+                'description' => $data['description'] ?? '',
+                'lat' => $data['lat'] ?? '',
+                'lon' => $data['lon'] ?? '',
                 'color' => trim(str($data['generator_type'])->explode('/')->toArray()[1]),
+                'sub_area_uuid' => trim(str($data['sub_area_uuid'])->explode('/')->toArray()[1])
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

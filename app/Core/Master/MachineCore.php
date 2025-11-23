@@ -6,10 +6,12 @@ use App\Core\MasterCore;
 use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\Machine;
 use App\Models\Unit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
@@ -20,7 +22,9 @@ abstract class MachineCore extends MasterCore implements WithImportExcel
     {
         return [
             'unit',
-            'unit.location'
+            'unit.location',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -37,6 +41,17 @@ abstract class MachineCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return Machine::class;
+    }
+
+    #[DoNotDiscover]
+    public function query(): Builder
+    {
+        return Machine::query()
+            ->when(!auth()->user()->hasAnyRole(RoleEnum::SUPERUSER), function ($query) {
+                $query->whereHas('unit.location.subArea', function ($q) {
+                    $q->where('area_uuid', '=', auth()->user()->area_uuid);
+                });
+            });
     }
 
     #[DoNotDiscover]
@@ -71,6 +86,12 @@ abstract class MachineCore extends MasterCore implements WithImportExcel
             }, 'LOCATION'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -78,12 +99,22 @@ abstract class MachineCore extends MasterCore implements WithImportExcel
     public function attributeTemplate(): TemplateData
     {
         return new TemplateData([
+            'unit_uuid',
             'name',
-            'unit_uuid'
         ], new OptionData(
-            column: 'B',
-            options: Unit::pluck('name', 'uuid')
-                ->map(fn($name, $uuid) => "$name / $uuid")
+            column: 'A',
+            options: Unit::
+                when(!auth()->user()->hasAnyRole(RoleEnum::SUPERUSER), function ($query) {
+                    $query->whereHas('location.subArea', function ($q) {
+                        $q->where('area_uuid', '=', auth()->user()->area_uuid);
+                    });
+                })
+                ->with(['location'])
+                ->get()
+                ->map(function ($row) {
+                    $location = $row->location?->name;
+                    return "$location / $row->name / $row->uuid";
+                })
                 ->values()
                 ->toArray(),
         ));
@@ -99,9 +130,10 @@ abstract class MachineCore extends MasterCore implements WithImportExcel
         }
 
         try {
+            $unit_uuid = str($data['unit_uuid'])->explode('/')->toArray();
             Machine::create([
-                'name' => $data['name'],
-                'unit_uuid' => trim(str($data['unit_uuid'])->explode('/')->toArray()[1]),
+                'name' => $data['name'] ?? '',
+                'unit_uuid' => trim(end($unit_uuid)),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

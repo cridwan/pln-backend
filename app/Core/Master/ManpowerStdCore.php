@@ -6,6 +6,7 @@ use App\Core\MasterCore;
 use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\Activity;
@@ -28,7 +29,9 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
             'activity.equipment.scopeStandart.inspectionType.machine.unit',
             'activity.equipment.scopeStandart.inspectionType.machine.unit.location',
             'activity.equipment.scopeStandart.subBidang',
-            'activity.equipment.scopeStandart.subBidang.bidang'
+            'activity.equipment.scopeStandart.subBidang.bidang',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -45,6 +48,17 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return ManpowerStd::class;
+    }
+
+    #[DoNotDiscover]
+    public function query(): mixed
+    {
+        return ManpowerStd::query()
+            ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                $query->whereHas('activity.equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                    $where->where('area_uuid', '=', auth()->user()->area_uuid);
+                });
+            });
     }
 
     #[DoNotDiscover]
@@ -69,20 +83,23 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
         return [
             new AttributeData('uuid', 'UUID'),
             new AttributeData(function ($row) {
-                return $row->manpower?->name ?? '';
-            }, 'MANPOWER'),
+                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+            }, 'LOCATION'),
             new AttributeData(function ($row) {
-                return $row->qty;
-            }, 'QTY'),
+                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->name ?? '';
+            }, 'UNIT'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->manpower?->price, 2);
-            }, 'PRICE'),
+                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
+            }, 'MACHINE'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->subBidang?->name ?? '';
-            }, 'SUB BIDANG'),
+                return $row->activity?->equipment?->scopeStandart?->inspectionType?->name ?? '';
+            }, 'INSPECTION TYPE'),
             new AttributeData(function ($row) {
                 return $row->activity?->equipment?->scopeStandart?->subBidang?->bidang?->name ?? '';
             }, 'BIDANG'),
+            new AttributeData(function ($row) {
+                return $row->activity?->equipment?->scopeStandart?->subBidang?->name ?? '';
+            }, 'SUB BIDANG'),
             new AttributeData(function ($row) {
                 return $row->activity?->equipment?->scopeStandart?->name ?? '';
             }, 'SCOPE STANDART'),
@@ -91,21 +108,24 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
             }, 'EQUIPMENT'),
             new AttributeData(function ($row) {
                 return $row->activity?->name ?? '';
-            }, 'EQUIPMENT'),
+            }, 'ACTIVITY'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->name ?? '';
-            }, 'INSPECTION TYPE'),
+                return $row->manpower?->name ?? '';
+            }, 'MANPOWER'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
-            }, 'MACHINE'),
+                return $row->qty;
+            }, 'QTY'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->name ?? '';
-            }, 'UNIT'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
-            }, 'LOCATION'),
+                return 'Rp ' . number_format($row->manpower?->price, 2);
+            }, 'PRICE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -113,19 +133,35 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
     public function attributeTemplate(): TemplateData
     {
         return new TemplateData([
-            'qty',
             'activity_uuid',
             'manpower_uuid',
+            'qty',
         ], [
             new OptionData(
-                'B',
-                Activity::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
+                'A',
+                Activity::
+                    when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                        $query->whereHas('equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                            $where->where('area_uuid', '=', auth()->user()->area_uuid);
+                        });
+                    })
+                    ->with(['equipment.scopeStandart.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang'])
+                    ->get()
+                    ->map(function ($row) {
+                        $equipment = $row->equipment?->name ?? '';
+                        $scope = $row->equipment?->scopeStandart?->name ?? '';
+                        $inspectionType = $row->equipment?->scopeStandart?->inspectionType?->name ?? '';
+                        $machine = $row->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
+                        $unit = $row->equipment?->scopeStandart?->inspectionType?->machine->unit?->name ?? '';
+                        $location = $row->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+                        $subBidang = $row->equipment?->scopeStandart?->subBidang?->name ?? '';
+                        return "$location / $unit / $machine/ $inspectionType / $subBidang / $scope / $equipment / $row->name / $row->uuid";
+                    })
                     ->values()
                     ->toArray()
             ),
             new OptionData(
-                'C',
+                'B',
                 Manpower::pluck('name', 'uuid')
                     ->map(fn($name, $uuid) => "$name / $uuid")
                     ->values()
@@ -144,10 +180,12 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
         }
 
         try {
+            $activity = str($data['activity_uuid'] ?? '')->explode('/')->toArray();
+            $manpower = str($data['manpower_uuid'] ?? '')->explode('/')->toArray();
             ManpowerStd::create([
-                'qty' => $data['qty'],
-                'activity_uuid' => trim(str($data['activity_uuid'])->explode('/')->toArray()[1]),
-                'manpower_uuid' => trim(str($data['manpower_uuid'])->explode('/')->toArray()[1]),
+                'qty' => $data['qty'] ?? null,
+                'activity_uuid' => trim(end($activity)),
+                'manpower_uuid' => trim(end($manpower)),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

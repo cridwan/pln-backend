@@ -6,10 +6,12 @@ use App\Core\MasterCore;
 use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\Location;
 use App\Models\Unit;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
@@ -19,7 +21,9 @@ abstract class UnitCore extends MasterCore implements WithImportExcel
     public function with(): array
     {
         return [
-            'location'
+            'location',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -36,6 +40,17 @@ abstract class UnitCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return Unit::class;
+    }
+
+    #[DoNotDiscover]
+    public function query(): Builder
+    {
+        return Unit::query()
+            ->when(!auth()->user()->hasAnyRole(RoleEnum::SUPERUSER), function ($query) {
+                $query->whereHas('location.subArea', function ($q) {
+                    $q->where('area_uuid', '=', auth()->user()->area_uuid);
+                });
+            });
     }
 
     #[DoNotDiscover]
@@ -66,6 +81,12 @@ abstract class UnitCore extends MasterCore implements WithImportExcel
             }, 'LOCATION'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -73,11 +94,17 @@ abstract class UnitCore extends MasterCore implements WithImportExcel
     public function attributeTemplate(): TemplateData
     {
         return new TemplateData([
+            'location_uuid',
             'name',
-            'location_uuid'
         ], new OptionData(
-            column: 'B',
-            options: Location::pluck('name', 'uuid')
+            column: 'A',
+            options: Location::
+                when(!auth()->user()->hasAnyRole(RoleEnum::SUPERUSER), function ($query) {
+                    $query->whereHas('subArea', function ($q) {
+                        $q->where('area_uuid', '=', auth()->user()->area_uuid);
+                    });
+                })
+                ->pluck('name', 'uuid')
                 ->map(fn($name, $uuid) => "$name / $uuid")
                 ->values()
                 ->toArray(),
@@ -95,7 +122,7 @@ abstract class UnitCore extends MasterCore implements WithImportExcel
 
         try {
             Unit::create([
-                'name' => $data['name'],
+                'name' => $data['name'] ?? '',
                 'location_uuid' => trim(str($data['location_uuid'])->explode('/')->toArray()[1]),
             ]);
         } catch (\Throwable $th) {

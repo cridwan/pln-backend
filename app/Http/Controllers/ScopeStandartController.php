@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Core\Master\ScopeStandartCore;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Requests\ScopeStandartMasterRequest;
 use App\Models\ScopeStandart;
@@ -31,7 +32,12 @@ class ScopeStandartController extends ScopeStandartCore
         $currentPage = $request->filled('currentPage') ? $request->currentPage : 1;
 
 
-        $query = ScopeStandart::query();
+        $query = ScopeStandart::query()
+            ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                $query->whereHas('inspectionType.machine.unit.location.subArea', function ($where) {
+                    $where->where('area_uuid', '=', auth()->user()->area_uuid);
+                });
+            });
         $query->with(['inspectionType.machine.unit.location', 'subBidang.bidang', 'document']);
         $query->when($request->filled('search'), callback: function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {

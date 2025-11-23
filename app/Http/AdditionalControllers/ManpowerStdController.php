@@ -2,7 +2,7 @@
 
 namespace App\Http\AdditionalControllers;
 
-use App\Core\Master\ManpowerStdCore;
+use App\Core\Master\Detail\ManpowerStdCore;
 use App\Data\PaginationData;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\ManpowerStd;

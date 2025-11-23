@@ -3,16 +3,20 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Observers\ActivityLogObserver;
+use App\Traits\ActivityLog;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+#[ObservedBy([ActivityLogObserver::class])]
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, HasApiTokens;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens, ActivityLog;
 
     protected $connection = 'masterdata';
 
@@ -61,5 +65,19 @@ class User extends Authenticatable
     public function area()
     {
         return $this->belongsTo(Area::class, 'area_uuid');
+    }
+
+    public function matchRoles($roles, $guard = 'api')
+    {
+        $roles = is_array($roles) ? $roles : explode('|', $roles);
+        \Log::info('role', [
+            'data' => $roles,
+            'query' => $this->roles()
+                ->get()
+        ]);
+        return $this->roles()
+            ->whereIn('name', $roles)
+            ->where('guard_name', $guard)
+            ->exists();
     }
 }

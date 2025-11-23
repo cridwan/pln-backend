@@ -6,6 +6,7 @@ use App\Core\MasterCore;
 use App\Data\AttributeData;
 use App\Data\OptionData;
 use App\Data\TemplateData;
+use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\InspectionType;
@@ -23,7 +24,9 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
             'machine',
             'machine.unit',
             'machine.unit.location',
-            'sequence'
+            'sequence',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -40,6 +43,17 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return InspectionType::class;
+    }
+
+    #[DoNotDiscover]
+    public function query(): mixed
+    {
+        return InspectionType::query()
+            ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                $query->whereHas('machine.unit.location.subArea', function ($q) {
+                    $q->where('area_uuid', '=', auth()->user()->area_uuid);
+                });
+            });
     }
 
     #[DoNotDiscover]
@@ -65,21 +79,27 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
     {
         return [
             new AttributeData('uuid', 'UUID'),
-            new AttributeData('name', 'NAME'),
             new AttributeData(function ($row) {
-                return $row->machine?->name ?? '';
-            }, 'MACHINE'),
+                return $row->machine?->unit?->location?->name ?? '';
+            }, 'LOCATION'),
             new AttributeData(function ($row) {
                 return $row->machine?->unit?->name ?? '';
             }, 'UNIT'),
             new AttributeData(function ($row) {
-                return $row->machine?->unit?->location?->name ?? '';
-            }, 'LOCATION'),
+                return $row->machine?->name ?? '';
+            }, 'MACHINE'),
+            new AttributeData('name', 'NAME'),
             new AttributeData(function ($row) {
                 return $row->sequence->name ?? '';
             }, 'SEQUENCE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -87,19 +107,29 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
     public function attributeTemplate(): TemplateData
     {
         return new TemplateData([
-            'name',
             'machine_uuid',
-            'sequence_uuid'
+            'sequence_uuid',
+            'name',
         ], [
             new OptionData(
-                'B',
-                Machine::pluck('name', 'uuid')
-                    ->map(fn($name, $uuid) => "$name / $uuid")
+                'A',
+                Machine::
+                    when(auth()->user() && !auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($where) {
+                        $where->whereHas('unit.location.subArea', fn($query) => $query->where('area_uuid', '=', auth()->user()->area_uuid));
+                    })
+                    ->with(['unit.location'])
+                    ->get()
+                    ->map(function ($row) {
+                        $unit = $row->unit?->name;
+                        $location = $row->unit?->location?->name;
+                        $location = $row->unit?->location?->name;
+                        return "$location / $unit / $row->name / $row->uuid";
+                    })
                     ->values()
                     ->toArray()
             ),
             new OptionData(
-                'C',
+                'B',
                 Sequence::pluck('name', 'uuid')
                     ->map(fn($name, $uuid) => "$name / $uuid")
                     ->values()
@@ -118,10 +148,12 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
         }
 
         try {
+            $machine = str($data['machine_uuid'] ?? '')->explode('/')->toArray();
+            $sequence = str($data['sequence_uuid'] ?? '')->explode('/')->toArray();
             InspectionType::create([
-                'name' => $data['name'],
-                'machine_uuid' => trim(str($data['machine_uuid'])->explode('/')->toArray()[1]),
-                'sequence_uuid' => trim(str($data['sequence_uuid'])->explode('/')->toArray()[1]),
+                'name' => $data['name'] ?? '',
+                'machine_uuid' => trim(end($machine)),
+                'sequence_uuid' => trim(end($sequence)),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

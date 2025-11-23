@@ -2,7 +2,7 @@
 
 namespace App\Http\AdditionalControllers;
 
-use App\Core\Master\PartStdCore;
+use App\Core\Master\Detail\PartStdCore;
 use App\Data\PaginationData;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\PartStd;

@@ -18,7 +18,9 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
     public function with(): array
     {
         return [
-            'globalUnit'
+            'globalUnit',
+            'activityLog.updatedBy',
+            'activityLog.createdBy',
         ];
     }
 
@@ -35,6 +37,13 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
     public function model(): string
     {
         return ConsMat::class;
+    }
+
+    public function query(): mixed
+    {
+        $activity = request()->collect('filters')->where('column', '=', 'activity_uuid')->first();
+        return ConsMat::query()
+            ->doesntHaveStd($activity['value'] ?? null);
     }
 
     #[DoNotDiscover]
@@ -70,6 +79,12 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
             }, 'GLOBAL UNIT'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -79,9 +94,10 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
         return new TemplateData([
             'name',
             'price',
+            'merk',
             'global_unit_uuid'
         ], new OptionData(
-            'C',
+            'D',
             GlobalUnit::pluck('name', 'uuid')
                 ->map(fn($name, $uuid) => "$name / $uuid")
                 ->values()
@@ -100,10 +116,10 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
 
         try {
             ConsMat::create([
-                'name' => $data['name'],
-                'merk' => $data['merk'],
-                'price' => $data['price'],
-                'global_unit_uuid' => trim(str($data['unit_uuid'])->explode('/')->toArray()[1]),
+                'name' => $data['name'] ?? '',
+                'merk' => $data['merk'] ?? '',
+                'price' => $data['price'] ?? '',
+                'global_unit_uuid' => trim(str($data['global_unit_uuid'])->explode('/')->toArray()[1]),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller

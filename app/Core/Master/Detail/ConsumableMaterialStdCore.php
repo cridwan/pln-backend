@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Core\Master;
+namespace App\Core\Master\Detail;
 
 use App\Core\MasterCore;
 use App\Data\AttributeData;
@@ -54,8 +54,9 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
     public function query(): mixed
     {
         return ConsMatStd::query()
+            ->has('activity.equipment.scopeStandart.additionalScope')
             ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
-                $query->whereHas('activity.equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                $query->whereHas('activity.equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
             });
@@ -83,17 +84,20 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
         return [
             new AttributeData('uuid', 'UUID'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->location?->name ?? '';
             }, 'LOCATION'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->name ?? '';
             }, 'UNIT'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->name ?? '';
             }, 'MACHINE'),
             new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->name ?? '';
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->inspectionType?->name ?? '';
             }, 'INSPECTION TYPE'),
+            new AttributeData(function ($row) {
+                return $row->activity?->equipment?->scopeStandart?->additionalScope?->name ?? '';
+            }, 'ADDITIONAL SCOPE'),
             new AttributeData(function ($row) {
                 return $row->activity?->equipment?->scopeStandart?->subBidang?->bidang?->name ?? '';
             }, 'BIDANG'),
@@ -135,6 +139,7 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
     #[DoNotDiscover]
     public function attributeTemplate(): TemplateData
     {
+        $additionalScope = request()->collect('filters')->where('column', '=', 'activity.equipment.scopeStandart.additionalScope')->first();
         return new TemplateData([
             'activity_uuid',
             'cons_mat_uuid',
@@ -143,22 +148,29 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
             new OptionData(
                 'A',
                 Activity::
-                    when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
-                        $query->whereHas('equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
+                    has('equipment.scopeStandart.additionalScope')
+                    ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                        $query->whereHas('equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                             $where->where('area_uuid', '=', auth()->user()->area_uuid);
                         });
                     })
-                    ->with(['equipment.scopeStandart.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang'])
+                    ->when($additionalScope, function ($query) use ($additionalScope) {
+                        $query->whereHas('equipment.scopeStandart', function ($where) use ($additionalScope) {
+                            $where->where('additional_scope_uuid', '=', $additionalScope['value']);
+                        });
+                    })
+                    ->with(['equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location', 'equipment.scopeStandart.subBidang'])
                     ->get()
                     ->map(function ($row) {
                         $equipment = $row->equipment?->name ?? '';
                         $scope = $row->equipment?->scopeStandart?->name ?? '';
-                        $inspectionType = $row->equipment?->scopeStandart?->inspectionType?->name ?? '';
-                        $machine = $row->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
-                        $unit = $row->equipment?->scopeStandart?->inspectionType?->machine->unit?->name ?? '';
-                        $location = $row->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
+                        $inspectionType = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->name ?? '';
+                        $machine = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->name ?? '';
+                        $unit = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine->unit?->name ?? '';
+                        $location = $row->equipment?->scopeStandart?->additionalScope?->inspectionType?->machine?->unit?->location?->name ?? '';
                         $subBidang = $row->equipment?->scopeStandart?->subBidang?->name ?? '';
-                        return "$location / $unit / $machine/ $inspectionType / $subBidang / $scope / $equipment / $row->name / $row->uuid";
+                        $addScope = $row->equipment?->scopeStandart?->additionalScope?->name ?? '';
+                        return "$location / $unit / $machine/ $inspectionType / $addScope / $subBidang / $scope / $equipment / $row->name / $row->uuid";
                     })
                     ->values()
                     ->toArray()

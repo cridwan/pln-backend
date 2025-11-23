@@ -18,7 +18,9 @@ abstract class SubAreaCore extends MasterCore implements WithImportExcel
     public function with(): array
     {
         return [
-            'area'
+            'area',
+            'activityLog.createdBy',
+            'activityLog.updatedBy',
         ];
     }
 
@@ -65,6 +67,12 @@ abstract class SubAreaCore extends MasterCore implements WithImportExcel
             }, 'SUB AREA'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 

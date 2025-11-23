@@ -19,7 +19,7 @@ trait HasPagination
         $with = isset($this->with) ? $this->with : [];
         $order = isset($this->order) ? $this->order : ['created_at', 'desc'];
         $searchColumn = isset($this->search) ? $this->search : [];
-        $query = $this->model::query();
+        $query = method_exists($this, 'query') ? $this->query() : $this->model::query();
         $query->with($with);
 
         $query->when($request->filled('search'), function ($subQuery) use ($request, $searchColumn) {

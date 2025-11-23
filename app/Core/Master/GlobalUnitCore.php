@@ -15,7 +15,10 @@ abstract class GlobalUnitCore extends MasterCore implements WithImportExcel
     #[DoNotDiscover]
     public function with(): array
     {
-        return [];
+        return [
+            'activityLog.updatedBy',
+            'activityLog.createdBy',
+        ];
     }
 
     #[DoNotDiscover]
@@ -60,6 +63,12 @@ abstract class GlobalUnitCore extends MasterCore implements WithImportExcel
             new AttributeData('slug', 'KODE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->createdBy?->name ?? '';
+            }, 'CREATED BY'),
+            new AttributeData(function ($row) {
+                return $row->activityLog?->updatedBy?->name ?? '';
+            }, 'UPDATED BY'),
         ];
     }
 
@@ -68,7 +77,7 @@ abstract class GlobalUnitCore extends MasterCore implements WithImportExcel
     {
         return new TemplateData([
             'name',
-            'slug',
+            'singkatan',
         ]);
     }
 
@@ -83,8 +92,8 @@ abstract class GlobalUnitCore extends MasterCore implements WithImportExcel
 
         try {
             GlobalUnit::create([
-                'name' => $data['name'],
-                'slug' => $data['slug'],
+                'name' => $data['name'] ?? '',
+                'slug' => $data['singkatan'] ?? '',
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller
