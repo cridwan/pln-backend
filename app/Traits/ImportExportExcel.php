@@ -89,7 +89,7 @@ trait ImportExportExcel
                     throw new BadRequestException("[Duplicate] data sudah di tambahkan: {$duplicateValue}");
                 }
 
-                throw new BadRequestException("Terjadi duplikat data.");
+                throw new BadRequestException("Terjadi kesalahan saat insert data.");
             }
 
             throw new BadRequestException($e->getMessage());

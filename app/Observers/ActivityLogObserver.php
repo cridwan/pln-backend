@@ -11,7 +11,7 @@ class ActivityLogObserver
                 'activity_id' => $model->uuid,
                 'activity_type' => $model::class
             ], [
-                'created_id' => auth()->user()->id,
+                'created_id' => auth()->user()?->id,
             ]);
         }
     }
@@ -23,7 +23,7 @@ class ActivityLogObserver
                 'activity_id' => $model->uuid,
                 'activity_type' => $model::class
             ], [
-                'updated_id' => auth()->user()->id,
+                'updated_id' => auth()->user()?->id,
             ]);
         }
     }

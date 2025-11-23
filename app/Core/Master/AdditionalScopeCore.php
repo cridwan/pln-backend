@@ -134,10 +134,12 @@ abstract class AdditionalScopeCore extends MasterCore implements WithImportExcel
         }
 
         try {
+            $inspection = str($data['inspection_type_uuid'] ?? '')->explode('/')->toArray();
+            $sequence = str($data['sequence_uuid'] ?? '')->explode('/')->toArray();
             AdditionalScope::create([
-                'name' => $data['name'],
-                'inspection_type_uuid' => trim(str($data['inspection_type_uuid'])->explode('/')->toArray()[1]),
-                'sequence_uuid' => trim(str($data['sequence_uuid'])->explode('/')->toArray()[1]),
+                'name' => $data['name'] ?? null,
+                'inspection_type_uuid' => trim(end($inspection)),
+                'sequence_uuid' => trim(end($sequence)),
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller
