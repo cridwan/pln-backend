@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 #[ObservedBy([UppercaseObservser::class])]
+/**
+ * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null, ?string $scopeStandart = null)
+ */
 class Equipment extends Model
 {
     use SettingModel, HasFactory;
@@ -46,5 +49,28 @@ class Equipment extends Model
                 $builder->doesntHave('scopeStandart.additionalScope');
             }
         }
+    }
+
+    public function scopeDoestHaveTransaction(Builder $builder, ?string $inspectionType = null, ?string $scopeStandart = null)
+    {
+        $builder->when($inspectionType, function ($query) use ($inspectionType, $scopeStandart) {
+            $query
+                ->has('scopeStandart.inspectionType')
+                ->whereNotExists(function ($sub) use ($inspectionType) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.equipment as trx")
+                        ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "trx.scope_standart_uuid")
+                        ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "scope.project_uuid")
+                        ->whereRaw('trx.original_uuid = equipment.uuid')
+                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                })
+                ->whereHas('scopeStandart', function ($where) use ($inspectionType) {
+                    $where->where('inspection_type_uuid', '=', $inspectionType);
+                })
+                ->when($scopeStandart, function ($where) use ($scopeStandart) {
+                    $where->where('scope_standart_uuid', '=', $scopeStandart);
+                });
+        });
     }
 }

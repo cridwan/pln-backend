@@ -57,6 +57,12 @@ class UserController extends Controller implements HasMiddleware
             ->allowedFilters([
                 AllowedFilter::callback('role', function (Builder $query, $value) {
                     $query->whereHas('roles', fn($role) => $role->where('name', '=', $value));
+                }),
+                AllowedFilter::callback('area', function (Builder $query, $value) {
+                    $value = $value == "yes" ? true : false;
+                    $query->when($value, function ($where) {
+                        $where->where('area_uuid', '=', auth()->user()->area_uuid);
+                    });
                 })
             ])
             ->with(['roles', 'area', 'activityLog.updatedBy'])

@@ -17,6 +17,7 @@ use App\Models\ScopeStandart as ModelsScopeStandart;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\ScopeStandart;
 use App\Models\Transaction\ScopeStandartAsset;
+use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -88,13 +89,16 @@ class ResourceController extends ScopeStandartCore
         }
 
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
-            ModelsScopeStandart::select('uuid', 'name', 'link', 'category', 'sub_bidang_uuid')
+            ModelsScopeStandart::select('uuid', 'name', 'link', 'sub_bidang_uuid')
                 ->where('uuid', $request->scope_standart_uuid)
                 ->each(function ($scope) use ($request) {
                     $duplicateScope = $scope->replicate();
                     $duplicateScope->setConnection(ConnectionEnum::TRANSACTION->value);
                     $duplicateScope->setTable('scope_standarts');
                     $duplicateScope->original_uuid = $scope->uuid;
+
+                    // clone document
+                    GenerateService::make()->cloneDocument(ModelsScopeStandart::class, $scope->uuid, "App\\Models\\Transaction\\ScopeStandart", $duplicateScope->uuid);
 
                     if ($request->filled('project_uuid')) {
                         $duplicateScope->project_uuid = $request->project_uuid;
@@ -127,6 +131,9 @@ class ResourceController extends ScopeStandartCore
                             $duplicateActivity->equipment_uuid = $duplicateEquipment->uuid;
                             $duplicateActivity->original_uuid = $activity->uuid;
                             $duplicateActivity->save();
+
+                            // clone document
+                            GenerateService::make()->cloneDocument(Activity::class, $activity->uuid, "App\\Models\\Transaction\\Activity", $duplicateActivity->uuid);
 
                             // duplicate consumable material
                             ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid')
@@ -182,14 +189,7 @@ class ResourceController extends ScopeStandartCore
         $pagination = new PaginationData($request);
 
         $scopes = ModelsScopeStandart::query()
-            ->whereNotExists(function ($subQuery) use ($request) {
-                $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
-                $subQuery->selectRaw(1)
-                    ->from($trxDb . '.scope_standarts as trx')
-                    ->whereColumn('trx.original_uuid', '=', 'scope_standarts.uuid')
-                    ->when($request->filled('project_uuid'), fn($scope) => $scope->where('trx.project_uuid', $request->project_uuid))
-                    ->when($request->filled('additional_scope_uuid'), fn($scope) => $scope->where('trx.additional_scope_uuid', $request->additional_scope_uuid));
-            })
+            ->doestHaveTransaction($request->input('inspection_type_uuid', null))
             ->when($request->filled('sub_bidang_uuid'), fn($scope) => $scope->where('sub_bidang_uuid', $request->sub_bidang_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->doesntHave('additionalScope'))
             ->when($request->filled('additional_scope_uuid'), fn($query) => $query->doesntHave('inspectionType'))

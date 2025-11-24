@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 #[ObservedBy([UppercaseObservser::class])]
+/**
+ * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null, ?string $activity = null)
+ */
 class ConsMatStd extends Model
 {
     use SettingModel;
@@ -65,5 +68,30 @@ class ConsMatStd extends Model
                 $builder->doesntHave('activity.equipment.scopeStandart.additionalScope');
             }
         }
+    }
+
+    public function scopeDoestHaveTransaction(Builder $builder, ?string $inspectionType = null, ?string $activity = null)
+    {
+        $builder->when($inspectionType, function ($query) use ($inspectionType, $activity) {
+            $query
+                ->has('activity.equipment.scopeStandart.inspectionType')
+                ->whereNotExists(function ($sub) use ($inspectionType) {
+                    $trxDb = DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.cons_mat_stds as trx")
+                        ->leftJoin("{$trxDb}.activities as ac", "ac.uuid", "=", "trx.activity_uuid")
+                        ->leftJoin("{$trxDb}.equipment as eq", "eq.uuid", "=", "ac.equipment_uuid")
+                        ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "eq.scope_standart_uuid")
+                        ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "scope.project_uuid")
+                        ->whereRaw('trx.original_uuid = cons_mat_stds.uuid')
+                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                })
+                ->whereHas('activity.equipment.scopeStandart', function ($where) use ($inspectionType) {
+                    $where->where('inspection_type_uuid', '=', $inspectionType);
+                })
+                ->when($activity, function ($where) use ($activity) {
+                    $where->where('activity_uuid', '=', $activity);
+                });
+        });
     }
 }

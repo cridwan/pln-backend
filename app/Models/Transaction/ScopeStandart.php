@@ -8,7 +8,6 @@ use App\Models\Storage\Document;
 use App\Models\SubBidang;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
@@ -26,7 +25,7 @@ class ScopeStandart extends Model
 
     public function documents(): MorphMany
     {
-        return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
+        return $this->morphMany(Document::class, 'document', 'document_type'::class, 'document_uuid', 'uuid')->latest();
     }
 
     public function assetWelnes(): HasOne
@@ -62,6 +61,11 @@ class ScopeStandart extends Model
     public function additionalScope()
     {
         return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_uuid');
     }
 
     public function subBidang()

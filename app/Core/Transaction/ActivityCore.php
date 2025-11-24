@@ -3,20 +3,19 @@
 namespace App\Core\Transaction;
 
 use App\Core\TransactionCore;
-use App\Data\AttributeData;
 use App\Data\TemplateData;
-use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
-use App\Models\Transaction\Manpower;
+use App\Models\Transaction\Activity;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
-abstract class ManpowerStdCore extends TransactionCore implements WithImportExcel
+abstract class ActivityCore extends TransactionCore implements WithImportExcel
 {
     #[DoNotDiscover]
     public function with(): array
     {
         return [
-            'manpower.globalUnit'
+            'equipment',
+            'document'
         ];
     }
 
@@ -24,22 +23,22 @@ abstract class ManpowerStdCore extends TransactionCore implements WithImportExce
     public function order(): array
     {
         return [
-            'manpower.name',
-            'asc'
+            'name',
+            'asc',
         ];
     }
 
     #[DoNotDiscover]
     public function model(): string
     {
-        return Manpower::class;
+        return Activity::class;
     }
 
     #[DoNotDiscover]
     public function query(): mixed
     {
-        return Manpower::query()
-            ->has('activity.equipment.scopeStandart.project');
+        return Activity::query()
+            ->has('equipment.scopeStandart.project');
     }
 
     #[DoNotDiscover]
@@ -51,7 +50,9 @@ abstract class ManpowerStdCore extends TransactionCore implements WithImportExce
     #[DoNotDiscover]
     public function search(): array
     {
-        return [];
+        return [
+            'name',
+        ];
     }
 
     #[DoNotDiscover]

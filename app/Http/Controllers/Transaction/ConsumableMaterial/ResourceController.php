@@ -43,6 +43,7 @@ class ResourceController extends ConsumableMaterialStdCore
                     $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
                     $duplicate->setTable('cons_mat_stds');
                     $duplicate->activity_uuid = $request->activity_uuid;
+                    $duplicate->original_uuid = $row->uuid;
                     $duplicate->save();
                 });
         });
@@ -98,17 +99,7 @@ class ResourceController extends ConsumableMaterialStdCore
         $trxActivity = Activity::where('uuid', $request->get('activity_uuid'))->first();
         $equipment = ConsMatStd::query()
             ->with(['consmat'])
-            ->whereNotExists(function ($subQuery) use ($request) {
-                $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
-                $subQuery->selectRaw(1)
-                    ->from($trxDb . '.cons_mat_stds as trx')
-                    ->join($trxDb . '.activities as ac', 'ac.uuid', '=', 'trx.activity_uuid')
-                    ->join($trxDb . '.equipment as eq', 'eq.uuid', '=', 'ac.equipment_uuid')
-                    ->join($trxDb . '.scope_standarts as ss', 'ss.uuid', '=', 'eq.scope_standart_uuid')
-                    ->whereColumn('trx.original_uuid', '=', 'cons_mat_stds.uuid')
-                    ->when($request->filled('project_uuid'), fn($query) => $query->where('ss.project_uuid', '=', $request->get('project_uuid')))
-                    ->when($request->filled('additional_scope_uuid'), fn($query) => $query->where('ss.additional_scope_uuid', '=', $request->get('additional_scope_uuid')));
-            })
+            ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
             ->when($trxActivity, fn($query) => $query->where('activity_uuid', '=', $trxActivity->original_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
             ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))

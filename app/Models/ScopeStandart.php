@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 #[ObservedBy([UppercaseObservser::class])]
+/**
+ * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null)
+ */
 class ScopeStandart extends Model
 {
     use SettingModel;
@@ -70,5 +73,22 @@ class ScopeStandart extends Model
                 $builder->doesntHave('additionalScope');
             }
         }
+    }
+
+    public function scopeDoestHaveTransaction(Builder $builder, ?string $inspectionType = null)
+    {
+        $builder->when($inspectionType, function ($query) use ($inspectionType) {
+            $query
+                ->has('inspectionType')
+                ->whereNotExists(function ($sub) use ($inspectionType) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.scope_standarts as trx")
+                        ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "trx.project_uuid")
+                        ->whereRaw('trx.original_uuid = scope_standarts.uuid')
+                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                })
+                ->where('inspection_type_uuid', '=', $inspectionType);
+        });
     }
 }

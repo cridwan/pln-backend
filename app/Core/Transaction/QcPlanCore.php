@@ -54,12 +54,7 @@ abstract class QcPlanCore extends TransactionCore implements WithImportExcel
     #[DoNotDiscover]
     public function attributeExport(): array
     {
-        return [
-            new AttributeData('uuid', 'UUID'),
-            new AttributeData('name', 'NAME'),
-            new AttributeData('created_at', 'CREATED AT'),
-            new AttributeData('updated_at', 'UPDATED AT'),
-        ];
+        return [];
     }
 
     #[DoNotDiscover]
@@ -73,38 +68,11 @@ abstract class QcPlanCore extends TransactionCore implements WithImportExcel
     #[DoNotDiscover]
     public function mapping($data, $index)
     {
-        $data = $this->validateData($data, $index);
-
-        if (empty($data) || count($data) == 0) {
-            return null;
-        }
-
-        try {
-            QcPlan::create([
-                'name' => $data['name'],
-            ]);
-        } catch (\Throwable $th) {
-            // Lempar error agar transaksi berhenti → rollback di controller
-            throw $th;
-        }
     }
 
     #[DoNotDiscover]
     public function validateData($data, $index): array
     {
-        $map = [];
-        foreach ($this->attributeTemplate()->headers as $header) {
-            if ($index == 1) {
-                if (!in_array($header, array_keys($data))) {
-                    throw new BadRequestException("[Mapping]: Gagal mapping data. Pastikan anda menggunakan format excel yang sudah di sediakan");
-                }
-            }
-
-            if (isset($data[$header]) && trim((string) $data[$header]) !== '') {
-                $map[$header] = $data[$header];
-            }
-        }
-
-        return $map;
+        return [];
     }
 }

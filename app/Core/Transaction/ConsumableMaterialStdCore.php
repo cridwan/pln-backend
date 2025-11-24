@@ -33,6 +33,13 @@ abstract class ConsumableMaterialStdCore extends TransactionCore implements With
     }
 
     #[DoNotDiscover]
+    public function query(): mixed
+    {
+        return Consmat::query()
+            ->has('activity.equipment.scopeStandart.project');
+    }
+
+    #[DoNotDiscover]
     public function rules(): array
     {
         return [];
@@ -47,99 +54,23 @@ abstract class ConsumableMaterialStdCore extends TransactionCore implements With
     #[DoNotDiscover]
     public function attributeExport(): array
     {
-        return [
-            new AttributeData('uuid', 'UUID'),
-            new AttributeData(function ($row) {
-                return $row->consmat?->name ?? '';
-            }, 'CONSUMABLE MATERIAL'),
-            new AttributeData(function ($row) {
-                return $row->consmat?->globalUnit?->name ?? '';
-            }, 'GLOBAL UNIT'),
-            new AttributeData(function ($row) {
-                return $row->qty;
-            }, 'QTY'),
-            new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->manpower?->price, 2);
-            }, 'PRICE'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->subBidang?->name ?? '';
-            }, 'SUB BIDANG'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->subBidang?->bidang?->name ?? '';
-            }, 'BIDANG'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->name ?? '';
-            }, 'SCOPE STANDART'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->name ?? '';
-            }, 'EQUIPMENT'),
-            new AttributeData(function ($row) {
-                return $row->activity?->name ?? '';
-            }, 'EQUIPMENT'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->name ?? '';
-            }, 'INSPECTION TYPE'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->name ?? '';
-            }, 'MACHINE'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->name ?? '';
-            }, 'UNIT'),
-            new AttributeData(function ($row) {
-                return $row->activity?->equipment?->scopeStandart?->inspectionType?->machine?->unit?->location?->name ?? '';
-            }, 'LOCATION'),
-            new AttributeData('created_at', 'CREATED AT'),
-            new AttributeData('updated_at', 'UPDATED AT'),
-        ];
+        return [];
     }
 
     #[DoNotDiscover]
     public function attributeTemplate(): TemplateData
     {
-        return new TemplateData([
-            'qty',
-            'activity_uuid',
-            'cons_mat_uuid',
-        ], []);
+        return new TemplateData([], []);
     }
 
     #[DoNotDiscover]
     public function mapping($data, $index)
     {
-        $data = $this->validateData($data, $index);
-
-        if (empty($data) || count($data) == 0) {
-            return null;
-        }
-
-        try {
-            ConsMat::create([
-                'qty' => $data['qty'],
-                'activity_uuid' => trim(str($data['activity_uuid'])->explode('/')->toArray()[1]),
-                'cons_mat_uuid' => trim(str($data['cons_mat_uuid'])->explode('/')->toArray()[1]),
-            ]);
-        } catch (\Throwable $th) {
-            // Lempar error agar transaksi berhenti → rollback di controller
-            throw $th;
-        }
     }
 
     #[DoNotDiscover]
     public function validateData($data, $index): array
     {
-        $map = [];
-        foreach ($this->attributeTemplate()->headers as $header) {
-            if ($index == 1) {
-                if (!in_array($header, array_keys($data))) {
-                    throw new BadRequestException("[Mapping]: Gagal mapping data. Pastikan anda menggunakan format excel yang sudah di sediakan");
-                }
-            }
-
-            if (isset($data[$header]) && trim((string) $data[$header]) !== '') {
-                $map[$header] = $data[$header];
-            }
-        }
-
-        return $map;
+        return [];
     }
 }
