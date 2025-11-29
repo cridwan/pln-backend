@@ -11,7 +11,7 @@ class ScopeStandartExport extends Export
 {
     public int $number = 1;
 
-    public function headers(): array
+    public function headings(): array
     {
         return [
             'NO',

@@ -11,7 +11,7 @@ class ConsMatExport extends Export implements WithColumnFormatting
 {
     protected int $index = 0;
 
-    public function headers(): array
+    public function headings(): array
     {
         return [
             'NO',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\BadRequestException;
+use App\Exports\Guest\BudgetActivityExport;
 use App\Exports\Guest\ConsMatExport;
 use App\Exports\Guest\ManpowerExport;
 use App\Exports\Guest\PartExport;
@@ -98,5 +99,27 @@ class ResultController extends Controller
         $inspectionType->loadMissing(['machine']);
 
         return (new ScopeStandartExport($inspectionType))->execute();
+    }
+
+
+    /**
+     * download recap budget activity
+     */
+    #[Route(method: 'get', uri: 'export/budget-activity')]
+    public function exportBudgetActivity(Request $request)
+    {
+        if ($request->isNotFilled('inspection_type_uuid')) {
+            throw new BadRequestException('Inspection type tidak terpilih');
+        }
+
+        $inspectionType = InspectionType::find($request->inspection_type_uuid);
+
+        if (!$inspectionType) {
+            throw new BadRequestException('Inspection Type tidak ditemukan');
+        }
+
+        $inspectionType->loadMissing(['machine']);
+
+        return (new BudgetActivityExport($inspectionType))->execute();
     }
 }

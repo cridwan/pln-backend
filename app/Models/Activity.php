@@ -87,4 +87,18 @@ class Activity extends Model
     {
         return $this->where('equipment_uuid', '=', $this->equipment_uuid)->count() + 1;
     }
+
+    public function manpowers()
+    {
+        return $this->hasMany(ManpowerStd::class);
+    }
+
+    public function materials()
+    {
+        return $this->hasMany(ConsMatStd::class);
+    }
+    public function parts()
+    {
+        return $this->hasMany(PartStd::class);
+    }
 }
