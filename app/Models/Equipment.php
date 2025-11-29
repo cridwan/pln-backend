@@ -25,6 +25,11 @@ class Equipment extends Model
         return $this->belongsTo(ScopeStandart::class, 'scope_standart_uuid');
     }
 
+    public function activities()
+    {
+        return $this->hasMany(Activity::class);
+    }
+
     public function scopeFromTransaction(Builder $builder)
     {
         if (request()->filled('from_transaction')) {

@@ -32,7 +32,7 @@ class AdditionalScopeController extends AdditionalScopeCore
 
 
         $query = AdditionalScope::query();
-        $query->with(['inspectionType.machine.unit.location', 'sequence']);
+        $query->with(['inspectionType.machine.unit.location', 'sequence.document', 'activityLog.createdBy', 'activityLog.updatedBy']);
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");

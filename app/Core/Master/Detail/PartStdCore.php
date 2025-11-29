@@ -117,7 +117,7 @@ abstract class PartStdCore extends MasterCore implements WithImportExcel
                 return $row->part?->name ?? '';
             }, 'PART'),
             new AttributeData(function ($row) {
-                return $row->part?->qty ?? '';
+                return $row?->qty ?? '';
             }, 'QTY'),
             new AttributeData(function ($row) {
                 return $row->part?->globalUnit?->name ?? '';

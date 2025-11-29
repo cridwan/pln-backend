@@ -65,7 +65,7 @@ class UserController extends Controller implements HasMiddleware
                     });
                 })
             ])
-            ->with(['roles', 'area', 'activityLog.updatedBy'])
+            ->with(['roles', 'area', 'activityLog.updatedBy', 'activityLog.createdBy'])
             ->allowedSorts('name')
             ->defaultSort('name');
 

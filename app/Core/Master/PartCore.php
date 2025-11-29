@@ -81,7 +81,7 @@ abstract class PartCore extends MasterCore implements WithImportExcel
             }, 'PRICE'),
             new AttributeData(function ($row) {
                 return $row->globalUnit?->name ?? '';
-            }, 'GLOBAL UNIT'),
+            }, 'SATUAN'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
             new AttributeData(function ($row) {

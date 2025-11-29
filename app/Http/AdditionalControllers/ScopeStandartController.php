@@ -6,6 +6,7 @@ use App\Core\Master\Detail\ScopeStandartCore;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Requests\ScopeStandartMasterRequest;
+use App\Http\Resources\ResponseResource;
 use App\Models\ScopeStandart;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
@@ -57,7 +58,15 @@ class ScopeStandartController extends ScopeStandartCore
 
         $query->fromTransaction();
 
-        return $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+        $summaryQuery = clone $query;
+
+        $paginate = $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+
+        return ResponseResource::collection($paginate)->additional([
+            'summary' => [
+                'total_days' => $summaryQuery->calculateDays()->value('total_duration')
+            ]
+        ]);
     }
 
     /**

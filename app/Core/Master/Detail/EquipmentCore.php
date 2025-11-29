@@ -98,14 +98,14 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
                 return $row->scopeStandart?->additionalScope?->name ?? '';
             }, 'INSPECTION TYPE'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->additionalScope?->subBidang?->bidang?->name ?? '';
+                return $row->scopeStandart?->subBidang?->bidang?->name ?? '';
             }, 'BIDANG'),
             new AttributeData(function ($row) {
-                return $row->scopeStandart?->additionalScope?->subBidang?->name ?? '';
+                return $row->scopeStandart?->subBidang?->name ?? '';
             }, 'SUB BIDANG'),
             new AttributeData(function ($row) {
                 return $row->scopeStandart?->name ?? '';
-            }, 'SCOPE STANDART'),
+            }, 'SCOPE TAMBAHAN'),
             new AttributeData('name', 'NAME'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
@@ -123,7 +123,7 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
     {
         $additionalScope = request()->collect('filters')->where('column', '=', 'scopeStandart.additional_scope_uuid')->first();
         return new TemplateData([
-            'scope_standart_uuid',
+            'scope_tambahan_uuid',
             'name',
         ], new OptionData(
             'A',
@@ -163,7 +163,7 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
         }
 
         try {
-            $scopeStandart = str($data['scope_standart_uuid'] ?? '')->explode('/')->toArray();
+            $scopeStandart = str($data['scope_tambahan_uuid'] ?? '')->explode('/')->toArray();
             Equipment::create([
                 'name' => $data['name'] ?? '',
                 'scope_standart_uuid' => trim(end($scopeStandart)),

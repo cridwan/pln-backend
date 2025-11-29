@@ -9,10 +9,12 @@ use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 #[ObservedBy([UppercaseObservser::class])]
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null)
+ * @method \Illuminate\Database\Eloquent\Builder<static> calculateDays()
  */
 class ScopeStandart extends Model
 {
@@ -23,6 +25,18 @@ class ScopeStandart extends Model
     public function details()
     {
         return $this->hasMany(DetailScopeStandart::class, 'scope_standart_uuid');
+    }
+
+    public function equipments()
+    {
+        return $this->hasMany(Equipment::class);
+    }
+
+    public function scopeCalculateDays(Builder $query)
+    {
+        return $query->leftJoin('equipment as eq', 'eq.scope_standart_uuid', '=', 'scope_standarts.uuid')
+            ->leftJoin('activities as ac', 'ac.equipment_uuid', '=', 'eq.uuid')
+            ->selectRaw('COALESCE(ROUND(SUM(ac.duration) / 24), 0) as total_duration');
     }
 
     public function inspectionType()

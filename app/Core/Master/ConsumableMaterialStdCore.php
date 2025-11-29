@@ -119,7 +119,7 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
                 return $row->qty;
             }, 'QTY'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->manpower?->price, 2);
+                return 'Rp ' . number_format($row->consmat?->price, 2);
             }, 'PRICE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),

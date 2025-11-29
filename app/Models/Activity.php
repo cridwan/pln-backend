@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ConnectionEnum;
 use App\Models\Storage\Document;
+use App\Observers\ActivityObserver;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[ObservedBy([UppercaseObservser::class])]
+#[ObservedBy([UppercaseObservser::class, ActivityObserver::class])]
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null, ?string $equipment = null)
  */
@@ -80,5 +81,10 @@ class Activity extends Model
                     $where->where('equipment_uuid', '=', $equipment);
                 });
         });
+    }
+
+    public function generateSerialNumber()
+    {
+        return $this->where('equipment_uuid', '=', $this->equipment_uuid)->count() + 1;
     }
 }

@@ -24,7 +24,7 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
             'machine',
             'machine.unit',
             'machine.unit.location',
-            'sequence',
+            'sequence.document',
             'activityLog.createdBy',
             'activityLog.updatedBy',
         ];

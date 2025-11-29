@@ -38,7 +38,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
     public function order(): array
     {
         return [
-            'name',
+            'serial_number',
             'asc',
         ];
     }

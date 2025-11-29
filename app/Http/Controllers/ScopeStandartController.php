@@ -6,6 +6,7 @@ use App\Core\Master\ScopeStandartCore;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Requests\ScopeStandartMasterRequest;
+use App\Http\Resources\ResponseResource;
 use App\Models\ScopeStandart;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
@@ -38,7 +39,7 @@ class ScopeStandartController extends ScopeStandartCore
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
             });
-        $query->with(['inspectionType.machine.unit.location', 'subBidang.bidang', 'document']);
+        $query->with(['inspectionType.machine.unit.location', 'subBidang.bidang', 'document', 'activityLog.createdBy', 'activityLog.updatedBy']);
         $query->when($request->filled('search'), callback: function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
                 $search->where('name', 'like', "%$request->search%");
@@ -55,9 +56,18 @@ class ScopeStandartController extends ScopeStandartCore
             $subQuery->orderBy($order[0], $order[1]);
         });
 
-        $query->fromTransaction();
+        $query
+            ->fromTransaction();
 
-        return $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+        $summaryQuery = clone $query;
+
+        $paginate = $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+
+        return ResponseResource::collection($paginate)->additional([
+            'summary' => [
+                'days' => $summaryQuery->calculateDays()->value('total_duration')
+            ]
+        ]);
     }
 
     /**
