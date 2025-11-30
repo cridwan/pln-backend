@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->foreignIdFor(Equipment::class)->nullable()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->integer('duration')->default(0);
+            $table->integer('serial_number')->default(0);
             $table->string('link_ik1')->nullable();
             $table->string('link_ik2')->nullable();
             $table->uuid('original_uuid')->nullable();

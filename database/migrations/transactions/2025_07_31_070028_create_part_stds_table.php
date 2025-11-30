@@ -17,7 +17,11 @@ return new class extends Migration {
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('part_stds', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->foreignIdFor(Activity::class)->constrained()->onDelete('CASCADE');
-            $table->foreignIdFor(Part::class)->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.parts')->onDelete('CASCADE');
+            $table->string('name');
+            $table->string('merk');
+            $table->string('no_drawing');
+            $table->string('unit');
+            $table->decimal('price', 20, 2);
             $table->integer('qty')->default(0);
             $table->uuid('original_uuid')->nullable();
             $table->timestamps();

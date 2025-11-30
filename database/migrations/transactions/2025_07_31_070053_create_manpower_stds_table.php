@@ -17,7 +17,8 @@ return new class extends Migration {
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('manpower_stds', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->foreignIdFor(Activity::class)->constrained()->onDelete('CASCADE');
-            $table->foreignIdFor(Manpower::class)->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.manpowers')->onDelete('CASCADE');
+            $table->string('name');
+            $table->decimal('price', 20, 2);
             $table->integer('qty')->default(0);
             $table->uuid('original_uuid')->nullable();
             $table->timestamps();

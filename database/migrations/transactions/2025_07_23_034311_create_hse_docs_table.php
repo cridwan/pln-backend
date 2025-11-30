@@ -16,7 +16,7 @@ return new class extends Migration {
     {
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('hse_docs', function (Blueprint $table) {
             $table->uuid()->primary();
-            $table->foreignIdFor(HseDoc::class)->nullable()->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.hse_docs')->cascadeOnDelete();
+            $table->string('name');
             $table->foreignIdFor(Project::class)->constrained()->cascadeOnDelete();
             $table->string('link')->nullable();
             $table->uuid('original_uuid')->nullable();

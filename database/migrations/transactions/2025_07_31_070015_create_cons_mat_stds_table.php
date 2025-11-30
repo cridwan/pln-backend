@@ -1,8 +1,6 @@
 <?php
 
 use App\Enums\ConnectionEnum;
-use App\Enums\DatabaseConnectionEnum;
-use App\Models\ConsMat;
 use App\Models\Transaction\Activity;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,7 +15,10 @@ return new class extends Migration {
         Schema::connection(ConnectionEnum::TRANSACTION->value)->create('cons_mat_stds', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->foreignIdFor(Activity::class)->constrained()->onDelete('CASCADE');
-            $table->foreignIdFor(ConsMat::class)->constrained(DatabaseConnectionEnum::GLOBAL ->value . '.const_mats')->onDelete('CASCADE');
+            $table->string('name');
+            $table->string('merk');
+            $table->string('unit');
+            $table->decimal('price', 20, 2);
             $table->integer('qty')->default(0);
             $table->uuid('original_uuid')->nullable();
             $table->timestamps();
