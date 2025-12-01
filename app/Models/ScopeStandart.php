@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Enums\ConnectionEnum;
+use App\Models\Scopes\HasTransactionScope;
 use App\Models\Storage\Document;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;

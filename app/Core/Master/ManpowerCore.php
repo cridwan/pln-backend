@@ -41,7 +41,8 @@ abstract class ManpowerCore extends MasterCore implements WithImportExcel
     {
         $activity = request()->collect('filters')->where('column', '=', 'activity_uuid')->first();
         return Manpower::query()
-            ->doesntHaveStd($activity['value'] ?? null);
+            ->doesntHaveStd($activity['value'] ?? null)
+            ->hasTransaction();
     }
 
     #[DoNotDiscover]

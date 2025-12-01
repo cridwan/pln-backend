@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Observers\LocationObserver;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[ObservedBy([UppercaseObservser::class])]
+#[ObservedBy([UppercaseObservser::class, LocationObserver::class])]
 class Location extends Model
 {
     use SettingModel, HasFactory;
@@ -28,5 +29,10 @@ class Location extends Model
     public function subArea()
     {
         return $this->belongsTo(SubArea::class, 'sub_area_uuid');
+    }
+
+    public function units()
+    {
+        return $this->hasMany(Unit::class, 'location_uuid');
     }
 }

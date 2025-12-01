@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\UnitObserver;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[ObservedBy([UppercaseObservser::class])]
+#[ObservedBy([UppercaseObservser::class, UnitObserver::class])]
 class Unit extends Model
 {
     use SettingModel, HasFactory;
@@ -19,5 +20,10 @@ class Unit extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class, 'location_uuid');
+    }
+
+    public function machines()
+    {
+        return $this->hasMany(Machine::class, 'unit_uuid');
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static>  doesntHaveStd(?string $activity = null)
+ * @method \Illuminate\Database\Eloquent\Builder<static>  hasTransaction()
  */
 #[ObservedBy([UppercaseObservser::class])]
 class Manpower extends Model
@@ -34,5 +35,19 @@ class Manpower extends Model
                     ->where('manpower_stds.activity_uuid', '=', $activity);
             });
         });
+    }
+
+    public function stds()
+    {
+        return $this->hasMany(ManpowerStd::class, 'manpower_uuid');
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $builder->addSelect([
+            'has_transaction' => DB::table('manpower_stds')
+                ->whereColumn('manpower_stds.manpower_uuid', '=', 'manpowers.uuid')
+                ->selectRaw('COUNT(manpower_stds.uuid)'),
+        ]);
     }
 }

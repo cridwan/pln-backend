@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static>  doesntHaveStd(?string $activity = null)
+ * @method \Illuminate\Database\Eloquent\Builder<static>  hasTransaction()
  */
 #[ObservedBy([UppercaseObservser::class])]
 class Part extends Model
@@ -35,5 +36,19 @@ class Part extends Model
                     ->where('part_stds.activity_uuid', '=', $activity);
             });
         });
+    }
+
+    public function stds()
+    {
+        return $this->hasMany(PartStd::class, 'part_uuid');
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $builder->addSelect([
+            'has_transaction' => DB::table('part_stds')
+                ->whereColumn('part_stds.part_uuid', '=', 'parts.uuid')
+                ->selectRaw('COUNT(part_stds.uuid)'),
+        ]);
     }
 }

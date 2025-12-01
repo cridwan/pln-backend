@@ -8,6 +8,7 @@ use App\Exceptions\BadRequestException;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Requests\UserRequest;
+use App\Models\ActivityLog;
 use App\Models\User;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Database\Eloquent\Builder;
@@ -139,6 +140,15 @@ class UserController extends Controller implements HasMiddleware
 
         if (!$user) {
             throw new BadRequestException('Tidak ada data yang ditemukan');
+        }
+
+
+        $exists = ActivityLog::where('created_id', '=', $uuid)
+            ->orWhere('updated_id', '=', $uuid)
+            ->exists();
+
+        if ($exists) {
+            throw new BadRequestException("Data {$user->name} sudah dipakai di data lain");
         }
 
         return $user->delete();

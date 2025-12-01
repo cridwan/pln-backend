@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Observers\ConsumableObserver;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
 use DB;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static>  doesntHaveStd(?string $activity = null)
  */
-#[ObservedBy([UppercaseObservser::class])]
+#[ObservedBy([UppercaseObservser::class, ConsumableObserver::class])]
 class ConsMat extends Model
 {
     use SettingModel;
@@ -36,5 +37,19 @@ class ConsMat extends Model
                     ->where('cons_mat_stds.activity_uuid', '=', $activity);
             });
         });
+    }
+
+    public function stds()
+    {
+        return $this->hasMany(ConsMatStd::class, 'cons_mat_uuid');
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $builder->addSelect([
+            'has_transaction' => DB::table('cons_mat_stds')
+                ->whereColumn('cons_mat_stds.cons_mat_uuid', '=', 'const_mats.uuid')
+                ->selectRaw('COUNT(cons_mat_stds.uuid)'),
+        ]);
     }
 }

@@ -43,7 +43,8 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
     {
         $activity = request()->collect('filters')->where('column', '=', 'activity_uuid')->first();
         return ConsMat::query()
-            ->doesntHaveStd($activity['value'] ?? null);
+            ->doesntHaveStd($activity['value'] ?? null)
+            ->hasTransaction();
     }
 
     #[DoNotDiscover]

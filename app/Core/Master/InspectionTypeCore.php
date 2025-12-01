@@ -53,7 +53,8 @@ abstract class InspectionTypeCore extends MasterCore implements WithImportExcel
                 $query->whereHas('machine.unit.location.subArea', function ($q) {
                     $q->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
-            });
+            })
+            ->hasTransaction();
     }
 
     #[DoNotDiscover]

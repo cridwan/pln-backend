@@ -45,6 +45,7 @@ abstract class PartCore extends MasterCore implements WithImportExcel
         $activity = request()->collect('filters')->where('column', '=', 'activity_uuid')->first();
         return Part::
             query()
+            ->hasTransaction()
             ->doesntHaveStd($activity['value'] ?? null);
     }
 
