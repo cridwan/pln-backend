@@ -45,7 +45,9 @@ abstract class ManpowerStdCore extends TransactionCore implements WithImportExce
     #[DoNotDiscover]
     public function rules(): array
     {
-        return [];
+        return [
+            'qty' => ['required', 'numeric']
+        ];
     }
 
     #[DoNotDiscover]

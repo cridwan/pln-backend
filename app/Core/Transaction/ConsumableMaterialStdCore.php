@@ -42,7 +42,9 @@ abstract class ConsumableMaterialStdCore extends TransactionCore implements With
     #[DoNotDiscover]
     public function rules(): array
     {
-        return [];
+        return [
+            'qty' => ['required', 'numeric']
+        ];
     }
 
     #[DoNotDiscover]

@@ -7,11 +7,15 @@ use App\Enums\ScopeStandartTypeEnum;
 use App\Models\Storage\Document;
 use App\Models\SubBidang;
 use App\Traits\SettingModel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
+/**
+ * @method \Illuminate\Database\Eloquent\Builder<static> calculateDays()
+ */
 class ScopeStandart extends Model
 {
     use SettingModel;
@@ -21,6 +25,13 @@ class ScopeStandart extends Model
     public function document(): MorphOne
     {
         return $this->morphOne(Document::class, 'document', 'document_type'::class, 'document_uuid')->latest();
+    }
+
+    public function scopeCalculateDays(Builder $query)
+    {
+        return $query->leftJoin('equipment as eq', 'eq.scope_standart_uuid', '=', 'scope_standarts.uuid')
+            ->leftJoin('activities as ac', 'ac.equipment_uuid', '=', 'eq.uuid')
+            ->selectRaw('COALESCE(ROUND(SUM(ac.duration) / 24), 0) as total_duration');
     }
 
     public function documents(): MorphMany

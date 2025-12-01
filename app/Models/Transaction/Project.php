@@ -40,4 +40,10 @@ class Project extends Model
     {
         return $this->hasMany(ProjectActivity::class, 'project_uuid');
     }
+
+    public function generateBy()
+    {
+        return $this->hasOne(ProjectActivity::class, 'project_uuid')
+            ->where('activity', '=', 'generate');
+    }
 }

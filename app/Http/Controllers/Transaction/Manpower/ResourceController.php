@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Transaction\Manpower;
 
 use App\Core\Transaction\ManpowerStdCore;
 use App\Data\PaginationData;
+use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
 use App\Http\Requests\Transaction\CloneManpowerRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\ManpowerStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\Manpower;
+use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -23,7 +25,7 @@ class ResourceController extends ManpowerStdCore
     use InitCore;
 
     #[DoNotDiscover]
-    public function __construct()
+    public function __construct(public GenerateService $generateService)
     {
         $this->initCore();
     }
@@ -36,16 +38,14 @@ class ResourceController extends ManpowerStdCore
     {
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // duplicate manpower std
-            ManpowerStd::select('uuid', 'activity_uuid', 'manpower_uuid', 'qty')
-                ->where('uuid', $request->manpower_uuid)
-                ->each(function ($row) use ($request) {
-                    $duplicate = $row->replicate();
-                    $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                    $duplicate->setTable('manpower_stds');
-                    $duplicate->activity_uuid = $request->activity_uuid;
-                    $duplicate->original_uuid = $row->uuid;
-                    $duplicate->save();
-                });
+            $this->generateService->cloneManpower(new WhereOptionData(
+                'uuid',
+                '=',
+                $request->manpower_uuid,
+                [
+                    'activity_uuid' => $request->activity_uuid
+                ]
+            ));
         });
 
         return [
@@ -63,12 +63,13 @@ class ResourceController extends ManpowerStdCore
         $pagination = new PaginationData($request);
         $query = Manpower::query()
             ->select([
-                'manpower_uuid',
+                'name',
                 DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(price) as price'),
                 DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
             ])
             ->with($this->with)
-            ->groupBy('manpower_uuid');
+            ->groupBy('name');
 
         $pagination = $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
         // Ambil data untuk summary (pakai clone supaya query asli tidak terganggu)

@@ -99,6 +99,20 @@ class GenerateService
         });
     }
 
+    public function cloneHseDocSpesific(WhereOptionData $option)
+    {
+        HseDoc::
+            where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($rows) use ($option) {
+                foreach ($rows as $row) {
+                    \App\Models\Transaction\HseDoc::create(array_merge([
+                        'name' => $row->name,
+                        'original_uuid' => $row->uuid
+                    ], $option->data));
+                }
+            });
+    }
+
     public function cloneQcPln(Project $project)
     {
         QcPlan::chunk($this->chunkSize, function ($rows) use ($project) {
@@ -110,6 +124,20 @@ class GenerateService
                 ]);
             }
         });
+    }
+
+    public function cloneQcPlnSpesific(WhereOptionData $option)
+    {
+        QcPlan::
+            where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($rows) use ($option) {
+                foreach ($rows as $row) {
+                    \App\Models\Transaction\QcPlan::create(array_merge([
+                        'name' => $row->name,
+                        'original_uuid' => $row->uuid
+                    ], $option->data));
+                }
+            });
     }
 
     public function cloneScopeStandart(WhereOptionData $option)
@@ -128,88 +156,14 @@ class GenerateService
                     $this->cloneDocument(ScopeStandart::class, $scope->uuid, "App\\Models\\Transaction\\ScopeStandart", $duplicateScope->uuid);
 
                     // duplicate equipment
-                    // duplicate equipment
-                    Equipment::whereHas('scopeStandart', fn($query) => $query->where('uuid', $scope->uuid))
-                        ->chunk($this->chunkSize, function ($equipments) use ($duplicateScope) {
-                        foreach ($equipments as $equipment) {
-                            $duplicateEquipment = \App\Models\Transaction\Equipment::create([
-                                'scope_standart_uuid' => $duplicateScope->uuid,
-                                'name' => $equipment->name,
-                                'link_1' => $equipment->link_1,
-                                'link_2' => $equipment->link_2,
-                                'original_uuid' => $equipment->uuid,
-                            ]);
-
-                            // duplicate activity
-                            Activity::whereHas('equipment', fn($query) => $query->where('uuid', $equipment->uuid))
-                                ->chunk($this->chunkSize, function ($activities) use ($duplicateEquipment) {
-                                foreach ($activities as $activity) {
-                                    $duplicateActivity = \App\Models\Transaction\Activity::create([
-                                        'equipment_uuid' => $duplicateEquipment->uuid,
-                                        'name' => $activity->name,
-                                        'duration' => $activity->duration,
-                                        'serial_number' => $activity->serial_number,
-                                        'link_1' => $activity->link_1,
-                                        'link_2' => $activity->link_2,
-                                        'original_uuid' => $activity->uuid,
-                                    ]);
-
-                                    // clone document
-                                    $this->cloneDocument(Activity::class, $activity->uuid, "App\\Models\\Transaction\\Activity", $duplicateActivity->uuid);
-
-                                    // duplicate consumable material
-                                    ConsMatStd::with(['consmat.globalUnit'])
-                                        ->whereHas('activity', fn($query) => $query->where('uuid', $activity->uuid))
-                                        ->chunk($this->chunkSize, function ($rows) use ($duplicateActivity) {
-                                        foreach ($rows as $row) {
-                                            ConsMat::create([
-                                                'activity_uuid' => $duplicateActivity->uuid,
-                                                'name' => $row->consmat?->name,
-                                                'merk' => $row->consmat?->name,
-                                                'unit' => $row->consmat?->globalUnit?->name,
-                                                'price' => $row->consmat?->price,
-                                                'qty' => $row->qty,
-                                                'original_uuid' => $row->uuid,
-                                            ]);
-                                        }
-                                    });
-
-                                    // duplicate part std
-                                    PartStd::with(['part.globalUnit'])
-                                        ->whereHas('activity', fn($query) => $query->where('uuid', $activity->uuid))
-                                        ->chunk($this->chunkSize, function ($rows) use ($duplicateActivity) {
-                                        foreach ($rows as $row) {
-                                            Part::create([
-                                                'activity_uuid' => $duplicateActivity->uuid,
-                                                'name' => $row->part?->name,
-                                                'merk' => $row->part?->merk,
-                                                'no_drawing' => $row->part?->no_drawing,
-                                                'unit' => $row->part?->globalUnit?->name,
-                                                'price' => $row->part?->price,
-                                                'qty' => $row->qty,
-                                                'original_uuid' => $row->uuid,
-                                            ]);
-                                        }
-                                    });
-
-                                    // duplicate manpower std
-                                    ManpowerStd::with(['manpower'])
-                                        ->whereHas('activity', fn($query) => $query->where('uuid', $activity->uuid))
-                                        ->chunk($this->chunkSize, function ($rows) use ($duplicateActivity) {
-                                        foreach ($rows as $row) {
-                                            Manpower::create([
-                                                'activity_uuid' => $duplicateActivity->uuid,
-                                                'name' => $row->manpower?->name,
-                                                'price' => $row->manpower?->price,
-                                                'qty' => $row->qty,
-                                                'original_uuid' => $row->uuid,
-                                            ]);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
+                    $this->cloneEquipment(new WhereOptionData(
+                        'scope_standart_uuid',
+                        '=',
+                        $scope->uuid,
+                        [
+                            'scope_standart_uuid' => $duplicateScope->uuid
+                        ]
+                    ));
                 }
             });
     }
@@ -235,6 +189,137 @@ class GenerateService
                             'additional_scope_uuid' => $duplicateAdScope->uuid
                         ]
                     ));
+                }
+            });
+    }
+
+    public function cloneEquipment(WhereOptionData $option)
+    {
+        Equipment::where($option->column, $option->operator, $option->value, $option->boolean)
+            ->chunk($this->chunkSize, function ($equipments) use ($option) {
+                foreach ($equipments as $equipment) {
+                    $duplicateEquipment = \App\Models\Transaction\Equipment::create(array_merge(
+                        [
+                            'name' => $equipment->name,
+                            'link_1' => $equipment->link_1,
+                            'link_2' => $equipment->link_2,
+                            'original_uuid' => $equipment->uuid,
+                        ],
+                        $option->data
+                    ));
+
+                    // duplicate activity
+                    $this->cloneActivity(new WhereOptionData(
+                        'equipment_uuid',
+                        '=',
+                        $equipment->uuid,
+                        [
+                            'equipment_uuid' => $duplicateEquipment->uuid
+                        ]
+                    ));
+                }
+            });
+    }
+
+    public function cloneActivity(WhereOptionData $option)
+    {
+        Activity::where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($activities) use ($option) {
+                foreach ($activities as $activity) {
+                    $duplicateActivity = \App\Models\Transaction\Activity::create(array_merge([
+                        'name' => $activity->name,
+                        'duration' => $activity->duration,
+                        'serial_number' => $activity->serial_number,
+                        'link_1' => $activity->link_1,
+                        'link_2' => $activity->link_2,
+                        'original_uuid' => $activity->uuid,
+                    ], $option->data));
+
+                    // clone document
+                    $this->cloneDocument(Activity::class, $activity->uuid, "App\\Models\\Transaction\\Activity", $duplicateActivity->uuid);
+
+                    // duplicate consumable material
+                    $this->cloneConsumableMaterial(new WhereOptionData(
+                        'activity_uuid',
+                        '=',
+                        $activity->uuid,
+                        [
+                            'activity_uuid' => $duplicateActivity->uuid
+                        ]
+                    ));
+
+                    // duplicate part std
+                    $this->clonePart(new WhereOptionData(
+                        'activity_uuid',
+                        '=',
+                        $activity->uuid,
+                        [
+                            'activity_uuid' => $duplicateActivity->uuid
+                        ]
+                    ));
+
+                    // duplicate manpower std
+                    $this->cloneManpower(new WhereOptionData(
+                        'activity_uuid',
+                        '=',
+                        $activity->uuid,
+                        [
+                            'activity_uuid' => $duplicateActivity->uuid
+                        ]
+                    ));
+                }
+            });
+    }
+
+    public function cloneConsumableMaterial(WhereOptionData $option)
+    {
+        ConsMatStd::with(['consmat.globalUnit'])
+            ->where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($rows) use ($option) {
+                foreach ($rows as $row) {
+                    ConsMat::create(array_merge([
+                        'name' => $row->consmat?->name,
+                        'merk' => $row->consmat?->name,
+                        'unit' => $row->consmat?->globalUnit?->name,
+                        'price' => $row->consmat?->price,
+                        'qty' => $row->qty,
+                        'original_uuid' => $row->uuid,
+                    ], $option->data));
+                }
+            });
+    }
+
+    public function clonePart(WhereOptionData $option)
+    {
+        PartStd::with(['part.globalUnit'])
+            ->where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($rows) use ($option) {
+                foreach ($rows as $row) {
+                    Part::create(array_merge([
+                        'name' => $row->part?->name,
+                        'merk' => $row->part?->merk,
+                        'no_drawing' => $row->part?->no_drawing,
+                        'unit' => $row->part?->globalUnit?->name,
+                        'price' => $row->part?->price,
+                        'qty' => $row->qty,
+                        'original_uuid' => $row->uuid,
+                    ], $option->data));
+                }
+            });
+    }
+
+    public function cloneManpower(WhereOptionData $option)
+    {
+        ManpowerStd::with(['manpower'])
+            ->where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($rows) use ($option) {
+                foreach ($rows as $row) {
+                    Manpower::create(array_merge([
+                        'name' => $row->manpower?->name,
+                        'price' => $row->manpower?->price,
+                        'qty' => $row->qty,
+                        'original_uuid' => $row->uuid,
+                    ], $option->data));
                 }
             });
     }

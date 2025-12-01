@@ -28,7 +28,8 @@ class GenerateController extends Controller implements HasMiddleware
     #[DoNotDiscover]
     public function __construct(
         public GenerateService $generateService
-    ) {}
+    ) {
+    }
 
 
     /**
@@ -37,6 +38,9 @@ class GenerateController extends Controller implements HasMiddleware
     #[Route(method: 'post', name: 'generate.index')]
     public function index(GenerateRequest $request)
     {
-        return $this->generateService->generate($request);
+        $project = $this->generateService->generate($request);
+        $project->loadMissing(['inspectionType.machine.unit.location', 'generateBy.user']);
+
+        return $project;
     }
 }

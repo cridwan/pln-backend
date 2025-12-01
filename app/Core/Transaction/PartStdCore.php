@@ -13,17 +13,14 @@ abstract class PartStdCore extends TransactionCore implements WithImportExcel
     #[DoNotDiscover]
     public function with(): array
     {
-        return [
-            'part',
-            'part.globalUnit'
-        ];
+        return [];
     }
 
     #[DoNotDiscover]
     public function order(): array
     {
         return [
-            'part.name',
+            'name',
             'asc'
         ];
     }
@@ -44,7 +41,9 @@ abstract class PartStdCore extends TransactionCore implements WithImportExcel
     #[DoNotDiscover]
     public function rules(): array
     {
-        return [];
+        return [
+            'qty' => ['required', 'numeric']
+        ];
     }
 
     #[DoNotDiscover]

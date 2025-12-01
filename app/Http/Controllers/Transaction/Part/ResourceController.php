@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Transaction\Part;
 
 use App\Core\Transaction\PartStdCore;
 use App\Data\PaginationData;
+use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
 use App\Http\Requests\Transaction\ClonePartRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\PartStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\Part;
+use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -23,7 +25,7 @@ class ResourceController extends PartStdCore
     use InitCore;
 
     #[DoNotDiscover]
-    public function __construct()
+    public function __construct(public GenerateService $generateService)
     {
         $this->initCore();
     }
@@ -36,6 +38,14 @@ class ResourceController extends PartStdCore
     {
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // duplicate part std
+            $this->generateService->clonePart(new WhereOptionData(
+                'uuid',
+                '=',
+                $request->part_uuid,
+                [
+                    'activity_uuid' => $request->activity_uuid
+                ]
+            ));
             PartStd::select('uuid', 'activity_uuid', 'part_uuid', 'qty')
                 ->where('uuid', $request->part_uuid)
                 ->each(function ($row) use ($request) {
@@ -62,12 +72,16 @@ class ResourceController extends PartStdCore
         $pagination = new PaginationData($request);
         $query = Part::query()
             ->select([
-                'part_uuid',
+                'name',
+                'merk',
+                'no_drawing',
+                'unit',
                 DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(price) as price'),
                 DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
             ])
-            ->with($this->with)
-            ->groupBy('part_uuid');
+            ->with($this->with())
+            ->groupBy('name', 'merk', 'no_drawing', 'unit');
 
         $pagination = $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 

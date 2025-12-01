@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Transaction\ConsumableMaterial;
 
 use App\Core\Transaction\ConsumableMaterialStdCore;
 use App\Data\PaginationData;
+use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
 use App\Http\Requests\Transaction\CloneConsMatRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\ConsMatStd;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\ConsMat;
+use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
 use Illuminate\Http\Request;
@@ -23,7 +25,7 @@ class ResourceController extends ConsumableMaterialStdCore
     use InitCore;
 
     #[DoNotDiscover]
-    public function __construct()
+    public function __construct(public GenerateService $generateService)
     {
         $this->initCore();
     }
@@ -36,16 +38,14 @@ class ResourceController extends ConsumableMaterialStdCore
     {
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
             // duplicate consumable material
-            ConsMatStd::select('uuid', 'activity_uuid', 'cons_mat_uuid', 'qty')
-                ->where('uuid', $request->cons_mat_uuid)
-                ->each(function ($row) use ($request) {
-                    $duplicate = $row->replicate();
-                    $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                    $duplicate->setTable('cons_mat_stds');
-                    $duplicate->activity_uuid = $request->activity_uuid;
-                    $duplicate->original_uuid = $row->uuid;
-                    $duplicate->save();
-                });
+            $this->generateService->cloneConsumableMaterial(new WhereOptionData(
+                'uuid',
+                '=',
+                $request->cons_mat_uuid,
+                [
+                    'activity_uuid' => $request->activity_uuid
+                ]
+            ));
         });
 
         return [
@@ -62,12 +62,15 @@ class ResourceController extends ConsumableMaterialStdCore
         $pagination = new PaginationData($request);
         $query = ConsMat::query()
             ->select([
-                'cons_mat_uuid',
+                'name',
+                'merk',
+                'unit',
                 DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(price) as price'),
                 DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
             ])
             ->with($this->with)
-            ->groupBy('cons_mat_uuid');
+            ->groupBy('name', 'merk', 'unit');
 
         $pagination = $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 

@@ -46,7 +46,7 @@ class ProjectController extends Controller implements HasMiddleware
     #[Route(method: 'get')]
     public function list(Request $request)
     {
-        $query = Project::query();
+        $query = Project::query()->with(['inspectionType.machine.unit.location', 'generateBy.user']);
         $searchColumn = ['name'];
 
         $query->when($request->filled('search'), function ($subQuery) use ($request, $searchColumn) {
