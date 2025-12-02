@@ -14,11 +14,18 @@ class Location extends Model
 {
     use SettingModel, HasFactory;
 
+    protected $appends = ['color'];
+
     protected $connection = 'masterdata';
 
     public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_uuid', 'id');
+    }
+
+    public function getColorAttribute()
+    {
+        return $this->generatorType?->color;
     }
 
     public function updatedBy()
@@ -34,5 +41,10 @@ class Location extends Model
     public function units()
     {
         return $this->hasMany(Unit::class, 'location_uuid');
+    }
+
+    public function generatorType()
+    {
+        return $this->belongsTo(GeneratorType::class, 'generator_type_uuid');
     }
 }

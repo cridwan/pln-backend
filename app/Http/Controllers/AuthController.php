@@ -96,7 +96,7 @@ class AuthController extends Controller implements HasMiddleware
                 uri: '/profile',
                 summary: 'Halo ' . $user->name . ', demi keamana silahkan untuk mengganti password akun anda di profile.'
             ));
-            $user->notify(new PasswordChangeAlert($user));
+            // $user->notify(new PasswordChangeAlert($user));
 
             $user->first_create = false;
             $user->updateQuietly();

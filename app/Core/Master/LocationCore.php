@@ -10,6 +10,7 @@ use App\Enums\GeneratorTypeEnum;
 use App\Enums\RoleEnum;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
+use App\Models\GeneratorType;
 use App\Models\Location;
 use App\Models\SubArea;
 use Illuminate\Validation\Rule;
@@ -61,8 +62,8 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
             'description' => 'nullable',
             'lat' => 'required',
             'lon' => 'required',
-            'color' => 'required',
-            'sub_area_uuid' => ['required', Rule::exists(SubArea::class, 'uuid')]
+            'sub_area_uuid' => ['required', Rule::exists(SubArea::class, 'uuid')],
+            'generator_type_uuid' => ['required', Rule::exists(GeneratorType::class, 'uuid')],
         ];
     }
 
