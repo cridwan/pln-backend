@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Enums\ConnectionEnum;
+use App\Enums\DatabaseConnectionEnum;
 use App\Models\Storage\Document;
 use App\Observers\ActivityObserver;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
+use DB;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -124,5 +126,34 @@ class Activity extends Model
     public function parts()
     {
         return $this->hasMany(PartStd::class);
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::table("{$databaseName}.activities as trx")
+                ->leftJoin("{$databaseName}.equipment as eq", 'eq.uuid', '=', 'trx.equipment_uuid')
+                ->leftJoin("{$databaseName}.scope_standarts as scope", 'scope.uuid', '=', 'eq.scope_standart_uuid')
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'scope.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'activities.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
+    }
+
+    public function scopeHasTransactionDetail(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::table("{$databaseName}.activities as trx")
+                ->leftJoin("{$databaseName}.equipment as eq", 'eq.uuid', '=', 'trx.equipment_uuid')
+                ->leftJoin("{$databaseName}.scope_standarts as scope", 'scope.uuid', '=', 'eq.scope_standart_uuid')
+                ->leftJoin("{$databaseName}.additional_scopes as add_scope", 'add_scope.uuid', '=', 'scope.additional_scope_uuid')
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'add_scope.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'activities.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
     }
 }

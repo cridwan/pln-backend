@@ -31,7 +31,8 @@ class AdditionalScopeController extends AdditionalScopeCore
         $currentPage = $request->filled('currentPage') ? $request->currentPage : 1;
 
 
-        $query = AdditionalScope::query();
+        $query = AdditionalScope::query()
+            ->hasTransaction();
         $query->with(['inspectionType.machine.unit.location', 'sequence.document', 'activityLog.createdBy', 'activityLog.updatedBy']);
         $query->when($request->filled('search'), function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {

@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\ConnectionEnum;
+use App\Enums\DatabaseConnectionEnum;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
+use DB;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -61,5 +63,18 @@ class AdditionalScope extends Model
                 })
                 ->where('inspection_type_uuid', '=', $inspectionType);
         });
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::
+                table("{$databaseName}.additional_scopes as trx")
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'trx.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'additional_scopes.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
     }
 }

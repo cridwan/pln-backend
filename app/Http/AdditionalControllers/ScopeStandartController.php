@@ -60,7 +60,7 @@ class ScopeStandartController extends ScopeStandartCore
 
         $summaryQuery = clone $query;
 
-        $paginate = $query->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
+        $paginate = $query->hasTransactionDetail()->orderBy('name', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
 
         return ResponseResource::collection($paginate)->additional([
             'summary' => [

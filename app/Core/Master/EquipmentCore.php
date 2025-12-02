@@ -54,7 +54,8 @@ abstract class EquipmentCore extends MasterCore implements WithImportExcel
                 $query->whereHas('scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
-            });
+            })
+            ->hasTransaction();
     }
 
     #[DoNotDiscover]

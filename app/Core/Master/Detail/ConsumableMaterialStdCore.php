@@ -59,7 +59,8 @@ abstract class ConsumableMaterialStdCore extends MasterCore implements WithImpor
                 $query->whereHas('activity.equipment.scopeStandart.additionalScope.inspectionType.machine.unit.location.subArea', function ($where) {
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
-            });
+            })
+            ->hasTransactionDetail();
     }
 
     #[DoNotDiscover]

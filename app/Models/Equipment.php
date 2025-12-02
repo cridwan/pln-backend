@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Enums\ConnectionEnum;
+use App\Enums\DatabaseConnectionEnum;
 use App\Observers\UppercaseObservser;
 use App\Traits\SettingModel;
+use DB;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -100,5 +102,32 @@ class Equipment extends Model
                     $query->where('scope_standart_uuid', '=', request()->input('scope_standart_uuid'));
                 });
         });
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::table("{$databaseName}.equipment as trx")
+                ->leftJoin("{$databaseName}.scope_standarts as scope", 'scope.uuid', '=', 'trx.scope_standart_uuid')
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'scope.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'equipment.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
+    }
+
+    public function scopeHasTransactionDetail(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::table("{$databaseName}.equipment as trx")
+                ->leftJoin("{$databaseName}.scope_standarts as scope", 'scope.uuid', '=', 'trx.scope_standart_uuid')
+                ->leftJoin("{$databaseName}.additional_scopes as add_scope", 'add_scope.uuid', '=', 'scope.additional_scope_uuid')
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'add_scope.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'equipment.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
     }
 }

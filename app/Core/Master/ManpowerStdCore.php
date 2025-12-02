@@ -58,7 +58,8 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
                 $query->whereHas('activity.equipment.scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
-            });
+            })
+            ->hasTransaction();
     }
 
     #[DoNotDiscover]

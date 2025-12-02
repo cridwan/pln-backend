@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ConnectionEnum;
+use App\Enums\DatabaseConnectionEnum;
 use App\Models\Scopes\HasTransactionScope;
 use App\Models\Storage\Document;
 use App\Observers\UppercaseObservser;
@@ -65,6 +66,33 @@ class ScopeStandart extends Model
     public function documents()
     {
         return $this->morphMany(Document::class, 'document', 'document_type', 'document_uuid', 'uuid');
+    }
+
+    public function scopeHasTransaction(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::
+                table("{$databaseName}.scope_standarts as trx")
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'trx.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'scope_standarts.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
+    }
+
+    public function scopeHasTransactionDetail(Builder $builder)
+    {
+        $databaseName = DatabaseConnectionEnum::TRANSACTION->value;
+        $builder->addSelect([
+            'has_transaction' => DB::
+                table("{$databaseName}.scope_standarts as trx")
+                ->leftJoin("{$databaseName}.additional_scopes as add_scope", 'add_scope.uuid', '=', 'trx.additional_scope_uuid')
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'add_scope.project_uuid')
+                ->whereColumn('trx.original_uuid', '=', 'scope_standarts.uuid')
+                ->where('projects.status', '!=', 'approve')
+                ->selectRaw('COUNT(projects.uuid)'),
+        ]);
     }
 
     public function scopeFromTransaction(Builder $builder)
