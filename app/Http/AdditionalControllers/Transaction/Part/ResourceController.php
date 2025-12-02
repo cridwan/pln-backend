@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\Transaction\Manpower;
+namespace App\Http\AdditionalControllers\Transaction\Part;
 
-use App\Core\Transaction\ManpowerStdCore;
+use App\Core\Transaction\Detail\PartStdCore;
 use App\Data\PaginationData;
 use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
-use App\Http\Requests\Transaction\CloneManpowerRequest;
+use App\Http\Requests\Transaction\ClonePartRequest;
 use App\Http\Resources\PaginationResource;
-use App\Models\ManpowerStd;
+use App\Models\PartStd;
 use App\Models\Transaction\Activity;
-use App\Models\Transaction\Manpower;
+use App\Models\Transaction\Part;
 use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
@@ -19,8 +19,8 @@ use Illuminate\Support\Facades\DB;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
-#[Group(name: 'Transaction Manpower Resource')]
-class ResourceController extends ManpowerStdCore
+#[Group(name: 'Transaction Part Resource')]
+class ResourceController extends PartStdCore
 {
     use InitCore;
 
@@ -34,14 +34,14 @@ class ResourceController extends ManpowerStdCore
      * clone data
      */
     #[Route(method: 'post')]
-    public function clone(CloneManpowerRequest $request)
+    public function clone(ClonePartRequest $request)
     {
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
-            // duplicate manpower std
-            $this->generateService->cloneManpower(new WhereOptionData(
+            // duplicate part std
+            $this->generateService->clonePart(new WhereOptionData(
                 'uuid',
                 '=',
-                $request->manpower_uuid,
+                $request->part_uuid,
                 [
                     'activity_uuid' => $request->activity_uuid
                 ]
@@ -53,7 +53,6 @@ class ResourceController extends ManpowerStdCore
         ];
     }
 
-
     /**
      * list data by grouping data
      */
@@ -61,17 +60,21 @@ class ResourceController extends ManpowerStdCore
     public function grouping(Request $request)
     {
         $pagination = new PaginationData($request);
-        $query = Manpower::query()
+        $query = $this->query()
             ->select([
                 'name',
+                'merk',
+                'no_drawing',
+                'unit',
                 DB::raw('SUM(qty) as total_qty'),
                 DB::raw('SUM(price) as price'),
                 DB::raw('GROUP_CONCAT(uuid separator ";") as uuid')
             ])
-            ->with($this->with)
-            ->groupBy('name');
+            ->with($this->with())
+            ->groupBy('name', 'merk', 'no_drawing', 'unit');
 
         $pagination = $query->paginate($pagination->limit, ['*'], 'page', $pagination->page);
+
         // Ambil data untuk summary (pakai clone supaya query asli tidak terganggu)
         $summaryQuery = clone $query;
         $summaryCollection = $summaryQuery->get();
@@ -98,9 +101,9 @@ class ResourceController extends ManpowerStdCore
         $pagination = new PaginationData($request);
 
         $trxActivity = Activity::where('uuid', $request->get('activity_uuid'))->first();
-        $equipment = ManpowerStd::query()
-            ->with(['manpower'])
-            ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
+        $equipment = PartStd::query()
+            ->with(['part.globalUnit'])
+            ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
             ->when($trxActivity, fn($query) => $query->where('activity_uuid', '=', $trxActivity->original_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
             ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))

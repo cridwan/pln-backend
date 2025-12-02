@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Transaction\Manpower;
+namespace App\Http\AdditionalControllers\Transaction\Manpower;
 
-use App\Core\Transaction\ManpowerStdCore;
+use App\Core\Transaction\Detail\ManpowerStdCore;
 use App\Data\PaginationData;
 use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
@@ -61,7 +61,7 @@ class ResourceController extends ManpowerStdCore
     public function grouping(Request $request)
     {
         $pagination = new PaginationData($request);
-        $query = Manpower::query()
+        $query = $this->query()
             ->select([
                 'name',
                 DB::raw('SUM(qty) as total_qty'),
@@ -97,13 +97,9 @@ class ResourceController extends ManpowerStdCore
     {
         $pagination = new PaginationData($request);
 
-        $trxActivity = Activity::where('uuid', $request->get('activity_uuid'))->first();
         $equipment = ManpowerStd::query()
             ->with(['manpower'])
-            ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
-            ->when($trxActivity, fn($query) => $query->where('activity_uuid', '=', $trxActivity->original_uuid))
-            ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
-            ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))
+            ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $equipment;

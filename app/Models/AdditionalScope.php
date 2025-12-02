@@ -45,4 +45,21 @@ class AdditionalScope extends Model
             });
         }
     }
+
+    public function scopeDoestHaveTransaction(Builder $builder, ?string $inspectionType = null)
+    {
+        $builder->when($inspectionType, function ($query) use ($inspectionType) {
+            $query
+                ->has('inspectionType')
+                ->whereNotExists(function ($sub) use ($inspectionType) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.additional_scopes as trx")
+                        ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "trx.project_uuid")
+                        ->whereRaw('trx.original_uuid = additional_scopes.uuid')
+                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                })
+                ->where('inspection_type_uuid', '=', $inspectionType);
+        });
+    }
 }

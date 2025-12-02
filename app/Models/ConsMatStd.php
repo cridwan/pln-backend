@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 #[ObservedBy([UppercaseObservser::class])]
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null, ?string $activity = null)
+ * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransactionDetail(?string $additionalScope = null)
  */
 class ConsMatStd extends Model
 {
@@ -91,6 +92,31 @@ class ConsMatStd extends Model
                 })
                 ->when($activity, function ($where) use ($activity) {
                     $where->where('activity_uuid', '=', $activity);
+                });
+        });
+    }
+
+    public function scopeDoestHaveTransactionDetail(Builder $builder, ?string $additionalScope = null)
+    {
+        $builder->when($additionalScope, function ($query) use ($additionalScope) {
+            $query
+                ->has('activity.equipment.scopeStandart.additionalScope')
+                ->whereNotExists(function ($sub) use ($additionalScope) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.cons_mat_stds as trx")
+                        ->leftJoin("{$trxDb}.activities as ac", "ac.uuid", "=", "trx.activity_uuid")
+                        ->leftJoin("{$trxDb}.equipment as eq", "eq.uuid", "=", "ac.equipment_uuid")
+                        ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "eq.scope_standart_uuid")
+                        ->leftJoin("{$trxDb}.additional_scopes as ad_scope", "ad_scope.uuid", "=", "scope.additional_scope_uuid")
+                        ->whereRaw('trx.original_uuid = cons_mat_stds.uuid')
+                        ->where("ad_scope.original_uuid", "=", $additionalScope);
+                })
+                ->whereHas('activity.equipment.scopeStandart', function ($where) use ($additionalScope) {
+                    $where->where('additional_scope_uuid', '=', $additionalScope);
+                })
+                ->when(request()->input('activity_uuid', null), function ($query) {
+                    $query->where('activity_uuid', '=', request()->input('activity_uuid'));
                 });
         });
     }

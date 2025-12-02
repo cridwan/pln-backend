@@ -82,10 +82,10 @@ class ResourceController extends ConsumableMaterialStdCore
             'summary' => [
                 'total_qty' => $summaryCollection->sum('total_qty'),
                 'total_price' => $summaryCollection->sum(function ($item) {
-                    return optional($item->consmat)->price * $item->total_qty;
+                    return optional($item)->price * $item->total_qty;
                 }),
                 'price' => $summaryCollection->sum(function ($item) {
-                    return optional($item->consmat)->price;
+                    return optional($item)->price;
                 })
             ],
         ]);
@@ -101,7 +101,7 @@ class ResourceController extends ConsumableMaterialStdCore
 
         $trxActivity = Activity::where('uuid', $request->get('activity_uuid'))->first();
         $equipment = ConsMatStd::query()
-            ->with(['consmat'])
+            ->with(['consmat.globalUnit'])
             ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
             ->when($trxActivity, fn($query) => $query->where('activity_uuid', '=', $trxActivity->original_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))

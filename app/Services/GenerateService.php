@@ -59,7 +59,14 @@ class GenerateService
             $this->cloneQcPln($project);
 
             // duplicate additional scope
-            $this->cloneAdditionalScope($project, $request);
+            $this->cloneAdditionalScope(new WhereOptionData(
+                'inspection_type_uuid',
+                '=',
+                $request->inspection_type_uuid,
+                [
+                    'project_uuid' => $project->uuid
+                ]
+            ));
 
             return $project;
         });
@@ -168,17 +175,16 @@ class GenerateService
             });
     }
 
-    public function cloneAdditionalScope(Project $project, GenerateRequest $request)
+    public function cloneAdditionalScope(WhereOptionData $option)
     {
-        AdditionalScope::where('inspection_type_uuid', $request->inspection_type_uuid)
-            ->chunk($this->chunkSize, function ($addScopes) use ($project) {
+        AdditionalScope::where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($addScopes) use ($option) {
                 foreach ($addScopes as $addScope) {
-                    $duplicateAdScope = \App\Models\Transaction\AdditionalScope::create([
+                    $duplicateAdScope = \App\Models\Transaction\AdditionalScope::create(array_merge([
                         'name' => $addScope->name,
-                        'project_uuid' => $project->uuid,
                         'sequence_uuid' => $addScope->sequence_uuid,
                         'original_uuid' => $addScope->uuid,
-                    ]);
+                    ], $option->data));
 
                     // duplicate scope standart
                     $this->cloneScopeStandart(new WhereOptionData(

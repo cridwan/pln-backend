@@ -78,4 +78,27 @@ class Equipment extends Model
                 });
         });
     }
+
+    public function scopeDoestHaveTransactionDetail(Builder $builder, ?string $additionalScope = null)
+    {
+        $builder->when($additionalScope, function ($query) use ($additionalScope) {
+            $query
+                ->has('scopeStandart.additionalScope')
+                ->whereNotExists(function ($sub) use ($additionalScope) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.equipment as trx")
+                        ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "trx.scope_standart_uuid")
+                        ->leftJoin("{$trxDb}.additional_scopes as ad_scope", "ad_scope.uuid", "=", "scope.additional_scope_uuid")
+                        ->whereRaw('trx.original_uuid = equipment.uuid')
+                        ->where("ad_scope.original_uuid", "=", $additionalScope);
+                })
+                ->whereHas('scopeStandart', function ($where) use ($additionalScope) {
+                    $where->where('additional_scope_uuid', '=', $additionalScope);
+                })
+                ->when(request()->input('scope_standart_uuid', null), function ($query) {
+                    $query->where('scope_standart_uuid', '=', request()->input('scope_standart_uuid'));
+                });
+        });
+    }
 }

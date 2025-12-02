@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 #[ObservedBy([UppercaseObservser::class])]
 /**
  * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransaction(?string $inspectionType = null)
+ * @method \Illuminate\Database\Eloquent\Builder<static> doestHaveTransactionDetail(?string $additionalScope = null)
  * @method \Illuminate\Database\Eloquent\Builder<static> calculateDays()
  */
 class ScopeStandart extends Model
@@ -105,6 +106,26 @@ class ScopeStandart extends Model
                         ->where("p.inspection_type_uuid", "=", $inspectionType);
                 })
                 ->where('inspection_type_uuid', '=', $inspectionType);
+        });
+    }
+
+    public function scopeDoestHaveTransactionDetail(Builder $builder, ?string $additionalScope = null)
+    {
+        $builder->when($additionalScope, function ($query) use ($additionalScope) {
+            $query
+                ->has('additionalScope')
+                ->whereNotExists(function ($sub) use ($additionalScope) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.scope_standarts as trx")
+                        ->leftJoin("{$trxDb}.additional_scopes as ad_scope", "ad_scope.uuid", "=", "trx.additional_scope_uuid")
+                        ->whereRaw('trx.original_uuid = scope_standarts.uuid')
+                        ->where("ad_scope.original_uuid", "=", $additionalScope);
+                })
+                ->where('additional_scope_uuid', '=', $additionalScope)
+                ->when(request()->input('sub_bidang_uuid', null), function ($query) {
+                    $query->where('sub_bidang_uuid', '=', request()->input('sub_bidang_uuid'));
+                });
         });
     }
 }

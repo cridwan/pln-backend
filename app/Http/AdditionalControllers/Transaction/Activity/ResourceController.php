@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Transaction\Activity;
+namespace App\Http\AdditionalControllers\Transaction\Activity;
 
-use App\Core\Transaction\ActivityCore;
+use App\Core\Transaction\Detail\ActivityCore;
 use App\Data\PaginationData;
 use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
@@ -10,9 +10,6 @@ use App\Exceptions\BadRequestException;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\Transaction\CloneActivityRequest;
 use App\Models\Activity;
-use App\Models\ConsMatStd;
-use App\Models\ManpowerStd;
-use App\Models\PartStd;
 use App\Models\Transaction\Activity as TransactionActivity;
 use App\Models\Transaction\Equipment;
 use App\Services\GenerateService;
@@ -47,7 +44,6 @@ class ResourceController extends ActivityCore
         }
 
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
-            // duplicate activity
             $this->generateService->cloneActivity(new WhereOptionData(
                 'uuid',
                 '=',
@@ -74,7 +70,7 @@ class ResourceController extends ActivityCore
 
         $trxEquipment = Equipment::where('uuid', $request->get('equipment_uuid'))->first();
         $equipment = Activity::query()
-            ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('equipment_uuid', null))
+            ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
             ->when($trxEquipment, fn($query) => $query->where('equipment_uuid', '=', $trxEquipment->original_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
             ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))

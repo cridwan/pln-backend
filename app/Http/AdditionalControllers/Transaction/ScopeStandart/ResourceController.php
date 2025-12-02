@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Transaction\ScopeStandart;
+namespace App\Http\AdditionalControllers\Transaction\ScopeStandart;
 
-use App\Core\Transaction\ScopeStandartCore;
+use App\Core\Transaction\Detail\ScopeStandartCore;
 use App\Data\PaginationData;
 use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
@@ -11,10 +11,6 @@ use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Requests\ScopeStandartRequest;
 use App\Http\Requests\Transaction\CloneScopeRequest;
 use App\Http\Resources\ResponseResource;
-use App\Models\ConsMatStd;
-use App\Models\Equipment;
-use App\Models\ManpowerStd;
-use App\Models\PartStd;
 use App\Models\ScopeStandart as ModelsScopeStandart;
 use App\Models\Transaction\Activity;
 use App\Models\Transaction\ScopeStandart;
@@ -47,8 +43,8 @@ class ResourceController extends ScopeStandartCore
         $perPage = $request->filled('perPage') ? $request->perPage : 10;
         $currentPage = $request->filled('currentPage') ? $request->currentPage : 1;
 
-
-        $query = ScopeStandart::query();
+        $query = ScopeStandart::query()
+            ->has('additionalScope');
         $query->with($this->with());
         $query->when($request->filled('search'), callback: function ($subQuery) use ($request) {
             $subQuery->where(function ($search) use ($request) {
@@ -135,7 +131,7 @@ class ResourceController extends ScopeStandartCore
                 '=',
                 $request->scope_standart_uuid,
                 [
-                    'project_uuid' => $request->project_uuid
+                    'additional_scope_uuid' => $request->additional_scope_uuid
                 ]
             ));
         });
@@ -154,7 +150,7 @@ class ResourceController extends ScopeStandartCore
         $pagination = new PaginationData($request);
 
         $scopes = ModelsScopeStandart::query()
-            ->doestHaveTransaction($request->input('inspection_type_uuid', null))
+            ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
             ->when($request->filled('sub_bidang_uuid'), fn($scope) => $scope->where('sub_bidang_uuid', $request->sub_bidang_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->doesntHave('additionalScope'))
             ->when($request->filled('additional_scope_uuid'), fn($query) => $query->doesntHave('inspectionType'))

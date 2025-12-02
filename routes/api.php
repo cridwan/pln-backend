@@ -21,3 +21,10 @@ Route::prefix('add-scope/detail')
         Discover::controllers()
             ->in(app_path('Http/AdditionalControllers'));
     });
+
+// additional scope controller transaction
+Route::prefix('add-scope/detail/transaction')
+    ->group(function () {
+        Discover::controllers()
+            ->in(app_path('Http/AdditionalControllers/Transaction'));
+    });

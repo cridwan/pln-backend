@@ -46,16 +46,6 @@ class ResourceController extends PartStdCore
                     'activity_uuid' => $request->activity_uuid
                 ]
             ));
-            PartStd::select('uuid', 'activity_uuid', 'part_uuid', 'qty')
-                ->where('uuid', $request->part_uuid)
-                ->each(function ($row) use ($request) {
-                    $duplicate = $row->replicate();
-                    $duplicate->setConnection(ConnectionEnum::TRANSACTION->value);
-                    $duplicate->setTable('part_stds');
-                    $duplicate->activity_uuid = $request->activity_uuid;
-                    $duplicate->original_uuid = $row->uuid;
-                    $duplicate->save();
-                });
         });
 
         return [
@@ -93,10 +83,10 @@ class ResourceController extends PartStdCore
             'summary' => [
                 'total_qty' => $summaryCollection->sum('total_qty'),
                 'total_price' => $summaryCollection->sum(function ($item) {
-                    return optional($item->part)->price * $item->total_qty;
+                    return optional($item)->price * $item->total_qty;
                 }),
                 'price' => $summaryCollection->sum(function ($item) {
-                    return optional($item->part)->price;
+                    return optional($item)->price;
                 })
             ],
         ]);
@@ -112,7 +102,7 @@ class ResourceController extends PartStdCore
 
         $trxActivity = Activity::where('uuid', $request->get('activity_uuid'))->first();
         $equipment = PartStd::query()
-            ->with(['part'])
+            ->with(['part.globalUnit'])
             ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
             ->when($trxActivity, fn($query) => $query->where('activity_uuid', '=', $trxActivity->original_uuid))
             ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))

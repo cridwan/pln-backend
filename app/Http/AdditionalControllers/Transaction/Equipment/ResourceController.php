@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Http\Controllers\Transaction\Activity;
+namespace App\Http\AdditionalControllers\Transaction\Equipment;
 
-use App\Core\Transaction\ActivityCore;
+use App\Core\Transaction\Detail\EquipmentCore;
 use App\Data\PaginationData;
 use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
 use App\Exceptions\BadRequestException;
 use App\Http\Middleware\ResponseMiddleware;
-use App\Http\Requests\Transaction\CloneActivityRequest;
+use App\Http\Requests\Transaction\CloneEquipmentRequest;
 use App\Models\Activity;
 use App\Models\ConsMatStd;
+use App\Models\Equipment as ModelsEquipment;
 use App\Models\ManpowerStd;
 use App\Models\PartStd;
-use App\Models\Transaction\Activity as TransactionActivity;
 use App\Models\Transaction\Equipment;
+use App\Models\Transaction\ScopeStandart;
 use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
@@ -24,8 +25,8 @@ use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
 #[Route(middleware: [ResponseMiddleware::class])]
-#[Group(name: 'Transaction Activity Resource')]
-class ResourceController extends ActivityCore
+#[Group(name: 'Transaction Equipments Resource')]
+class ResourceController extends EquipmentCore
 {
     use InitCore;
 
@@ -39,21 +40,21 @@ class ResourceController extends ActivityCore
      * clone data
      */
     #[Route(method: 'post')]
-    public function clone(CloneActivityRequest $request)
+    public function clone(CloneEquipmentRequest $request)
     {
-        $activity = TransactionActivity::where('uuid', $request->activity_uuid)->first();
-        if ($activity) {
-            throw new BadRequestException('Data ' . $activity->name . ' sudah di cloning');
+        $equipment = Equipment::where('uuid', $request->equipment_uuid)->first();
+
+        if ($equipment) {
+            throw new BadRequestException('Data ' . $equipment->name . ' sudah dilakukan cloning');
         }
 
         DB::connection(ConnectionEnum::TRANSACTION->value)->transaction(function () use ($request) {
-            // duplicate activity
-            $this->generateService->cloneActivity(new WhereOptionData(
+            $this->generateService->cloneEquipment(new WhereOptionData(
                 'uuid',
                 '=',
-                $request->activity_uuid,
+                $request->equipment_uuid,
                 [
-                    'equipment_uuid' => $request->equipment_uuid
+                    'scope_standart_uuid' => $request->scope_standart_uuid
                 ]
             ));
         });
@@ -72,12 +73,12 @@ class ResourceController extends ActivityCore
     {
         $pagination = new PaginationData($request);
 
-        $trxEquipment = Equipment::where('uuid', $request->get('equipment_uuid'))->first();
-        $equipment = Activity::query()
-            ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('equipment_uuid', null))
-            ->when($trxEquipment, fn($query) => $query->where('equipment_uuid', '=', $trxEquipment->original_uuid))
-            ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
-            ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))
+        $trxScope = ScopeStandart::where('uuid', $request->get('scope_standart_uuid'))->first();
+        $equipment = ModelsEquipment::query()
+            ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
+            ->when($trxScope, fn($query) => $query->where('scope_standart_uuid', '=', $trxScope->original_uuid))
+            ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
+            ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $equipment;

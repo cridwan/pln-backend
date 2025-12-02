@@ -83,6 +83,30 @@ class Activity extends Model
         });
     }
 
+    public function scopeDoestHaveTransactionDetail(Builder $builder, ?string $additionalScope = null)
+    {
+        $builder->when($additionalScope, function ($query) use ($additionalScope) {
+            $query
+                ->has('equipment.scopeStandart.additionalScope')
+                ->whereNotExists(function ($sub) use ($additionalScope) {
+                    $trxDb = \DB::connection(ConnectionEnum::TRANSACTION->value)->getDatabaseName();
+                    $sub->selectRaw(1)
+                        ->from("{$trxDb}.activities as trx")
+                        ->leftJoin("{$trxDb}.equipment as eq", "eq.uuid", "=", "trx.equipment_uuid")
+                        ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "eq.scope_standart_uuid")
+                        ->leftJoin("{$trxDb}.additional_scopes as ad_scope", "ad_scope.uuid", "=", "scope.additional_scope_uuid")
+                        ->whereRaw('trx.original_uuid = activities.uuid')
+                        ->where("ad_scope.original_uuid", "=", $additionalScope);
+                })
+                ->whereHas('equipment.scopeStandart', function ($where) use ($additionalScope) {
+                    $where->where('additional_scope_uuid', '=', $additionalScope);
+                })
+                ->when(request()->input('equipment_uuid', null), function ($query) {
+                    $query->where('equipment_uuid', '=', request()->input('equipment_uuid'));
+                });
+        });
+    }
+
     public function generateSerialNumber()
     {
         return $this->where('equipment_uuid', '=', $this->equipment_uuid)->count() + 1;
