@@ -37,6 +37,12 @@ abstract class HseDocCore extends MasterCore implements WithImportExcel
     }
 
     #[DoNotDiscover]
+    public function query(): mixed
+    {
+        return HseDoc::query();
+    }
+
+    #[DoNotDiscover]
     public function rules(): array
     {
         return [

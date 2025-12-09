@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Transaction\ProjectActivity;
+use App\Observers\UserObserver;
 use App\Observers\UserSafeObserver;
 use App\Traits\ActivityLog;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -12,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[ObservedBy([UserSafeObserver::class])]
+#[ObservedBy([UserSafeObserver::class, UserObserver::class])]
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
@@ -79,5 +81,10 @@ class User extends Authenticatable
             ->whereIn('name', $roles)
             ->where('guard_name', $guard)
             ->exists();
+    }
+
+    public function projectActivities()
+    {
+        return $this->hasMany(ProjectActivity::class, 'user_id');
     }
 }

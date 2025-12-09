@@ -3,12 +3,8 @@
 namespace App\Exports;
 
 use App\Models\Transaction\ConsMat;
-use App\Models\Transaction\Manpower;
-use App\Models\Transaction\Part;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
 
 
 class ConsMatExport extends Export implements WithColumnFormatting
@@ -30,19 +26,23 @@ class ConsMatExport extends Export implements WithColumnFormatting
     public function query()
     {
         return ConsMat::query()
-            ->with(['consmat'])
             ->addSelect([
-                'cons_mat_stds.cons_mat_uuid',
+                'name',
+                'merk',
+                'unit',
                 DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(price) as price'),
                 DB::raw("('SCOPE STANDART') AS type_scope")
             ])
             ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('project_uuid', $this->project->uuid))
             ->union(
                 ConsMat::query()
-                    ->with(['consmat'])
                     ->addSelect([
-                        'cons_mat_stds.cons_mat_uuid',
+                        'name',
+                        'merk',
+                        'unit',
                         DB::raw('SUM(qty) as total_qty'),
+                        DB::raw('SUM(price) as price'),
                         DB::raw("('ADDITIONAL SCOPE') AS type_scope")
                     ])
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', function ($query) {
@@ -54,9 +54,9 @@ class ConsMatExport extends Export implements WithColumnFormatting
                             ->orHas('ncr');
                     })
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', fn($query) => $query->where('project_uuid', $this->project->uuid))
-                    ->groupBy('cons_mat_stds.cons_mat_uuid')
+                    ->groupBy('name', 'merk', 'unit')
             )
-            ->groupBy('cons_mat_stds.cons_mat_uuid')
+            ->groupBy('name', 'merk', 'unit')
             ->orderBy('type_scope', 'DESC');
     }
 
@@ -65,10 +65,10 @@ class ConsMatExport extends Export implements WithColumnFormatting
         return [
             ++$this->index,
             $row->type_scope,
-            $row->consmat?->name ?? '-',
+            $row->name ?? '-',
             (string) $row->total_qty ?? '0',
-            (string) $row->consmat?->price ?? '0',
-            (string) (($row->consmat?->price ?? 0) * $row->total_qty) ?? '0',
+            (string) $row->price ?? '0',
+            (string) (($row->price ?? 0) * $row->total_qty) ?? '0',
         ];
     }
 

@@ -37,6 +37,12 @@ abstract class QcPlanCore extends MasterCore implements WithImportExcel
     }
 
     #[DoNotDiscover]
+    public function query(): mixed
+    {
+        return QcPlan::query();
+    }
+
+    #[DoNotDiscover]
     public function rules(): array
     {
         return [

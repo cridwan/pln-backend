@@ -51,7 +51,6 @@ class AuthController extends Controller implements HasMiddleware
 
     /**
      * Summary of profile
-     * @return User
      */
     #[Route(method: 'put')]
     public function profile(UserUpdateProfileRequest $request)

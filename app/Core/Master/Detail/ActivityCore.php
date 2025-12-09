@@ -71,6 +71,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             'equipment_uuid' => 'required|exists:equipment,uuid',
             'link_ik1' => 'nullable',
             'link_ik2' => 'nullable',
+            'serial_number'=>'required',
         ];
     }
 

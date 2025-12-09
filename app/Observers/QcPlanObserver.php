@@ -9,7 +9,12 @@ class QcPlanObserver
 {
     public function deleting(QcPlan $model)
     {
-        $exists = $model->transactions()->exists();
+        // Cek apakah ada transaksi yang terkait dengan project yang statusnya approve
+        $exists = $model->transactions()
+            ->whereHas('project', function ($query) {
+                $query->where('status', '!=', 'approve');
+            })
+            ->exists();
 
         if ($exists) {
             throw new BadRequestException("Data {$model->name} sudah digunakan di transaksi");

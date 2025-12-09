@@ -11,11 +11,15 @@ use App\Exceptions\BadRequestException;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Http\Resources\ProjectResource;
+use App\Models\Sequence;
 use App\Models\Transaction\Project;
 use App\Services\NotificationService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
@@ -89,11 +93,6 @@ class ProjectController extends Controller implements HasMiddleware
     public function destroy(string $uuid)
     {
         $project = Project::where('uuid', '=', $uuid)->first();
-
-        \Log::info('project', [
-            'data' => $project,
-            'uuid' => $uuid
-        ]);
 
         if (!$project) {
             throw new BadRequestException('Project tidak ditemukan');
@@ -173,5 +172,24 @@ class ProjectController extends Controller implements HasMiddleware
             uri: $request->uri, // Link ke halaman yang relevan
             summary: 'Permintaan approval project dari ' . $request->user()->name,
         ));
+    }
+
+    #[Route(method: 'get', uri: 'sequences')]
+    public function sequence()
+    {
+        $query = Sequence::query()->with('document');
+
+        $builder = QueryBuilder::for($query)
+            ->allowedFilters([
+                AllowedFilter::callback('inspectionType', function (Builder $query, string $value) {
+                    $query->whereHas('inspections', fn($inspections) => $inspections->where('uuid', '=', $value));
+                }),
+                AllowedFilter::callback('additionalScope', function (Builder $query, string $value) {
+                    $query->whereHas('scopes', fn($scopes) => $scopes->where('uuid', '=', $value));
+                })
+            ]);
+
+
+        return $builder->first();
     }
 }

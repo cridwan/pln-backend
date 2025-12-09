@@ -9,6 +9,7 @@ use App\Traits\SettingModel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 #[ObservedBy([UppercaseObservser::class, HseDocObserver::class])]
 /**

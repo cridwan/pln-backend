@@ -6,7 +6,6 @@ use App\Models\Transaction\Manpower;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
 
 
 class ManpowerExport extends Export implements WithColumnFormatting, WithEvents
@@ -28,19 +27,19 @@ class ManpowerExport extends Export implements WithColumnFormatting, WithEvents
     public function query()
     {
         return Manpower::query()
-            ->with(['manpower'])
             ->addSelect([
-                'manpower_stds.manpower_uuid',
+                'name',
                 DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(price) as price'),
                 DB::raw("('SCOPE STANDART') AS type_scope")
             ])
             ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('project_uuid', $this->project->uuid))
             ->union(
                 Manpower::query()
-                    ->with(['manpower'])
                     ->addSelect([
-                        'manpower_stds.manpower_uuid',
+                        'name',
                         DB::raw('SUM(qty) as total_qty'),
+                        DB::raw('SUM(price) as price'),
                         DB::raw("('ADDITIONAL SCOPE') AS type_scope")
                     ])
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', function ($query) {
@@ -52,9 +51,9 @@ class ManpowerExport extends Export implements WithColumnFormatting, WithEvents
                             ->orHas('ncr');
                     })
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', fn($query) => $query->where('project_uuid', $this->project->uuid))
-                    ->groupBy('manpower_stds.manpower_uuid')
+                    ->groupBy('name')
             )
-            ->groupBy('manpower_stds.manpower_uuid')
+            ->groupBy('name')
             ->orderBy('type_scope', 'DESC');
     }
 
@@ -63,10 +62,10 @@ class ManpowerExport extends Export implements WithColumnFormatting, WithEvents
         return [
             ++$this->index,
             $row->type_scope,
-            $row->manpower?->name ?? '-',
+            $row->name ?? '-',
             (string) $row->total_qty ?? '0',
-            (string) $row->manpower?->price ?? '0',
-            (string) (($row->manpower?->price ?? 0) * $row->total_qty) ?? '0',
+            (string) $row->price ?? '0',
+            (string) (($row->price ?? 0) * $row->total_qty) ?? '0',
         ];
     }
 

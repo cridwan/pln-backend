@@ -148,7 +148,7 @@ class ManpowerStd extends Model
                 ->leftJoin("{$databaseName}.equipment as eq", 'eq.uuid', '=', 'ac.equipment_uuid')
                 ->leftJoin("{$databaseName}.scope_standarts as scope", 'scope.uuid', '=', 'eq.scope_standart_uuid')
                 ->leftJoin("{$databaseName}.additional_scopes as add_scope", 'add_scope.uuid', '=', 'scope.additional_scope_uuid')
-                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'scope.project_uuid')
+                ->leftJoin("{$databaseName}.projects", 'projects.uuid', '=', 'add_scope.project_uuid')
                 ->whereColumn('trx.original_uuid', '=', 'manpower_stds.uuid')
                 ->where('projects.status', '!=', 'approve')
                 ->selectRaw('COUNT(projects.uuid)'),

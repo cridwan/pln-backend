@@ -9,7 +9,11 @@ class HseDocObserver
 {
     public function deleting(HseDoc $model)
     {
-        $exists = $model->transactions()->exists();
+        $exists = $model->transactions()
+            ->whereHas('project', function ($query) {
+                $query->where('status', '!=', 'approve');
+            })
+            ->exists();
 
         if ($exists) {
             throw new BadRequestException("Data {$model->name} sudah digunakan di transaksi");

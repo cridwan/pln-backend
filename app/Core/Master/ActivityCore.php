@@ -58,7 +58,8 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
                     $where->where('area_uuid', '=', auth()->user()->area_uuid);
                 });
             })
-            ->hasTransaction();
+            ->hasTransaction()
+            ->orderBy('serial_number', 'asc');
     }
 
     #[DoNotDiscover]
@@ -70,6 +71,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             'equipment_uuid' => 'required|exists:equipment,uuid',
             'link_ik1' => 'nullable',
             'link_ik2' => 'nullable',
+            'serial_number' => 'required',
         ];
     }
 

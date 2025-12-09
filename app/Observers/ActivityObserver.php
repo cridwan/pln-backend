@@ -8,6 +8,5 @@ class ActivityObserver
 {
     public function creating(Activity $activity)
     {
-        $activity->serial_number = $activity->generateSerialNumber();
     }
 }

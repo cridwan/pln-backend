@@ -2,12 +2,10 @@
 
 namespace App\Exports;
 
-use App\Models\Transaction\Manpower;
 use App\Models\Transaction\Part;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Events\AfterSheet;
 
 
 class PartExport extends Export implements WithColumnFormatting, WithEvents
@@ -29,19 +27,25 @@ class PartExport extends Export implements WithColumnFormatting, WithEvents
     public function query()
     {
         return Part::query()
-            ->with(['part'])
             ->addSelect([
-                'part_stds.part_uuid',
+                'name',
+                'merk',
+                'no_drawing',
+                'unit',
                 DB::raw('SUM(qty) as total_qty'),
+                DB::raw('SUM(price) as price'),
                 DB::raw("('SCOPE STANDART') AS type_scope")
             ])
             ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('project_uuid', $this->project->uuid))
             ->union(
                 Part::query()
-                    ->with(['part'])
                     ->addSelect([
-                        'part_stds.part_uuid',
+                        'name',
+                        'merk',
+                        'no_drawing',
+                        'unit',
                         DB::raw('SUM(qty) as total_qty'),
+                        DB::raw('SUM(price) as price'),
                         DB::raw("('ADDITIONAL SCOPE') AS type_scope")
                     ])
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', function ($query) {
@@ -53,9 +57,9 @@ class PartExport extends Export implements WithColumnFormatting, WithEvents
                             ->orHas('ncr');
                     })
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', fn($query) => $query->where('project_uuid', $this->project->uuid))
-                    ->groupBy('part_stds.part_uuid')
+                    ->groupBy('name', 'merk', 'no_drawing', 'unit')
             )
-            ->groupBy('part_stds.part_uuid')
+            ->groupBy('name', 'merk', 'no_drawing', 'unit')
             ->orderBy('type_scope', 'DESC');
     }
 
@@ -64,10 +68,10 @@ class PartExport extends Export implements WithColumnFormatting, WithEvents
         return [
             ++$this->index,
             $row->type_scope,
-            $row->part?->name ?? '-',
+            $row->name ?? '-',
             (string) $row->total_qty ?? '0',
-            (string) $row->part?->price ?? '0',
-            (string) (($row->part?->price ?? 0) * $row->total_qty) ?? '0',
+            (string) $row->price ?? '0',
+            (string) (($row->price ?? 0) * $row->total_qty) ?? '0',
         ];
     }
 
