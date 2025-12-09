@@ -190,6 +190,12 @@ class ProjectController extends Controller implements HasMiddleware
             ]);
 
 
-        return $builder->first();
+        $sequence = $builder->first();
+
+        if (!$sequence) {
+            return ['data' => $sequence];
+        }
+
+        return $sequence;
     }
 }

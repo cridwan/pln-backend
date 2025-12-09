@@ -186,6 +186,9 @@ class GenerateService
                         'original_uuid' => $addScope->uuid,
                     ], $option->data));
 
+                    // clone document
+                    $this->cloneDocument(AdditionalScope::class, $addScope->uuid, "App\\Models\\Transaction\\AdditionalScope", $duplicateAdScope->uuid);
+
                     // duplicate scope standart
                     $this->cloneScopeStandart(new WhereOptionData(
                         'additional_scope_uuid',

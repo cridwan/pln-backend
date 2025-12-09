@@ -36,4 +36,9 @@ class Sequence extends Model
     {
         return $this->hasMany(AdditionalScope::class, 'sequence_uuid');
     }
+
+    public function addScopesTransaction()
+    {
+        return $this->hasMany(\App\Models\Transaction\AdditionalScope::class, 'sequence_uuid');
+    }
 }

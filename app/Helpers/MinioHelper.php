@@ -136,6 +136,13 @@ class MinioHelper
             }, 200, [
                 'Content-Type' => $result['ContentType'] ?? 'application/octet-stream',
                 'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+                'Access-Control-Allow-Origin' => '*',
+                'Access-Control-Allow-Methods' => 'GET, HEAD, OPTIONS',
+                'Access-Control-Allow-Headers' => 'Range, Content-Type, Authorization',
+                'Access-Control-Expose-Headers' => 'Content-Length, Content-Range, Accept-Ranges',
+                'Accept-Ranges' => 'bytes',
+                'Cache-Control' => 'public, max-age=3600',
+                'Content-Length' => $result['ContentLength'] ?? strlen($result['Body']),
             ]);
 
         } catch (AwsException $e) {
