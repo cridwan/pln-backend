@@ -25,6 +25,7 @@ class BudgetActivityExport extends Export
                 'BIDANG',
                 'SUB BIDANG',
                 'EQUIPMENT',
+                'NO URUT',
                 'ACTIVITY',
                 'DURASI',
                 'MATERIAL',
@@ -43,6 +44,7 @@ class BudgetActivityExport extends Export
                 '',
             ],
             [
+                '',
                 '',
                 '',
                 '',
@@ -78,9 +80,9 @@ class BudgetActivityExport extends Export
             ->with([
                 'subBidang.bidang',
                 'equipments.activities',
-                'equipments.activities.manpowers.manpower',
-                'equipments.activities.materials.consmat.globalUnit',
-                'equipments.activities.parts.part.globalUnit'
+                'equipments.activities.manpowers',
+                'equipments.activities.materials',
+                'equipments.activities.parts'
             ])
             ->when(
                 $this->type == 'SCOPE STANDART',
@@ -116,6 +118,7 @@ class BudgetActivityExport extends Export
             foreach ($equipment->activities as $activity) {
                 $data[] = [
                     ...collect(range(0, 8))->map(fn() => ''),
+                    $activity->serial_number,
                     $activity->name,
                     $activity->duration,
                 ];
@@ -127,22 +130,22 @@ class BudgetActivityExport extends Export
                     $data[] = [
                         ...collect(range(0, 10))->map(fn() => ''), // tambahkan offset kolom sesuai kebutuhan
                         // materials
-                        $activity->materials[$i]?->consmat?->name ?? '',
+                        $activity->materials[$i]?->name ?? '',
                         $activity->materials[$i]?->qty ?? '',
-                        $activity->materials[$i]?->consmat?->globalUnit?->name ?? '',
-                        'Rp. ' . number_format($activity->materials[$i]?->consmat?->price ?? 0, 2),
-                        'Rp. ' . number_format(($activity->materials[$i]?->consmat?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0), 2),
+                        $activity->materials[$i]?->unit ?? '',
+                        'Rp. ' . number_format($activity->materials[$i]?->price ?? 0, 2),
+                        'Rp. ' . number_format(($activity->materials[$i]?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0), 2),
                         // manpower
                         $activity->manpowers[$i]?->manpower?->name ?? '',
                         $activity->manpowers[$i]?->qty ?? '',
-                        'Rp. ' . number_format($activity->manpowers[$i]?->manpower?->price ?? 0, 2),
-                        'Rp. ' . number_format(($activity->manpowers[$i]?->manpower?->price ?? 0) * ($activity->manpowers[$i]?->qty ?? 0), 2),
+                        'Rp. ' . number_format($activity->manpowers[$i]?->price ?? 0, 2),
+                        'Rp. ' . number_format(($activity->manpowers[$i]?->price ?? 0) * ($activity->manpowers[$i]?->qty ?? 0), 2),
                         // part
-                        $activity->parts[$i]?->part?->name ?? '',
+                        $activity->parts[$i]?->name ?? '',
                         $activity->parts[$i]?->qty ?? '',
-                        $activity->parts[$i]?->part?->globalUnit?->name ?? '',
-                        'Rp. ' . number_format($activity->parts[$i]?->part?->price ?? 0, 2),
-                        'Rp. ' . number_format(($activity->parts[$i]?->part?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0), 2),
+                        $activity->parts[$i]?->unit ?? '',
+                        'Rp. ' . number_format($activity->parts[$i]?->price ?? 0, 2),
+                        'Rp. ' . number_format(($activity->parts[$i]?->price ?? 0) * ($activity->parts[$i]?->qty ?? 0), 2),
                     ];
                 }
             }
@@ -155,7 +158,7 @@ class BudgetActivityExport extends Export
     {
         parent::styles($sheet);
 
-        foreach (range('A', 'K') as $column) {
+        foreach (range('A', 'L') as $column) {
             $sheet->mergeCells("{$column}5:{$column}6");
         }
 

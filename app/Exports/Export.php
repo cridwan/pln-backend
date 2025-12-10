@@ -76,8 +76,8 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
     {
         $sheet->setCellValue('B1', 'PT. PLN INDONESIA POWER');
         $sheet->setCellValue('B2', 'SUMMARY SCOPE STANDARD PEMELIHARAAN PERIODIK');
-        $sheet->setCellValue('B3', $this->inspection());
-        $sheet->setCellValue('B4', $this->machine());
+        $sheet->setCellValue('B3', $this->project?->name ?? '');
+        $sheet->setCellValue('B4', str($this->project->generateBy?->user?->name ?? '')->upper());
     }
 
     private function numberToAlpha(int $number)

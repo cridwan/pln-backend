@@ -21,6 +21,7 @@ class BudgetActivityExport extends Export
                 'BIDANG',
                 'SUB BIDANG',
                 'EQUIPMENT',
+                'NO URUT',
                 'ACTIVITY',
                 'DURASI',
                 'MATERIAL',
@@ -33,6 +34,7 @@ class BudgetActivityExport extends Export
                 '',
             ],
             [
+                '',
                 '',
                 '',
                 '',
@@ -99,6 +101,7 @@ class BudgetActivityExport extends Export
             foreach ($equipment->activities as $activity) {
                 $data[] = [
                     ...collect(range(0, 8))->map(fn() => ''),
+                    $activity->serial_number,
                     $activity->name,
                     $activity->duration,
                 ];

@@ -71,7 +71,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             'equipment_uuid' => 'required|exists:equipment,uuid',
             'link_ik1' => 'nullable',
             'link_ik2' => 'nullable',
-            'serial_number'=>'required',
+            'serial_number' => 'required',
         ];
     }
 
@@ -117,6 +117,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             }, 'EQUIPMENT'),
             new AttributeData('name', 'NAME'),
             new AttributeData('duration', 'DURATION'),
+            new AttributeData('serial_number', 'No Urut'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
             new AttributeData(function ($row) {
@@ -136,6 +137,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             'equipment_uuid',
             'name',
             'duration',
+            'serial_number',
         ], new OptionData(
             'A',
             Equipment::
@@ -181,6 +183,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             Activity::create([
                 'name' => $data['name'] ?? '',
                 'duration' => $data['duration'] ?? null,
+                'serial_number' => $data['serial_number'] ?? null,
                 'equipment_uuid' => trim(end($equipment)),
             ]);
         } catch (\Throwable $th) {

@@ -113,7 +113,8 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
                 return $row->equipment?->name ?? '';
             }, 'EQUIPMENT'),
             new AttributeData('name', 'NAME'),
-            new AttributeData('duration', 'DURATION'),
+            new AttributeData('duration', 'DURATION (Jam)'),
+            new AttributeData('serial_number', 'No Urut'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
             new AttributeData(function ($row) {
@@ -132,10 +133,12 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             'equipment_uuid',
             'name',
             'duration',
+            'serial_number',
         ], new OptionData(
             'A',
             Equipment::
-                when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
+                has('scopeStandart.inspectionType')
+                ->when(!auth()->user()->hasRole(RoleEnum::SUPERUSER), function ($query) {
                     $query->whereHas('scopeStandart.inspectionType.machine.unit.location.subArea', function ($where) {
                         $where->where('area_uuid', '=', auth()->user()->area_uuid);
                     });
@@ -170,6 +173,7 @@ abstract class ActivityCore extends MasterCore implements WithImportExcel
             Activity::create([
                 'name' => $data['name'] ?? '',
                 'duration' => $data['duration'] ?? null,
+                'serial_number' => $data['serial_number'] ?? null,
                 'equipment_uuid' => trim(end($equipment)),
             ]);
         } catch (\Throwable $th) {
