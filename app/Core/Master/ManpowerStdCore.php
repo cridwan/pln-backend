@@ -117,7 +117,7 @@ abstract class ManpowerStdCore extends MasterCore implements WithImportExcel
                 return $row->qty;
             }, 'QTY'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->manpower?->price, 2);
+                return (string) $row->manpower?->price;
             }, 'PRICE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),

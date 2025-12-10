@@ -128,24 +128,24 @@ class BudgetActivityExport extends Export
 
                 for ($i = 0; $i < $maxRow; $i++) {
                     $data[] = [
-                        ...collect(range(0, 10))->map(fn() => ''), // tambahkan offset kolom sesuai kebutuhan
+                        ...collect(range(0, 11))->map(fn() => ''), // tambahkan offset kolom sesuai kebutuhan
                         // materials
                         $activity->materials[$i]?->name ?? '',
                         $activity->materials[$i]?->qty ?? '',
                         $activity->materials[$i]?->unit ?? '',
-                        'Rp. ' . number_format($activity->materials[$i]?->price ?? 0, 2),
-                        'Rp. ' . number_format(($activity->materials[$i]?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0), 2),
+                        (string) $activity->materials[$i]?->price ?? 0,
+                        (string) ($activity->materials[$i]?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0),
                         // manpower
                         $activity->manpowers[$i]?->manpower?->name ?? '',
                         $activity->manpowers[$i]?->qty ?? '',
-                        'Rp. ' . number_format($activity->manpowers[$i]?->price ?? 0, 2),
-                        'Rp. ' . number_format(($activity->manpowers[$i]?->price ?? 0) * ($activity->manpowers[$i]?->qty ?? 0), 2),
+                        (string) $activity->manpowers[$i]?->price ?? 0,
+                        (string) ($activity->manpowers[$i]?->price ?? 0) * ($activity->manpowers[$i]?->qty ?? 0),
                         // part
                         $activity->parts[$i]?->name ?? '',
                         $activity->parts[$i]?->qty ?? '',
                         $activity->parts[$i]?->unit ?? '',
-                        'Rp. ' . number_format($activity->parts[$i]?->price ?? 0, 2),
-                        'Rp. ' . number_format(($activity->parts[$i]?->price ?? 0) * ($activity->parts[$i]?->qty ?? 0), 2),
+                        (string) $activity->parts[$i]?->price ?? 0,
+                        (string) ($activity->parts[$i]?->price ?? 0) * ($activity->parts[$i]?->qty ?? 0),
                     ];
                 }
             }
@@ -162,8 +162,8 @@ class BudgetActivityExport extends Export
             $sheet->mergeCells("{$column}5:{$column}6");
         }
 
-        $sheet->mergeCells('L5:P5');
-        $sheet->mergeCells('Q5:T5');
-        $sheet->mergeCells('U5:Y5');
+        $sheet->mergeCells('M5:Q5');
+        $sheet->mergeCells('R5:U5');
+        $sheet->mergeCells('V5:Z5');
     }
 }

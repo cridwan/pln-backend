@@ -38,7 +38,7 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
 
     public function inspection(): string
     {
-        return $this->InspectionType?->name ?? '';
+        return ($this->InspectionType?->name ?? '') . ' / ' . ($this->InspectionType?->machine?->name ?? '') . ' / ' . ($this->InspectionType?->machine?->unit?->name ?? '') . ' / ' . ($this->InspectionType?->machine?->unit?->location?->name ?? '');
     }
 
     public function machine(): string
@@ -81,7 +81,7 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
         $sheet->setCellValue('B1', 'PT. PLN INDONESIA POWER');
         $sheet->setCellValue('B2', 'SUMMARY SCOPE STANDARD PEMELIHARAAN PERIODIK');
         $sheet->setCellValue('B3', $this->inspection());
-        $sheet->setCellValue('B4', $this->machine());
+        // $sheet->setCellValue('B4', $this->machine());
     }
 
     private function numberToAlpha(int $number)
@@ -112,8 +112,8 @@ abstract class Export implements FromQuery, WithDrawings, WithMapping, WithStyle
         $sheet->mergeCells('A1:A4');
         $sheet->mergeCells("B1:{$highestColumn}1");
         $sheet->mergeCells("B2:{$highestColumn}2");
-        $sheet->mergeCells("B3:{$highestColumn}3");
-        $sheet->mergeCells("B4:{$highestColumn}4");
+        $sheet->mergeCells("B3:{$highestColumn}4");
+        // $sheet->mergeCells("B4:{$highestColumn}4");
 
         // Menulis header langsung ke dalam Excel
         $this->setHeader($sheet);

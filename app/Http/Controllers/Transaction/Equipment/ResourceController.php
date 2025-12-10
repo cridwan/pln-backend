@@ -74,12 +74,8 @@ class ResourceController extends EquipmentCore
     {
         $pagination = new PaginationData($request);
 
-        $trxScope = ScopeStandart::where('uuid', $request->get('scope_standart_uuid'))->first();
         $equipment = ModelsEquipment::query()
             ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('scope_standart_uuid', null))
-            ->when($trxScope, fn($query) => $query->where('scope_standart_uuid', '=', $trxScope->original_uuid))
-            ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
-            ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $equipment;

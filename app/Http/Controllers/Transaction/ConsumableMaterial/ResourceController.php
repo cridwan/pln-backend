@@ -99,13 +99,9 @@ class ResourceController extends ConsumableMaterialStdCore
     {
         $pagination = new PaginationData($request);
 
-        $trxActivity = Activity::where('uuid', $request->get('activity_uuid'))->first();
         $equipment = ConsMatStd::query()
             ->with(['consmat.globalUnit'])
             ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
-            ->when($trxActivity, fn($query) => $query->where('activity_uuid', '=', $trxActivity->original_uuid))
-            ->when($request->filled('project_uuid'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('additionalScope')))
-            ->when($request->filled('additional_scope'), fn($query) => $query->whereHas('activity.equipment.scopeStandart', fn($scope) => $scope->doesntHave('inspectionType')))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $equipment;

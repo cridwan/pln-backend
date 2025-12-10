@@ -74,7 +74,8 @@ class Activity extends Model
                         ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "eq.scope_standart_uuid")
                         ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "scope.project_uuid")
                         ->whereRaw('trx.original_uuid = activities.uuid')
-                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                        ->where("p.inspection_type_uuid", "=", $inspectionType)
+                        ->where("p.uuid", "=", request()->input('project_uuid', null));
                 })
                 ->whereHas('equipment.scopeStandart', function ($where) use ($inspectionType) {
                     $where->where('inspection_type_uuid', '=', $inspectionType);
@@ -97,8 +98,10 @@ class Activity extends Model
                         ->leftJoin("{$trxDb}.equipment as eq", "eq.uuid", "=", "trx.equipment_uuid")
                         ->leftJoin("{$trxDb}.scope_standarts as scope", "scope.uuid", "=", "eq.scope_standart_uuid")
                         ->leftJoin("{$trxDb}.additional_scopes as ad_scope", "ad_scope.uuid", "=", "scope.additional_scope_uuid")
+                        ->leftJoin("{$trxDb}.projects as p", "ad_scope.project_uuid", "=", "p.uuid")
                         ->whereRaw('trx.original_uuid = activities.uuid')
-                        ->where("ad_scope.original_uuid", "=", $additionalScope);
+                        ->where("ad_scope.original_uuid", "=", $additionalScope)
+                        ->where("p.uuid", "=", request()->input('project_uuid', null));
                 })
                 ->whereHas('equipment.scopeStandart', function ($where) use ($additionalScope) {
                     $where->where('additional_scope_uuid', '=', $additionalScope);

@@ -167,9 +167,9 @@ class ProjectController extends Controller implements HasMiddleware
             title: 'Request Approval Project',
             body: 'Anda memiliki permintaan approval project ' . $project->name,
             type: NotificationTypeEnum::REQUEST,
-            receiver_id: $request->user_id, // ID user yang menerima notifikasi
+            receiver_id: $request->user_id,
             sender_id: $request->user()->id,
-            uri: $request->uri, // Link ke halaman yang relevan
+            uri: $request->uri,
             summary: 'Permintaan approval project dari ' . $request->user()->name,
         ));
     }
@@ -193,7 +193,7 @@ class ProjectController extends Controller implements HasMiddleware
         $sequence = $builder->first();
 
         if (!$sequence) {
-            return ['data' => $sequence];
+            throw new BadRequestException('Tidak ada video sequence untuk ditampilkan');
         }
 
         return $sequence;

@@ -69,7 +69,7 @@ abstract class ManpowerCore extends MasterCore implements WithImportExcel
             new AttributeData('uuid', 'UUID'),
             new AttributeData('name', 'NAME'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->price, 2);
+                return (string) $row->price;
             }, 'PRICE (Harian)'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),

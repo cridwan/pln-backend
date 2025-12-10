@@ -59,7 +59,8 @@ class AdditionalScope extends Model
                         ->from("{$trxDb}.additional_scopes as trx")
                         ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "trx.project_uuid")
                         ->whereRaw('trx.original_uuid = additional_scopes.uuid')
-                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                        ->where("p.inspection_type_uuid", "=", $inspectionType)
+                        ->where("p.uuid", "=", request()->input('project_uuid', null));
                 })
                 ->where('inspection_type_uuid', '=', $inspectionType);
         });

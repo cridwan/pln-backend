@@ -78,7 +78,7 @@ abstract class PartCore extends MasterCore implements WithImportExcel
             new AttributeData('no_drawing', 'NO DRAWING'),
             new AttributeData('merk', 'MERK'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->price, 2);
+                return (string) $row->price;
             }, 'PRICE'),
             new AttributeData(function ($row) {
                 return $row->globalUnit?->name ?? '';

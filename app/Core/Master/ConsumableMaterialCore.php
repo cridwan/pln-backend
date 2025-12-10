@@ -73,7 +73,7 @@ abstract class ConsumableMaterialCore extends MasterCore implements WithImportEx
             new AttributeData('uuid', 'UUID'),
             new AttributeData('name', 'NAME'),
             new AttributeData(function ($row) {
-                return 'Rp ' . number_format($row->price, 2);
+                return (string) $row->price;
             }, 'PRICE'),
             new AttributeData(function ($row) {
                 return $row->globalUnit?->name ?? '';

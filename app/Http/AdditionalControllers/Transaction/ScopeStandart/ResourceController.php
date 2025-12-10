@@ -151,9 +151,6 @@ class ResourceController extends ScopeStandartCore
 
         $scopes = ModelsScopeStandart::query()
             ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
-            ->when($request->filled('sub_bidang_uuid'), fn($scope) => $scope->where('sub_bidang_uuid', $request->sub_bidang_uuid))
-            ->when($request->filled('project_uuid'), fn($query) => $query->doesntHave('additionalScope'))
-            ->when($request->filled('additional_scope_uuid'), fn($query) => $query->doesntHave('inspectionType'))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $scopes;

@@ -131,7 +131,8 @@ class ScopeStandart extends Model
                         ->from("{$trxDb}.scope_standarts as trx")
                         ->leftJoin("{$trxDb}.projects as p", "p.uuid", "=", "trx.project_uuid")
                         ->whereRaw('trx.original_uuid = scope_standarts.uuid')
-                        ->where("p.inspection_type_uuid", "=", $inspectionType);
+                        ->where("p.inspection_type_uuid", "=", $inspectionType)
+                        ->where("p.uuid", "=", request()->input('project_uuid', null));
                 })
                 ->where('inspection_type_uuid', '=', $inspectionType);
         });
@@ -147,8 +148,10 @@ class ScopeStandart extends Model
                     $sub->selectRaw(1)
                         ->from("{$trxDb}.scope_standarts as trx")
                         ->leftJoin("{$trxDb}.additional_scopes as ad_scope", "ad_scope.uuid", "=", "trx.additional_scope_uuid")
+                        ->leftJoin("{$trxDb}.projects as p", "ad_scope.project_uuid", "=", "p.uuid")
                         ->whereRaw('trx.original_uuid = scope_standarts.uuid')
-                        ->where("ad_scope.original_uuid", "=", $additionalScope);
+                        ->where("ad_scope.original_uuid", "=", $additionalScope)
+                        ->where("p.uuid", "=", request()->input('project_uuid', null));
                 })
                 ->where('additional_scope_uuid', '=', $additionalScope)
                 ->when(request()->input('sub_bidang_uuid', null), function ($query) {
