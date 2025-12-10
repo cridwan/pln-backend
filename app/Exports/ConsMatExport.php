@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
 
-class ConsMatExport extends Export implements WithColumnFormatting
+class ConsMatExport extends Export
 {
     protected int $index = 0;
 
@@ -72,11 +72,11 @@ class ConsMatExport extends Export implements WithColumnFormatting
         ];
     }
 
-    public function columnFormats(): array
-    {
-        return [
-            'E' => '"Rp" #,##0.00_-',
-            'F' => '"Rp" #,##0.00_-',
-        ];
-    }
+    // public function columnFormats(): array
+    // {
+    //     return [
+    //         'E' => '"Rp" #,##0.00_-',
+    //         'F' => '"Rp" #,##0.00_-',
+    //     ];
+    // }
 }

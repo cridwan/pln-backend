@@ -8,7 +8,7 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 
 
-class PartExport extends Export implements WithColumnFormatting, WithEvents
+class PartExport extends Export implements WithEvents
 {
     protected int $index = 0;
 
@@ -75,11 +75,11 @@ class PartExport extends Export implements WithColumnFormatting, WithEvents
         ];
     }
 
-    public function columnFormats(): array
-    {
-        return [
-            'E' => '"Rp" #,##0.00_-',
-            'F' => '"Rp" #,##0.00_-',
-        ];
-    }
+    // public function columnFormats(): array
+    // {
+    //     return [
+    //         'E' => '"Rp" #,##0.00_-',
+    //         'F' => '"Rp" #,##0.00_-',
+    //     ];
+    // }
 }
