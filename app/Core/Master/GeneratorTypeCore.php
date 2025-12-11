@@ -8,7 +8,6 @@ use App\Data\TemplateData;
 use App\Exceptions\BadRequestException;
 use App\Interfaces\WithImportExcel;
 use App\Models\GeneratorType;
-use App\Models\GlobalUnit;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 
 abstract class GeneratorTypeCore extends MasterCore implements WithImportExcel
@@ -35,6 +34,11 @@ abstract class GeneratorTypeCore extends MasterCore implements WithImportExcel
     public function model(): string
     {
         return GeneratorType::class;
+    }
+
+    public function query(): mixed
+    {
+        return GeneratorType::query();
     }
 
     #[DoNotDiscover]
@@ -92,7 +96,7 @@ abstract class GeneratorTypeCore extends MasterCore implements WithImportExcel
         }
 
         try {
-            GlobalUnit::create([
+            GeneratorType::create([
                 'name' => $data['name'] ?? '',
                 'color' => $data['color'] ?? '',
             ]);

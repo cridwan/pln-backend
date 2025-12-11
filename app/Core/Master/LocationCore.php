@@ -24,6 +24,7 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
         return [
             'updatedBy',
             'subArea',
+            'generatorType',
             'activityLog.createdBy',
             'activityLog.updatedBy',
         ];
@@ -88,8 +89,7 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
             new AttributeData('lon', 'LON'),
             new AttributeData('color', 'COLOR'),
             new AttributeData(function ($row) {
-                $getType = GeneratorTypeEnum::getType($row->color)->name ?? '';
-                return str($getType)->explode('_')->join('/');
+                return $row->generatorType?->name ?? '';
             }, 'GENERATOR TYPE'),
             new AttributeData('created_at', 'CREATED AT'),
             new AttributeData('updated_at', 'UPDATED AT'),
@@ -111,12 +111,15 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
             'description',
             'lat',
             'lon',
-            'generator_type',
+            'generator_type_uuid',
             'sub_area_uuid',
         ], [
             new OptionData(
                 column: 'F',
-                options: array_map(fn($case) => $case->name . ' / #' . $case->value, GeneratorTypeEnum::cases()),
+                options: GeneratorType::pluck('name', 'uuid')
+                    ->map(fn($name, $uuid) => "$name / $uuid")
+                    ->values()
+                    ->toArray(),
             ),
             new OptionData(
                 column: 'G',
@@ -142,14 +145,16 @@ abstract class LocationCore extends MasterCore implements WithImportExcel
         }
 
         try {
+            $subArea = str($data['sub_area_uuid'])->explode('/')->toArray();
+            $generatorType = str($data['generator_type_uuid'])->explode('/')->toArray();
             Location::create([
                 'name' => $data['name'] ?? '',
                 'slug' => $data['kode'] ?? '',
                 'description' => $data['description'] ?? '',
                 'lat' => $data['lat'] ?? '',
                 'lon' => $data['lon'] ?? '',
-                'color' => trim(str($data['generator_type'])->explode('/')->toArray()[1]),
-                'sub_area_uuid' => trim(str($data['sub_area_uuid'])->explode('/')->toArray()[1])
+                'generator_type_uuid' => trim(end($generatorType)),
+                'sub_area_uuid' => trim(end($subArea))
             ]);
         } catch (\Throwable $th) {
             // Lempar error agar transaksi berhenti → rollback di controller
