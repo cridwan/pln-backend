@@ -189,13 +189,6 @@ class ProjectController extends Controller implements HasMiddleware
                 })
             ]);
 
-
-        $sequence = $builder->first();
-
-        if (!$sequence) {
-            throw new BadRequestException('Tidak ada video sequence untuk ditampilkan');
-        }
-
-        return $sequence;
+        return $builder->get();
     }
 }
