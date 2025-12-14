@@ -162,7 +162,7 @@ class ResourceController extends Controller implements HasMiddleware
 
         $project->loadMissing(['inspectionType.machine']);
         $filename = date('YmdHis') . '-tools.xlsx';
-        return Excel::download(new ToolsExport('TOOLS', $project), $filename);
+        return Excel::download(new ToolsExport($project), $filename);
     }
 
     /**

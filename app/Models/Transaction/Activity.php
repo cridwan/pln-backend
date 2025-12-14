@@ -44,4 +44,9 @@ class Activity extends Model
     {
         return $this->hasMany(Part::class, 'activity_uuid');
     }
+
+    public function tools()
+    {
+        return $this->hasMany(Tools::class, 'activity_uuid');
+    }
 }

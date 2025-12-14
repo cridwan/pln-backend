@@ -2,12 +2,12 @@
 
 namespace App\Exports\Guest;
 
-use App\Models\PartStd;
+use App\Models\ToolsStd;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 
 
-class PartExport extends Export
+class ToolsExport extends Export
 {
     protected int $index = 0;
 
@@ -24,26 +24,26 @@ class PartExport extends Export
 
     public function query()
     {
-        return PartStd::query()
-            ->with(['part.globalUnit'])
+        return ToolsStd::query()
+            ->with(['tool.globalUnit'])
             ->addSelect([
-                'part_stds.part_uuid',
+                'tools_stds.tools_uuid',
                 DB::raw('SUM(qty) as total_qty'),
                 DB::raw("('SCOPE STANDART') AS type_scope")
             ])
             ->whereHas('activity.equipment.scopeStandart', fn($query) => $query->where('inspection_type_uuid', $this->InspectionType->uuid))
             ->union(
-                PartStd::query()
-                    ->with(['part.globalUnit'])
+                ToolsStd::query()
+                    ->with(['tool.globalUnit'])
                     ->addSelect([
-                        'part_stds.part_uuid',
+                        'tools_stds.tools_uuid',
                         DB::raw('SUM(qty) as total_qty'),
                         DB::raw("('ADDITIONAL SCOPE') AS type_scope")
                     ])
                     ->whereHas('activity.equipment.scopeStandart.additionalScope', fn($query) => $query->where('inspection_type_uuid', $this->InspectionType->uuid))
-                    ->groupBy('part_stds.part_uuid')
+                    ->groupBy('tools_stds.tools_uuid')
             )
-            ->groupBy('part_stds.part_uuid')
+            ->groupBy('tools_stds.tools_uuid')
             ->orderBy('type_scope', 'DESC');
     }
 
@@ -52,9 +52,9 @@ class PartExport extends Export
         return [
             ++$this->index,
             $row->type_scope,
-            $row->part?->name ?? '-',
+            $row->tool?->name ?? '-',
             (string) $row->total_qty ?? '0',
-            (string) $row->part?->globalUnit?->name ?? '-',
+            (string) $row->tool?->globalUnit?->name ?? '-',
         ];
     }
 

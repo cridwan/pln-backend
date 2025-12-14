@@ -42,6 +42,11 @@ class BudgetActivityExport extends Export
                 '',
                 '',
                 '',
+                'TOOLS',
+                '',
+                '',
+                '',
+                '',
             ],
             [
                 '',
@@ -69,6 +74,11 @@ class BudgetActivityExport extends Export
                 'JUMLAH',
                 'SATUAN',
                 'HARGA',
+                'TOTAL',
+                'NAMA TOOLS',
+                'JUMLAH',
+                'SATUAN',
+                'HARGA',
                 'TOTAL'
             ]
         ];
@@ -82,7 +92,8 @@ class BudgetActivityExport extends Export
                 'equipments.activities',
                 'equipments.activities.manpowers',
                 'equipments.activities.materials',
-                'equipments.activities.parts'
+                'equipments.activities.parts',
+                'equipments.activities.tools',
             ])
             ->when(
                 $this->type == 'SCOPE STANDART',
@@ -122,32 +133,58 @@ class BudgetActivityExport extends Export
                     $activity->name,
                     $activity->duration,
                 ];
+                $materials = $activity->materials;
+                $manpowers = $activity->manpowers;
+                $parts = $activity->parts;
+                $tools = $activity->tools;
 
-                $maxRow = max($activity->manpowers->count(), $activity->materials->count(), $activity->parts->count());
 
+                $maxRow = max(
+                    $materials->count(),
+                    $manpowers->count(),
+                    $parts->count(),
+                    $tools->count()
+                );
 
                 for ($i = 0; $i < $maxRow; $i++) {
+
+                    $material = $materials->get($i);
+                    $manpower = $manpowers->get($i);
+                    $part = $parts->get($i);
+                    $tool = $tools->get($i);
+
                     $data[] = [
-                        ...collect(range(0, 11))->map(fn() => ''), // tambahkan offset kolom sesuai kebutuhan
+                        ...collect(range(0, 11))->map(fn() => ''),
+
                         // materials
-                        $activity->materials[$i]?->name ?? '',
-                        $activity->materials[$i]?->qty ?? '',
-                        $activity->materials[$i]?->unit ?? '',
-                        (string) $activity->materials[$i]?->price ?? 0,
-                        (string) ($activity->materials[$i]?->price ?? 0) * ($activity->materials[$i]?->qty ?? 0),
+                        $material?->name ?? '',
+                        $material?->qty ?? '',
+                        $material?->unit ?? '',
+                        (string) ($material?->price ?? 0),
+                        (string) (($material?->price ?? 0) * ($material?->qty ?? 0)),
+
                         // manpower
-                        $activity->manpowers[$i]?->manpower?->name ?? '',
-                        $activity->manpowers[$i]?->qty ?? '',
-                        (string) $activity->manpowers[$i]?->price ?? 0,
-                        (string) ($activity->manpowers[$i]?->price ?? 0) * ($activity->manpowers[$i]?->qty ?? 0),
-                        // part
-                        $activity->parts[$i]?->name ?? '',
-                        $activity->parts[$i]?->qty ?? '',
-                        $activity->parts[$i]?->unit ?? '',
-                        (string) $activity->parts[$i]?->price ?? 0,
-                        (string) ($activity->parts[$i]?->price ?? 0) * ($activity->parts[$i]?->qty ?? 0),
+                        $manpower?->manpower?->name ?? '',
+                        $manpower?->qty ?? '',
+                        (string) ($manpower?->price ?? 0),
+                        (string) (($manpower?->price ?? 0) * ($manpower?->qty ?? 0)),
+
+                        // parts
+                        $part?->name ?? '',
+                        $part?->qty ?? '',
+                        $part?->unit ?? '',
+                        (string) ($part?->price ?? 0),
+                        (string) (($part?->price ?? 0) * ($part?->qty ?? 0)),
+
+                        // tools
+                        $tool?->name ?? '',
+                        $tool?->qty ?? '',
+                        $tool?->unit ?? '',
+                        (string) ($tool?->price ?? 0),
+                        (string) (($tool?->price ?? 0) * ($tool?->qty ?? 0)),
                     ];
                 }
+
             }
         }
 
@@ -165,5 +202,6 @@ class BudgetActivityExport extends Export
         $sheet->mergeCells('M5:Q5');
         $sheet->mergeCells('R5:U5');
         $sheet->mergeCells('V5:Z5');
+        $sheet->mergeCells('AA5:AE5');
     }
 }

@@ -8,6 +8,7 @@ use App\Exports\Guest\ConsMatExport;
 use App\Exports\Guest\ManpowerExport;
 use App\Exports\Guest\PartExport;
 use App\Exports\Guest\ScopeStandartExport;
+use App\Exports\Guest\ToolsExport;
 use App\Http\Controllers\Controller;
 use App\Http\Middleware\ResponseMiddleware;
 use App\Models\InspectionType;
@@ -78,6 +79,26 @@ class ResultController extends Controller
 
         $inspectionType->loadMissing(['machine']);
         return (new ManpowerExport($inspectionType))->execute();
+    }
+
+    /**
+     * download recap tools
+     */
+    #[Route(method: 'get', uri: 'export/tools')]
+    public function exportTools(Request $request)
+    {
+        if ($request->isNotFilled('inspection_type_uuid')) {
+            throw new BadRequestException('Inspection type tidak terpilih');
+        }
+
+        $inspectionType = InspectionType::find($request->inspection_type_uuid);
+
+        if (!$inspectionType) {
+            throw new BadRequestException('Inspection type tidak ditemukan');
+        }
+
+        $inspectionType->loadMissing(['machine']);
+        return (new ToolsExport($inspectionType))->execute();
     }
 
     /**

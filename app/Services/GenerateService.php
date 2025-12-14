@@ -14,11 +14,13 @@ use App\Models\ManpowerStd;
 use App\Models\PartStd;
 use App\Models\ScopeStandart;
 use App\Models\Storage\Document;
+use App\Models\ToolsStd;
 use App\Models\Transaction\ConsMat;
 use App\Models\Transaction\Manpower;
 use App\Models\Transaction\Part;
 use App\Models\Transaction\Project;
 use App\Models\QcPlan;
+use App\Models\Transaction\Tools;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -257,6 +259,16 @@ class GenerateService
                         ]
                     ));
 
+                    // duplicate tools std
+                    $this->cloneTools(new WhereOptionData(
+                        'activity_uuid',
+                        '=',
+                        $activity->uuid,
+                        [
+                            'activity_uuid' => $duplicateActivity->uuid
+                        ]
+                    ));
+
                     // duplicate part std
                     $this->clonePart(new WhereOptionData(
                         'activity_uuid',
@@ -310,6 +322,26 @@ class GenerateService
                         'no_drawing' => $row->part?->no_drawing,
                         'unit' => $row->part?->globalUnit?->name,
                         'price' => $row->part?->price,
+                        'qty' => $row->qty,
+                        'original_uuid' => $row->uuid,
+                    ], $option->data));
+                }
+            });
+    }
+
+
+    public function cloneTools(WhereOptionData $option)
+    {
+        ToolsStd::with(['tool.globalUnit'])
+            ->where($option->column, $option->operator, $option->value)
+            ->chunk($this->chunkSize, function ($rows) use ($option) {
+                foreach ($rows as $row) {
+                    Tools::create(array_merge([
+                        'name' => $row->tool?->name,
+                        'merk' => $row->tool?->merk,
+                        'unit' => $row->tool?->globalUnit?->name,
+                        'price' => $row->tool?->price,
+                        'status' => $row->tool?->status,
                         'qty' => $row->qty,
                         'original_uuid' => $row->uuid,
                     ], $option->data));

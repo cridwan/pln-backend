@@ -2,25 +2,20 @@
 
 namespace App\Models\Transaction;
 
-use App\Models\GlobalUnit;
+use App\Enums\ConnectionEnum;
 use App\Traits\SettingModel;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Tools extends Model
 {
-    use SettingModel, HasFactory;
+    use SettingModel;
 
-    protected $connection = 'transaction';
+    protected $connection = ConnectionEnum::TRANSACTION->value;
 
-    public function globalUnit(): BelongsTo
+    protected $table = 'tools_stds';
+
+    public function activity()
     {
-        return $this->belongsTo(GlobalUnit::class, 'global_unit_uuid');
-    }
-
-    public function additionalScope()
-    {
-        return $this->belongsTo(AdditionalScope::class, 'additional_scope_uuid');
+        return $this->belongsTo(Activity::class, 'activity_uuid');
     }
 }

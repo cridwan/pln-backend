@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Transaction\Tools;
+namespace App\Http\AdditionalControllers\Transaction\Tools;
 
-use App\Core\Transaction\ToolStdCore;
+use App\Core\Transaction\Detail\ToolStdCore;
 use App\Data\PaginationData;
 use App\Data\WhereOptionData;
 use App\Enums\ConnectionEnum;
 use App\Http\Requests\Transaction\CloneToolsRequest;
 use App\Http\Resources\PaginationResource;
 use App\Models\ToolsStd;
-use App\Models\Transaction\Tools;
 use App\Services\GenerateService;
 use App\Traits\InitCore;
 use Dedoc\Scramble\Attributes\Group;
@@ -18,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\RouteDiscovery\Attributes\DoNotDiscover;
 use Spatie\RouteDiscovery\Attributes\Route;
 
-#[Group(name: 'Transaction Tools Resource')]
+#[Group(name: 'Transaction Tools details Resource')]
 class ResourceController extends ToolStdCore
 {
     use InitCore;
@@ -58,7 +57,7 @@ class ResourceController extends ToolStdCore
     public function grouping(Request $request)
     {
         $pagination = new PaginationData($request);
-        $query = Tools::query()
+        $query = $this->query()
             ->select([
                 'name',
                 'merk',
@@ -100,7 +99,7 @@ class ResourceController extends ToolStdCore
 
         $equipment = ToolsStd::query()
             ->with(['tool.globalUnit'])
-            ->doestHaveTransaction($request->input('inspection_type_uuid', null), $request->input('activity_uuid', null))
+            ->doestHaveTransactionDetail($request->input('additional_scope_uuid', null))
             ->paginate($pagination->limit, ['*'], 'page', $pagination->page);
 
         return $equipment;
