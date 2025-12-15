@@ -164,7 +164,7 @@ class BudgetActivityExport extends Export
                         (string) (($material?->price ?? 0) * ($material?->qty ?? 0)),
 
                         // manpower
-                        $manpower?->manpower?->name ?? '',
+                        $manpower?->name ?? '',
                         $manpower?->qty ?? '',
                         (string) ($manpower?->price ?? 0),
                         (string) (($manpower?->price ?? 0) * ($manpower?->qty ?? 0)),
