@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->decimal('price', 20, 2);
             $table->string('status');
             $table->string('unit');
-            $table->integer('qty');
+            $table->decimal('qty', 20, 2)->default(0);
             $table->string('original_uuid');
             $table->timestamps();
         });

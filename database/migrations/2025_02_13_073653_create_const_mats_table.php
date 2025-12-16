@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->uuid()->primary();
             $table->text('name');
             $table->string('merk')->nullable();
-            $table->integer('qty');
+            $table->decimal('qty', 20, 2);
             $table->foreignIdFor(GlobalUnit::class);
             $table->foreignIdFor(InspectionType::class)->nullable();
             $table->foreignIdFor(AdditionalScope::class)->nullable();

@@ -300,7 +300,7 @@ class GenerateService
                 foreach ($rows as $row) {
                     ConsMat::create(array_merge([
                         'name' => $row->consmat?->name,
-                        'merk' => $row->consmat?->name,
+                        'merk' => $row->consmat?->merk,
                         'unit' => $row->consmat?->globalUnit?->name,
                         'price' => $row->consmat?->price,
                         'qty' => $row->qty,

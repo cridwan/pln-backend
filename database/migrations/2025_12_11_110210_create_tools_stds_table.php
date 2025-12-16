@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->uuid()->primary();
             $table->foreignIdFor(Tools::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Activity::class)->constrained()->cascadeOnDelete();
-            $table->integer('qty');
+            $table->decimal('qty', 20, 2);
             $table->timestamps();
         });
     }

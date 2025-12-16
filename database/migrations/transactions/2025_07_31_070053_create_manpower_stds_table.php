@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->foreignIdFor(Activity::class)->constrained()->onDelete('CASCADE');
             $table->string('name');
             $table->decimal('price', 20, 2);
-            $table->integer('qty')->default(0);
+            $table->decimal('qty', 20, 2)->default(0);
             $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });

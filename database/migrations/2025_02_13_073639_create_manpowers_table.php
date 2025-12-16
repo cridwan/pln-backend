@@ -15,7 +15,7 @@ return new class extends Migration {
         Schema::create('manpowers', function (Blueprint $table) {
             $table->uuid()->primary();
             $table->string('name');
-            $table->integer('qty');
+            $table->decimal('qty', 20, 2);
             $table->string('type');
             $table->text('note')->nullable();
             $table->foreignIdFor(InspectionType::class)->nullable();

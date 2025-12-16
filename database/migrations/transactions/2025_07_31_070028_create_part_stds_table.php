@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->string('no_drawing');
             $table->string('unit');
             $table->decimal('price', 20, 2);
-            $table->integer('qty')->default(0);
+            $table->decimal('qty', 20, 2)->default(0);
             $table->uuid('original_uuid')->nullable();
             $table->timestamps();
         });
